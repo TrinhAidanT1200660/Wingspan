@@ -10,13 +10,14 @@ import javax.swing.JPanel;
 
 public class WingspanPanel extends JPanel implements MouseListener {
     public UIFrame frame, secondFrame, thirdFrame, child, descendant;
-    public UIImage image;
-    public BufferedImage dumpling;
+    public UIImage image, testSprite;
+    public BufferedImage dumpling, spriteAnim;
     public Tween tween, tween2;
     public Color frameColor = Color.black;
     public WingspanPanel() {
         try {
             dumpling = ImageIO.read(getClass().getResource("/dumpling.png"));
+            spriteAnim = ImageIO.read(getClass().getResource("/sprite_sheet_example.png"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -28,15 +29,14 @@ public class WingspanPanel extends JPanel implements MouseListener {
         frame.backgroundColor = Color.black;
         frame.keepAspectRatio = true;
         thirdFrame = new UIFrame(this);
-        thirdFrame.size = new Dim2(0.9, 0, 0.9, 0);
+        thirdFrame.size = new Dim2(0.2, 0, 0.2, 0);
         thirdFrame.anchorPoint = new Vector2(0.5, 0.5);
         thirdFrame.position = new Dim2(0.5, 0, 0.5, 0);
         thirdFrame.rotation = 53;
         thirdFrame.backgroundColor = Color.ORANGE;
         thirdFrame.backgroundTransparency = 0.5f;
         thirdFrame.keepAspectRatio = true;
-        thirdFrame.visible = false;
-        thirdFrame.setZIndex(0);
+        thirdFrame.setZIndex(5);
         child = new UIFrame(this);
         child.size = new Dim2(0.5, 0, 0.5, 0);
         child.anchorPoint = new Vector2(0.5, 0.5);
@@ -57,14 +57,27 @@ public class WingspanPanel extends JPanel implements MouseListener {
         secondFrame.size = new Dim2(0, 100, 0, 100);
         secondFrame.backgroundColor = Color.GREEN;
         image = new UIImage(this);
-        image.size = new Dim2(0.2, 0, 0.2, 0);
+        image.size = new Dim2(0.07, 0, 0.2, 0);
         image.keepAspectRatio = true;
         image.anchorPoint = new Vector2(1, 1);
         image.position = new Dim2(1, 0, 1, 0);
         image.backgroundColor = Color.RED;
-        image.setImageFillType(UIImage.FIT_IMAGE);
+        image.setImageFillType(UIImage.CROP_IMAGE);
         image.backgroundTransparency = 1f;
         image.image = dumpling;
+        testSprite = new UIImage(this);
+        testSprite.size = new Dim2(0.1, 0, 0.1, 0);
+        testSprite.anchorPoint = new Vector2(0, 1);
+        testSprite.position = new Dim2(0, 0, 1, 0);
+        testSprite.backgroundColor = Color.black;
+        testSprite.backgroundTransparency = 1f;
+        testSprite.keepAspectRatio = true;
+        testSprite.image = spriteAnim;
+        testSprite.setImageFillType(UIImage.SPRITE_ANIMATION);
+        testSprite.setSpriteSheet(50, 37);
+        testSprite.addReleaseListener(e -> {
+            testSprite.playSpriteAnimation(0.08, true);
+        });
         addMouseListener(this);
         //frame.addClickListener(event -> frame.tweenSize(new Dim2(3, 0, 3, 0), 1, Tween.CUBIC_IN_OUT));
         secondFrame.addReleaseListener(event -> System.out.println("Clicked on second frame!"));
@@ -81,12 +94,15 @@ public class WingspanPanel extends JPanel implements MouseListener {
             image.tweenImageTransparency(0.0f, 1);
             System.out.println("Clicked on screen!");
         });
-        frame.addHoverListener(e -> frame.tweenSize(new Dim2(0.55, 0, 0.6, 0), 0.07, Tween.QUAD_IN_OUT));
+        frame.addHoverListener(e -> frame.tweenSize(new Dim2(0.55, 0, 0.55, 0), 0.07, Tween.QUAD_IN_OUT));
         frame.addExitListener(e -> frame.tweenSize(new Dim2(0.5, 0, 0.5, 0), 0.07, Tween.QUAD_IN_OUT));
         frame.addPressListener(e -> frame.tweenSize(new Dim2(0.4, 0, 0.4, 0), 0.07, Tween.QUAD_IN_OUT).onFinish(() -> {
             System.out.println("frame pressed down animation complete");
         }));
-        frame.addReleaseListener(e -> frame.tweenSize(new Dim2(0.55, 0, 0.55, 0), 0.07, Tween.QUAD_IN_OUT));
+        frame.addReleaseListener(e -> {
+            boolean is = frame.containsPoint(e.getX(), e.getY());
+            frame.tweenSize(new Dim2(is ? 0.55 : 0.5, 0, is ? 0.55 : 0.5, 0), 0.07, Tween.QUAD_IN_OUT);
+        });
         JPanel panel = this;
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseMoved(MouseEvent e) {
