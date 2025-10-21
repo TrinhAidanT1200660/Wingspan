@@ -8,6 +8,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -115,6 +117,7 @@ class Tween {
     public boolean cancelTween;
     public boolean skipTween;
     protected TweenEvent onFinishEvent;
+    public UIElement element;
 
     // easing types, influence the way animation will progress/start/end
     public static int LINEAR = 0;
@@ -127,7 +130,8 @@ class Tween {
     public static int OVERSHOOT = 7;
     public static int ELASTIC = 8;
 
-    public Tween(Object startValue, Object endValue, long duration, String property, String propertyType, int animationType) {
+    public Tween(UIElement element, Object startValue, Object endValue, long duration, String property, String propertyType, int animationType) {
+        this.element = element;
         this.startValue = startValue;
         this.endValue = endValue;
         this.duration = duration;
@@ -157,6 +161,8 @@ class Tween {
     // this is to calculate the current spot in the animation using alpha
     public Object simulate(double alpha) {
         switch (propertyType.toLowerCase()) {
+            case "int":
+                return tweenInt((int)startValue, (int)endValue, alpha);
             case "double":
                 return tweenDouble((double)startValue, (double)endValue, alpha);
             case "float":
@@ -173,6 +179,10 @@ class Tween {
     }
 
     // methods below determine value in animation given alpha
+
+    private int tweenInt(int startValue, int endValue, double alpha) {
+        return (int)tweenDouble(startValue, endValue, alpha);
+    }
 
     private double tweenDouble(double startValue, double endValue, double alpha) {
         return startValue + (endValue - startValue) * handleAnimationAlpha(alpha, animationType);
@@ -305,15 +315,16 @@ class UIElement {
     private ArrayList<ReleaseListener> releaseListeners = new ArrayList<>(); // used for release events
     private ArrayList<HoverListener> hoverListeners = new ArrayList<>(); // used for hover events
     private ArrayList<ExitListener> exitListeners = new ArrayList<>(); // used for hover exit events
-    private UIElement currentlyHovering = null;
+    private HashSet<UIElement> pressed = new HashSet<>();
     private boolean isHovered = false;
-    private JPanel panel;
+    protected JPanel panel;
     private boolean resort = false; // used whenever we need to resort the drawing order based on z-index
     
     // animation related stuff
-    protected ArrayList<Tween> tweens = new ArrayList<>();
-    protected Timer timer;
-    protected boolean isTweening = false;
+    protected static HashSet<UIImage> sprites = new HashSet<>();
+    private static ArrayList<Tween> tweens = new ArrayList<>();
+    private static Timer timer;
+    private static boolean isTweening = false;
 
     public UIElement(JPanel panel) {
         this.panel = panel;
@@ -552,7 +563,7 @@ class UIElement {
 	        g2d.rotate(Math.toRadians(absoluteRotation), anchorScreenX, anchorScreenY);
 	        g2d.setColor(backgroundColor);
 	        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(1.0f, Math.min(backgroundTransparency, 0)))); // setting transparency for the element
+	        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(backgroundTransparency, 1f)))); // setting transparency for the element
 	        g2d.fillRoundRect((int)absolutePosition.getX(), (int)absolutePosition.getY(), (int)absoluteSize.getX(), (int)absoluteSize.getY(), borderRadius, borderRadius);
         }
 
@@ -560,7 +571,7 @@ class UIElement {
 	        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, strokeTransparency));
 	        g2d.setColor(strokeColor);
 	        g2d.setStroke(new BasicStroke(strokeThickness)); // set border thickness
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(1.0f, Math.min(strokeTransparency, 0))));
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(strokeTransparency, 1f))));
 	        g2d.drawRoundRect((int)absolutePosition.getX(), (int)absolutePosition.getY(), (int)absoluteSize.getX(), (int)absoluteSize.getY(), borderRadius, borderRadius);
         }
         
@@ -581,12 +592,19 @@ class UIElement {
 
     // alright now lets handle clicking
     private UIElement findTopmostElement(int x, int y) {
+        return findTopmostElement(x, y, false);
+    }
+
+    private UIElement findTopmostElement(int x, int y, boolean ignoreChildren) {
         // first we gotta check if any of this element's children that may be on top of our element contain the given coordinate
-        for (int i = children.size() - 1; i >= 0; i--) {
-            UIElement child = children.get(i);
-            if (child.visible && child.containsPoint(x, y)) { // if child has visible = true and the coordinate is in the bounds of the child...
-                UIElement deeper = child.findTopmostElement(x, y); // then run findTopmostElement again. if there is another child in that child, this whole loop will happen again until it finally gets to the descendant it's hovering over
-                return deeper != null ? deeper : child;
+        boolean isRoot = rootElements.get(panel) == this;
+        if (!ignoreChildren || isRoot) {
+            for (int i = children.size() - 1; i >= 0; i--) {
+                UIElement child = children.get(i);
+                if (child.visible && child.containsPoint(x, y)) { // if child has visible = true and the coordinate is in the bounds of the child...
+                    UIElement deeper = child.findTopmostElement(x, y); // then run findTopmostElement again. if there is another child in that child, this whole loop will happen again until it finally gets to the descendant it's hovering over
+                    return deeper != null ? deeper : child;
+                }
             }
         }
 
@@ -625,6 +643,7 @@ class UIElement {
     public void handlePress(MouseEvent e) {
         UIElement top = findTopmostElement(e.getX(), e.getY());
         if (top != null) {
+            pressed.add(top);
             for (PressListener listener : top.pressListeners) { // if we're indeed hovering over something then call all the clickListeners on the element
                 listener.onPress(e);
             }
@@ -640,12 +659,12 @@ class UIElement {
     }
 
     public void handleRelease(MouseEvent e) {
-        UIElement top = findTopmostElement(e.getX(), e.getY());
-        if (top != null) {
-            for (ReleaseListener listener : top.releaseListeners) { // if we're indeed hovering over something then call all the clickListeners on the element
+        for (UIElement element : pressed) {
+            for (ReleaseListener listener : element.releaseListeners) {
                 listener.onRelease(e);
             }
         }
+        pressed.clear();
     }
 
     // hovering/exiting have basically the same logic as clicking
@@ -690,14 +709,14 @@ class UIElement {
 
     // this neglects topmost and detects hovering/exiting even if ur hovering on top of an element on top of it
     public void handleMouseMovement(MouseEvent e) {
-        boolean nowHovered = containsPoint(e.getX(), e.getY());
+        UIElement nowHovered = findTopmostElement(e.getX(), e.getY(), true);
 
-        if (nowHovered && !isHovered) {
+        if (nowHovered != null && !isHovered) {
             isHovered = true;
             for (HoverListener l : hoverListeners) {
                 l.onHover(e);
             }
-        } else if (!nowHovered && isHovered) {
+        } else if (nowHovered == null && isHovered) {
             isHovered = false;
             for (ExitListener l : exitListeners) {
                 l.onExit(e);
@@ -725,80 +744,134 @@ class UIElement {
          * animationStyle: the easing style of the animation, refer to the static values in Tween class
          */
         long duration = (long)(time * 1000); // duration is calculated by multiplying time (in seconds) by 1000 to get milliseconds
-        Tween tween = new Tween(startValue, endValue, duration, property, propertyType, animationStyle); // creates a new tween object
+        Tween tween = new Tween(this, startValue, endValue, duration, property, propertyType, animationStyle); // creates a new tween object
         tweens.add(tween); // we add it to arraylist of all tweens to keep track of them
 
-        if (!isTweening) { // if we're not tweening already
-            startTimer(); // then make a new "loop" or timer. we only want one timer globally. if we make a new timer for every tween then it can lag
-        }
+        startTimer(); // then make a new "loop" or timer. we only want one timer globally. if we make a new timer for every tween then it can lag
         return tween;
     }
 
-    private void startTimer() {
-        timer = new Timer(8, e -> updateAllTweens()); // create timer, every 8 miliseconds we progress the animation. 8 ms is around 120 fps
+    protected void startTimer() {
+        if (isTweening) return;
+        timer = new Timer(8, e -> {
+            updateAllTweens();
+        }); // create timer, every 8 miliseconds we progress the animation. 8 ms is around 120 fps
         timer.start(); // start timer
         isTweening = true; 
     }
 
-    private void updateAllTweens() {
-        boolean allComplete = true; // by default this is true. we loop thru all tweens below, and if one them isn't complete, this will be set to false
+    private static void updateAllTweens() {
+        boolean allTweensComplete = true; // by default this is true. we loop thru all tweens below, and if one them isn't complete, this will be set to false
+        boolean allSpritesComplete = true;
         ArrayList<TweenEvent> onFinishEvents = new ArrayList<>();
+        HashSet<JPanel> rootPanels = new HashSet<>();
 
-        for (Tween tween : tweens) {
-            if (!tween.complete) { // if tween is not complete
-                // then get the new value based on current time and update the property to that value
-                Object newValue;
-                if (tween.skipTween || tween.cancelTween) { // if the user requested to cancel/skip the tween
-                    tween.complete = true; // flag it as complete
-                    newValue = tween.simulate(tween.skipTween ? 1 : 0); // get the new value. if skipped tween, then get it at 100% complete; if cancelled, get it at 0% (its initial value)
-                    if (tween.onFinishEvent != null) {
-                        onFinishEvents.add(tween.onFinishEvent); // if the user set a finish event then call that method
-                    }
-                } else {
-                    long currentTime = System.currentTimeMillis(); // get current time
-                    if (currentTime >= tween.endTime) { // if current time surpasses the expected end time
+        if (!tweens.isEmpty()) {
+            for (int i = 0; i < tweens.size(); i++) {
+                Tween tween = tweens.get(i);
+                if (!tween.complete) { // if tween is not complete
+                    // then get the new value based on current time and update the property to that value
+                    Object newValue;
+                    if (tween.skipTween || tween.cancelTween) { // if the user requested to cancel/skip the tween
                         tween.complete = true; // flag it as complete
-                        newValue = tween.simulate(1); // get the new value at 100% complete
+                        newValue = tween.simulate(tween.skipTween ? 1 : 0); // get the new value. if skipped tween, then get it at 100% complete; if cancelled, get it at 0% (its initial value)
                         if (tween.onFinishEvent != null) {
                             onFinishEvents.add(tween.onFinishEvent); // if the user set a finish event then call that method
                         }
-                    } else { // if the current time still hasn't passed end time
-                        newValue = tween.simulate(); // then just get the new value based on alpha
-                        allComplete = false; // flag allcomplete as false because this tween hasn't finished yet
+                        tweens.remove(tween);
+                        i--;
+                    } else {
+                        long currentTime = System.currentTimeMillis(); // get current time
+                        if (currentTime >= tween.endTime) { // if current time surpasses the expected end time
+                            tween.complete = true; // flag it as complete
+                            newValue = tween.simulate(1); // get the new value at 100% complete
+                            if (tween.onFinishEvent != null) {
+                                onFinishEvents.add(tween.onFinishEvent); // if the user set a finish event then call that method
+                            }
+                            tweens.remove(tween);
+                            i--;
+                        } else { // if the current time still hasn't passed end time
+                            newValue = tween.simulate(); // then just get the new value based on alpha
+                            allTweensComplete = false; // flag allcomplete as false because this tween hasn't finished yet
+                        }
                     }
+                    setProperty(tween, newValue); // update the element's property to newValue
+                    rootPanels.add(tween.element.panel);
                 }
-                setProperty(tween, newValue); // update the element's property to newValue
+            }
+
+            // if all tweens are complete
+            if (allTweensComplete || tweens.isEmpty()) {
+                tweens.clear(); // remove all tweens in the array list
+            }
+
+            for (TweenEvent event : onFinishEvents) {
+                event.run();
             }
         }
 
-        // if all tweens are complete, stop the timer
-        if (allComplete) {
+        if (!sprites.isEmpty()) {
+            Iterator<UIImage> iter = sprites.iterator();
+            while (iter.hasNext()) {
+                UIImage i = iter.next();
+                if (i.imageFillType == UIImage.SPRITE_ANIMATION && i.image != null && i.playing) {
+                    allSpritesComplete = false;
+                    long now = System.currentTimeMillis();
+                    if (now - i.lastFrame >= (i.frameDuration * 1000)) {
+                        i.lastFrame = now;
+                        i.currentFrame++;
+                        if (i.currentFrame >= i.totalFrames) {
+                            if (i.loopAnimation) {
+                                i.currentFrame = 0;
+                            }
+                            else {
+                                i.currentFrame = i.totalFrames - 1;
+                                i.playing = false;
+                                iter.remove();
+                            }
+                        }
+                    }
+                }
+
+                rootPanels.add(i.panel);
+            }
+
+            if (allSpritesComplete) sprites.clear();
+        }
+
+        if (allSpritesComplete && allTweensComplete) {
             timer.stop();
-            tweens.clear(); // remove all tweens in the array list
             isTweening = false;
         }
 
-        for (TweenEvent event : onFinishEvents) {
-            event.run();
+        for (JPanel root : rootPanels) {
+            root.repaint();
         }
-
-        panel.repaint(); // redraw everything to see the animation
     }
 
     // set element's property to newValue here
-    protected void setProperty(Tween tween, Object newValue) {
+    private static void setProperty(Tween tween, Object newValue) {
+        UIElement e = tween.element;
         if (tween.property.equals("pos")) {
-            position = (Dim2)newValue;
+            e.position = (Dim2)newValue;
         } else if (tween.property.equals("size")) {
-            size = (Dim2)newValue;
+            e.size = (Dim2)newValue;
         } else if (tween.property.equals("bgt")) {
-            backgroundTransparency = (float)newValue;
+            e.backgroundTransparency = (float)newValue;
+        } else if (tween.property.equals("stt")) {
+            e.strokeTransparency = (float)newValue;
         } else if (tween.property.equals("bgc")) {
-            backgroundColor = (Color)newValue;
+            e.backgroundColor = (Color)newValue;
+        } else if (tween.property.equals("stc")) {
+            e.strokeColor = (Color)newValue;
+        } else if (tween.property.equals("stth")) {
+            e.strokeThickness = (int)newValue;
         } else if (tween.property.equals("rot")) {
-            rotation = (double)newValue;
+            e.rotation = (double)newValue;
         } else if (tween.property.equals("anchp")) {
-            anchorPoint = (Vector2)anchorPoint;
+            e.anchorPoint = (Vector2)newValue;
+        } else if (tween.property.equals("imgt")) {
+            ((UIImage)e).imageTransparency = (float)newValue;
         }
     }
 
@@ -826,12 +899,36 @@ class UIElement {
         return addTween(backgroundTransparency, endBackgroundTransparency, time, "bgt", "float", animationStyle);
     }
 
+    public Tween tweenStrokeTransparency(float endStrokeTransparency, double time) {
+        return addTween(strokeTransparency, endStrokeTransparency, time, "stt", "float", Tween.LINEAR);
+    }
+
+    public Tween tweenStrokeTransparency(float endStrokeTransparency, double time, int animationStyle) {
+        return addTween(strokeTransparency, endStrokeTransparency, time, "stt", "float", animationStyle);
+    }
+
     public Tween tweenBackgroundColor(Color endBackgroundColor, double time) {
         return addTween(backgroundColor, endBackgroundColor, time, "bgc", "color", Tween.LINEAR);
     }
 
     public Tween tweenBackgroundColor(Color endBackgroundColor, double time, int animationStyle) {
         return addTween(backgroundColor, endBackgroundColor, time, "bgc", "color", animationStyle);
+    }
+
+    public Tween tweenStrokeColor(Color endStrokeColor, double time) {
+        return addTween(strokeColor, endStrokeColor, time, "stc", "color", Tween.LINEAR);
+    }
+
+    public Tween tweenStrokeColor(Color endStrokeColor, double time, int animationStyle) {
+        return addTween(strokeColor, endStrokeColor, time, "stc", "color", animationStyle);
+    }
+
+    public Tween tweenStrokeThickness(int endStrokeThickness, double time) {
+        return addTween(strokeThickness, endStrokeThickness, time, "stth", "int", Tween.LINEAR);
+    }
+
+    public Tween tweenStrokeThickness(Color endStrokeThickness, double time, int animationStyle) {
+        return addTween(strokeThickness, endStrokeThickness, time, "stth", "int", animationStyle);
     }
 
     public Tween tweenRotation(double endRotation, double time) {
@@ -864,13 +961,25 @@ class UIImage extends UIElement {
     protected int imageFillType = 0; // by default it's 0 which represents fill. fill will make the image take the whole size, allowing for stretching, while fit will prevent stretching by setting image size to its native dimensions
     public static int FILL_IMAGE = 0;
     public static int FIT_IMAGE = 1;
+    public static int CROP_IMAGE = 2;
+    public static int SPRITE_ANIMATION = 3;
+
+    // animated images!??!?!?!
+    protected int frameWidth = 0;
+    protected int frameHeight = 0;
+    protected int currentFrame = 0;
+    protected int totalFrames = 1;
+    protected double frameDuration = 0.1;
+    protected boolean loopAnimation = false;
+    protected boolean playing = false;
+    protected long lastFrame = 0;
 
     public UIImage(JPanel panel) {
         super(panel);
     }
 
     public void setImageFillType(int fillType) {
-        imageFillType = fillType % 2;
+        imageFillType = fillType % 4;
     }
 
     public int getImageFillType() {
@@ -892,7 +1001,7 @@ class UIImage extends UIElement {
             g2d.rotate(Math.toRadians(absoluteRotation), anchorScreenX, anchorScreenY);
             g2d.setColor(backgroundColor);
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(1.0f, Math.min(backgroundTransparency, 0))));
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(backgroundTransparency, 1f))));
             g2d.fillRoundRect((int)absolutePosition.getX(), (int)absolutePosition.getY(), (int)absoluteSize.getX(), (int)absoluteSize.getY(), borderRadius, borderRadius);
         }
 
@@ -900,13 +1009,13 @@ class UIImage extends UIElement {
         if (strokeTransparency > 0) {
             g2d.setColor(strokeColor);
             g2d.setStroke(new BasicStroke(strokeThickness)); // set border thickness
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(1.0f, Math.min(strokeTransparency, 0))));
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(strokeTransparency, 1f))));
             g2d.drawRoundRect((int)absolutePosition.getX(), (int)absolutePosition.getY(), (int)absoluteSize.getX(), (int)absoluteSize.getY(), borderRadius, borderRadius);
         }
         
         // draw image if there is one set
         if (image != null && imageTransparency > 0) {
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(1.0f, Math.min(imageTransparency, 0)))); // setting image transparency
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(imageTransparency, 1f)))); // setting image transparency
 
             int xPos = (int)absolutePosition.getX();
             int yPos = (int)absolutePosition.getY();
@@ -938,6 +1047,56 @@ class UIImage extends UIElement {
                 int drawY = yPos + (ySize - drawHeight) / 2;
 
                 g2d.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
+            } else if (imageFillType == CROP_IMAGE) {
+                int imgWidth = image.getWidth();
+                int imgHeight = image.getHeight();
+
+                double widthRatio = (double) xSize / imgWidth;
+                double heightRatio = (double) ySize / imgHeight;
+                double ratio = Math.max(widthRatio, heightRatio); // fill, crop overflow
+
+                int drawWidth = (int)(imgWidth * ratio);
+                int drawHeight = (int)(imgHeight * ratio);
+
+                int drawX = xPos + (xSize - drawWidth) / 2;
+                int drawY = yPos + (ySize - drawHeight) / 2;
+
+                // Draw only visible portion
+                g2d.setClip(xPos, yPos, xSize, ySize); 
+                g2d.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
+                g2d.setClip(null); // reset clip
+            } else if (imageFillType == SPRITE_ANIMATION) {
+                int framesPerRow = image.getWidth() / frameWidth; // the amount of frames a row is determined by dividing the image native width by how many pixels the user specified
+                
+                /*
+                 * below, we gotta find the top corner of the frame on the sprite
+                 *  +-----+-----+-----+
+                 *  |  0  |  1  |  2  |
+                 *  +-----+-----+-----+
+                 *  |  3  |  4  |  5  |
+                 *  +-----+-----+-----+
+                 *  look at that for example
+                 *  imagine the current frame = 2 and framesPerRow is 3 and frameWidth is 100 and frameHeight is 50
+                 *  4 % 3 * 100 = 100; this is x
+                 *  4 / 3 * 50 = 50; this is y; so the 5th frame (2nd row 2nd column) would start at (100, 50)
+                 */
+
+                int startingSpriteX = (currentFrame % framesPerRow) * frameWidth;
+                int startingSpriteY = (currentFrame / framesPerRow) * frameHeight;
+
+                double widthRatio = (double)xSize / frameWidth;
+                double heightRatio = (double)ySize / frameHeight;
+                double ratio = Math.min(widthRatio, heightRatio);
+
+                // scaled frame dimensions (preserve aspect ratio)
+                int drawWidth = (int)(frameWidth * ratio);
+                int drawHeight = (int)(frameHeight * ratio);
+
+                // center the image in the box
+                int drawX = xPos + (xSize - drawWidth) / 2;
+                int drawY = yPos + (ySize - drawHeight) / 2;
+
+                g2d.drawImage(image, drawX, drawY, drawX + drawWidth, drawY + drawHeight, startingSpriteX, startingSpriteY, startingSpriteX + frameWidth, startingSpriteY + frameHeight, null);
             }
         }
 
@@ -956,21 +1115,26 @@ class UIImage extends UIElement {
         return addTween(imageTransparency, endImageTransparency, time, "imgt", "float", animationStyle);
     }
 
-    protected void setProperty(Tween tween, Object newValue) {
-        if (tween.property.equals("pos")) {
-            position = (Dim2)newValue;
-        } else if (tween.property.equals("size")) {
-            size = (Dim2)newValue;
-        } else if (tween.property.equals("bgt")) {
-            backgroundTransparency = (float)newValue;
-        } else if (tween.property.equals("bgc")) {
-            backgroundColor = (Color)newValue;
-        } else if (tween.property.equals("rot")) {
-            rotation = (double)newValue;
-        } else if (tween.property.equals("anchp")) {
-            anchorPoint = (Vector2)anchorPoint;
-        } else if (tween.property.equals("imgt")) {
-            imageTransparency = (float)newValue;
-        }
+    public void setSpriteSheet(int frameWidth, int frameHeight) {
+        if (image == null) return;
+        this.frameWidth = frameWidth;
+        this.frameHeight = frameHeight;
+        this.totalFrames = (image.getWidth() / frameWidth) * (image.getHeight() / frameHeight);
+        this.currentFrame = 0;
+    }
+
+    public void playSpriteAnimation(double frameDuration, boolean loop) {
+        this.frameDuration = frameDuration;
+        loopAnimation = loop;
+        playing = true;
+        lastFrame = System.currentTimeMillis();
+        currentFrame = 0;
+        sprites.add(this);
+        startTimer();
+    }
+
+    public void stopSpriteAnimation() {
+        playing = false;
+        sprites.remove(this);
     }
 }
