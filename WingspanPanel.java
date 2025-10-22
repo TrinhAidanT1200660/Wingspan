@@ -9,15 +9,17 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 public class WingspanPanel extends JPanel implements MouseListener {
-    public UIFrame frame, secondFrame, thirdFrame, child, descendant;
+    public UIFrame frame, secondFrame, thirdFrame, child, descendant, test;
     public UIImage image, testSprite, background;
-    public BufferedImage dumpling, spriteAnim, bgImg;
+    public BufferedImage dumpling, spriteAnim, spriteAnim2, bgImg;
     public Tween tween, tween2;
     public Color frameColor = Color.black;
     public WingspanPanel() {
         try {
             dumpling = ImageIO.read(getClass().getResource("/dumpling.png"));
             spriteAnim = ImageIO.read(getClass().getResource("/sprite_sheet_example.png"));
+            spriteAnim2 = ImageIO.read(getClass().getResource("/sonicSprite.png"));
+            bgImg = ImageIO.read(getClass().getResource("/wingspanBg.png"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -26,6 +28,15 @@ public class WingspanPanel extends JPanel implements MouseListener {
         UIElement root = UIElement.getRootForPanel(panel);
         background = new UIImage(this);
         root.cropOverflow = true;
+        root.anchorPoint = new Vector2(0.5, 0.5);
+        root.position = new Dim2(0.5, 0, 0.5, 0);
+        root.rotation = 0;
+        root.size = new Dim2(0.9, 0, 0.9, 0);
+        test = new UIFrame(panel);
+        test.backgroundColor = Color.BLACK;
+        test.size = new Dim2(0, 50, 0, 50);
+        test.position = new Dim2(0, 50, 0, 50);
+        test.setZIndex(5000);
         background.size = new Dim2(1, 0, 1, 0);
         background.backgroundTransparency = 0f;
         background.image = bgImg;
@@ -55,6 +66,7 @@ public class WingspanPanel extends JPanel implements MouseListener {
         child.anchorPoint = new Vector2(0.5, 0.5);
         child.position = new Dim2(0.5, 0, 0.5, 0);
         child.setZIndex(2);
+        child.rotation = 23;
         child.backgroundColor = Color.yellow;
         frame.addChild(child);
         /* descendant = new UIFrame(this);
@@ -73,9 +85,9 @@ public class WingspanPanel extends JPanel implements MouseListener {
         image.backgroundColor = Color.RED;
         image.setImageFillType(UIImage.CROP_IMAGE);
         image.backgroundTransparency = 1f;
-        image.image = dumpling;
+        image.image = dumpling; 
         testSprite = new UIImage(this);
-        testSprite.size = new Dim2(0.5, 0, 0.5, 0);
+        testSprite.size = new Dim2(0.25, 0, 0.25, 0);
         testSprite.anchorPoint = new Vector2(0.5, 0.5);
         testSprite.position = new Dim2(0.5, 0, 0.5, 0);
         testSprite.backgroundColor = Color.black;
@@ -86,7 +98,30 @@ public class WingspanPanel extends JPanel implements MouseListener {
         testSprite.addReleaseListener(e -> {
             testSprite.playSpriteAnimation(0.08, true);
         });
-        child.addChild(testSprite);
+        UIImage secondSprite = new UIImage(this);
+        secondSprite.size = new Dim2(0.5, 0, 0.5, 0);
+        secondSprite.anchorPoint = new Vector2(1, 1);
+        secondSprite.position = new Dim2(1,0,1,0);
+        secondSprite.backgroundColor = Color.black;
+        secondSprite.backgroundTransparency = 1f;
+        secondSprite.image = spriteAnim2;
+        secondSprite.setImageFillType(UIImage.SPRITE_ANIMATION);
+        secondSprite.setSpriteSheet(71, 90);
+        secondSprite.addReleaseListener(e -> {
+            secondSprite.playSpriteAnimation(0.08, true);
+        });
+        secondSprite.setParent(child);
+        testSprite.size = new Dim2(0.25, 0, 0.25, 0);
+        testSprite.anchorPoint = new Vector2(0.5, 0.5);
+        testSprite.position = new Dim2(0.5, 0, 0.5, 0);
+        testSprite.backgroundColor = Color.black;
+        testSprite.backgroundTransparency = 1f;
+        testSprite.image = spriteAnim;
+        testSprite.setImageFillType(UIImage.SPRITE_ANIMATION);
+        testSprite.setSpriteSheet(50, 37);
+        testSprite.addReleaseListener(e -> {
+            testSprite.playSpriteAnimation(0.08, true);
+        });
         addMouseListener(this);
         //frame.addClickListener(event -> frame.tweenSize(new Dim2(3, 0, 3, 0), 1, Tween.CUBIC_IN_OUT));
         secondFrame.addReleaseListener(event -> System.out.println("Clicked on second frame!"));
@@ -113,14 +148,14 @@ public class WingspanPanel extends JPanel implements MouseListener {
             frame.tweenSize(new Dim2(is ? 0.55 : 0.5, 0, is ? 0.55 : 0.5, 0), 0.07, Tween.QUAD_IN_OUT).onFinish(() -> {
                 System.out.println("done");
             });
-        });
+        }); 
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseMoved(MouseEvent e) {
                 if (root != null) {
                     root.handleMouseMovement(e);
                 }
             }
-        });
+        }); 
     }
     public void paint(Graphics g) {
         super.paint(g);
@@ -130,7 +165,8 @@ public class WingspanPanel extends JPanel implements MouseListener {
         //frame.tweenBackgroundColor(frameColor, 1, UIElement.QUAD_IN_OUT);
         UIElement.getRootForPanel(this).handlePress(e); 
         UIElement root = UIElement.getRootForPanel(this);
-        System.out.println(image.absoluteRotation);
+        if (root.containsPoint(e.getX(), e.getY())) return;
+        root.tweenRotation(root.rotation + 45, 0.5, Tween.OVERSHOOT);
     }
     public void mouseReleased(MouseEvent e) {
         UIElement.getRootForPanel(this).handleRelease(e); 
