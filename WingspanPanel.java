@@ -10,8 +10,8 @@ import javax.swing.JPanel;
 
 public class WingspanPanel extends JPanel implements MouseListener {
     public UIFrame frame, secondFrame, thirdFrame, child, descendant;
-    public UIImage image, testSprite;
-    public BufferedImage dumpling, spriteAnim;
+    public UIImage image, testSprite, background;
+    public BufferedImage dumpling, spriteAnim, bgImg;
     public Tween tween, tween2;
     public Color frameColor = Color.black;
     public WingspanPanel() {
@@ -21,12 +21,26 @@ public class WingspanPanel extends JPanel implements MouseListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        JPanel panel = this;
+        UIElement root = UIElement.getRootForPanel(panel);
+        background = new UIImage(this);
+        root.cropOverflow = true;
+        background.size = new Dim2(1, 0, 1, 0);
+        background.backgroundTransparency = 0f;
+        background.image = bgImg;
+        background.setImageFillType(UIImage.CROP_IMAGE);
+        background.setZIndex(-5);
         frame = new UIFrame(this);
         frame.size = new Dim2(0.5, 0, 0.5, 0);
         frame.anchorPoint = new Vector2(0.5, 0.5);
         frame.position = new Dim2(0.5, 0, 0.5, 0);
-        frame.rotation = 53;
         frame.backgroundColor = Color.black;
+        frame.strokeThickness = 4;
+        frame.borderRadius = 20;
+        frame.strokeColor = Color.black;
+        //frame.strokeTransparency = 1f;
+        frame.setZIndex(0);
         frame.keepAspectRatio = true;
         thirdFrame = new UIFrame(this);
         thirdFrame.size = new Dim2(0.2, 0, 0.2, 0);
@@ -34,64 +48,59 @@ public class WingspanPanel extends JPanel implements MouseListener {
         thirdFrame.position = new Dim2(0.5, 0, 0.5, 0);
         thirdFrame.rotation = 53;
         thirdFrame.backgroundColor = Color.ORANGE;
-        thirdFrame.backgroundTransparency = 0.5f;
         thirdFrame.keepAspectRatio = true;
-        thirdFrame.setZIndex(5);
+        thirdFrame.setZIndex(-1231231);
         child = new UIFrame(this);
         child.size = new Dim2(0.5, 0, 0.5, 0);
         child.anchorPoint = new Vector2(0.5, 0.5);
         child.position = new Dim2(0.5, 0, 0.5, 0);
-        child.rotation = 53;
+        child.setZIndex(2);
         child.backgroundColor = Color.yellow;
-        child.parent = frame;
-        frame.children.add(child);
-        descendant = new UIFrame(this);
+        frame.addChild(child);
+        /* descendant = new UIFrame(this);
         descendant.size = new Dim2(0.5, 0, 0.5, 0);
         descendant.anchorPoint = new Vector2(0.5, 0.5);
         descendant.position = new Dim2(0.5, 0, 0.5, 0);
         descendant.rotation = 53;
-        descendant.backgroundColor = Color.BLUE;
-        descendant.parent = child;
-        child.children.add(descendant);
+        descendant.backgroundColor = Color.BLUE;  */
         secondFrame = new UIFrame(this);
         secondFrame.size = new Dim2(0, 100, 0, 100);
         secondFrame.backgroundColor = Color.GREEN;
         image = new UIImage(this);
-        image.size = new Dim2(0.07, 0, 0.2, 0);
-        image.keepAspectRatio = true;
-        image.anchorPoint = new Vector2(1, 1);
-        image.position = new Dim2(1, 0, 1, 0);
+        image.size = new Dim2(0.25, 0, 0.25, 0);
+        image.anchorPoint = new Vector2(1,1);
+        image.position = new Dim2(1,0,1,0);
         image.backgroundColor = Color.RED;
         image.setImageFillType(UIImage.CROP_IMAGE);
         image.backgroundTransparency = 1f;
         image.image = dumpling;
         testSprite = new UIImage(this);
-        testSprite.size = new Dim2(0.1, 0, 0.1, 0);
-        testSprite.anchorPoint = new Vector2(0, 1);
-        testSprite.position = new Dim2(0, 0, 1, 0);
+        testSprite.size = new Dim2(0.5, 0, 0.5, 0);
+        testSprite.anchorPoint = new Vector2(0.5, 0.5);
+        testSprite.position = new Dim2(0.5, 0, 0.5, 0);
         testSprite.backgroundColor = Color.black;
         testSprite.backgroundTransparency = 1f;
-        testSprite.keepAspectRatio = true;
         testSprite.image = spriteAnim;
         testSprite.setImageFillType(UIImage.SPRITE_ANIMATION);
         testSprite.setSpriteSheet(50, 37);
         testSprite.addReleaseListener(e -> {
             testSprite.playSpriteAnimation(0.08, true);
         });
+        child.addChild(testSprite);
         addMouseListener(this);
         //frame.addClickListener(event -> frame.tweenSize(new Dim2(3, 0, 3, 0), 1, Tween.CUBIC_IN_OUT));
         secondFrame.addReleaseListener(event -> System.out.println("Clicked on second frame!"));
-        descendant.addReleaseListener(event -> System.out.println("Clicked on frame's child's child!"));
+        //descendant.addReleaseListener(event -> System.out.println("Clicked on frame's child's child!"));
         child.addReleaseListener(event -> System.out.println("Clicked on frame's child!"));
         image.addReleaseListener(event -> System.out.println("Clicked on image!"));
-        UIElement.getRootForPanel(this).addReleaseListener(e -> {
+        background.addReleaseListener(e -> {
             tween = frame.tweenPosition(new Dim2(0, e.getX(), 0, e.getY()), 0.5, Tween.OVERSHOOT);
             tween.onFinish(() -> System.out.println("finish pos"));
-            frame.tweenRotation(frame.rotation + 180, 1, Tween.OVERSHOOT);
-            tween2 = frame.tweenBackgroundColor(Color.PINK, 1, Tween.QUAD_IN_OUT);
+            frame.tweenRotation(frame.rotation + 53, 1, Tween.OVERSHOOT);
+            frameColor = frameColor == Color.black ? Color.pink : Color.black;
+            tween2 = frame.tweenBackgroundColor(frameColor, 1, Tween.QUAD_IN_OUT);
             tween2.onFinish(() -> System.out.println("finish color"));
-            frameColor = frameColor == Color.black ? Color.blue : Color.black;
-            image.tweenImageTransparency(0.0f, 1);
+            //image.tweenImageTransparency(0.0f, 1);
             System.out.println("Clicked on screen!");
         });
         frame.addHoverListener(e -> frame.tweenSize(new Dim2(0.55, 0, 0.55, 0), 0.07, Tween.QUAD_IN_OUT));
@@ -101,12 +110,12 @@ public class WingspanPanel extends JPanel implements MouseListener {
         }));
         frame.addReleaseListener(e -> {
             boolean is = frame.containsPoint(e.getX(), e.getY());
-            frame.tweenSize(new Dim2(is ? 0.55 : 0.5, 0, is ? 0.55 : 0.5, 0), 0.07, Tween.QUAD_IN_OUT);
+            frame.tweenSize(new Dim2(is ? 0.55 : 0.5, 0, is ? 0.55 : 0.5, 0), 0.07, Tween.QUAD_IN_OUT).onFinish(() -> {
+                System.out.println("done");
+            });
         });
-        JPanel panel = this;
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseMoved(MouseEvent e) {
-                UIElement root = UIElement.getRootForPanel(panel);
                 if (root != null) {
                     root.handleMouseMovement(e);
                 }
@@ -120,6 +129,8 @@ public class WingspanPanel extends JPanel implements MouseListener {
     public void mousePressed(MouseEvent e) {
         //frame.tweenBackgroundColor(frameColor, 1, UIElement.QUAD_IN_OUT);
         UIElement.getRootForPanel(this).handlePress(e); 
+        UIElement root = UIElement.getRootForPanel(this);
+        System.out.println(image.absoluteRotation);
     }
     public void mouseReleased(MouseEvent e) {
         UIElement.getRootForPanel(this).handleRelease(e); 
