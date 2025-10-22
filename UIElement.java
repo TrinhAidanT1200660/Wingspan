@@ -339,8 +339,15 @@ class RootMouseEvent {
         double unrotatedMouseX = mouseRelativeToAnchorX * rotationCos - mouseRelativeToAnchorY * rotationSin + anchorScreenX;
         double unrotatedMouseY = mouseRelativeToAnchorX * rotationSin + mouseRelativeToAnchorY * rotationCos + anchorScreenY;
 
-        this.x = (int)unrotatedMouseX;
-        this.y = (int)unrotatedMouseY;
+        /* int panelWidth = panel.getWidth();
+        int panelHeight = panel.getHeight();
+        double ratioX = (double)root.absoluteSize.getX() / panelWidth;
+        double ratioY = (double)root.absoluteSize.getY() / panelHeight;
+
+        this.x = (int)(unrotatedMouseX * ratioX);
+        this.y = (int)(unrotatedMouseY * ratioY); */
+        this.x = (int)(unrotatedMouseX - root.absolutePosition.getX());
+        this.y = (int)(unrotatedMouseY - root.absolutePosition.getY());
     }
 
     public int getX() { return x; }
@@ -724,6 +731,8 @@ class UIElement {
 
     // alright now lets handle clicking
     private UIElement findTopmostElement(int x, int y) {
+        UIElement root = getRootForPanel(panel);
+        if (!root.containsPoint(x, y)) return null;
         // first we gotta check if any of this element's children that may be on top of our element contain the given coordinate
         for (int i = children.size() - 1; i >= 0; i--) {
             UIElement child = children.get(i);
@@ -842,11 +851,11 @@ class UIElement {
             for (ExitListener l : previouslyHovered.exitListeners) l.onExit(new RootMouseEvent(panel, e));
         }
         if (nowHovered != previouslyHovered && nowHovered != null) {
-            previouslyHovered = nowHovered;
             for (HoverListener l : nowHovered.hoverListeners) {
                 l.onHover(new RootMouseEvent(panel, e));
             }
         }
+        previouslyHovered = nowHovered;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
