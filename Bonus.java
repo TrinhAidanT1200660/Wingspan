@@ -11,4 +11,9 @@ public enum Bonus
         this.bonusAbility = bonusAbility;
     }
 
-    
+    //VOID METHODS:
+
+    //carries out the card's scoring
+    public void performBonus(Player player)
+    {}
+}
