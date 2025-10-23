@@ -1,5 +1,5 @@
 
-public enum BirdActions implements BirdActionInterface
+public enum BirdAction implements BirdActionInterface
 {
 	GRABFISH((player) ->
 	{
