@@ -1,12 +1,12 @@
-public enum Bonus
+public enum BonusCard
 {
     //VARIABLES:
 
     //stores the method for the action, retrieved from the abstract method
-    private final BonusInterface bonusAbility;
+    private final BonusCardInterface bonusAbility;
 
     //CONSTRUCTOR:
-    private Bonus(BonusInterface bonusAbility)
+    private BonusCard(BonusInterface bonusAbility)
     {
         this.bonusAbility = bonusAbility;
     }
