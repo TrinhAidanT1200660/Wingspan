@@ -1,5 +1,5 @@
 
-public enum BirdActions implements BirdActionInterface
+public enum BirdAction implements BirdActionInterface
 {
 	GRABFISH((player) ->
 	{
@@ -10,7 +10,7 @@ public enum BirdActions implements BirdActionInterface
 	private final BirdActionInterface action;
 		
 	// constructor that assigns the variable action to the necessary logic
-	private BirdActions(BirdActionInterface action)
+	private BirdAction(BirdActionInterface action)
 	{
 		this.action = action;
 	}
