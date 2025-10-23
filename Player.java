@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
+
 public class Player
 {
     //VARIABLES:
@@ -61,5 +65,5 @@ public class Player
     public int getActionCubes() {return actionCubes;}
     
     //returns the ranking of the player of the round
-    public ArrayList<Integer> getGoalRankings(int round) {return goalRankings.get(round);}
+    public int getGoalRankings(int round) {return goalRankings.get(round);}
 }
