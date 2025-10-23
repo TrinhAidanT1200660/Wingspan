@@ -6,7 +6,7 @@ public enum BonusCard
     private final BonusCardInterface bonusAbility;
 
     //CONSTRUCTOR:
-    private BonusCard(BonusInterface bonusAbility)
+    private BonusCard(BonusCardInterface bonusAbility)
     {
         this.bonusAbility = bonusAbility;
     }
