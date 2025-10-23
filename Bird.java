@@ -3,9 +3,9 @@ import java.awt.image.*;
 
 public enum Bird 
 {
-	// ENUM SEQUENCE: string name, string image, int dCount, int eggMax, int wingspan, int points, String[] biomes, String color, String aType, String food, String nest, BirdActions action
+	// ENUM SEQUENCE: string name, string image, int dCount, int eggMax, int wingspan, int points, String[] habitat, String color, String aType, String food, String nest, BirdAction action
 	// not an actual bird, just an example
-	BALD_EAGLE("Bald Eagle", "Bald Eagle.jpg", 2, 4, 6, 7, new String[] {"Forest"}, "PINK", "Predator", "and 1fish 1worm", "bowl", BirdActions.GRABFISH);
+	BALD_EAGLE("Bald Eagle", "Bald Eagle.jpg", 2, 4, 6, 7, new String[] {"Forest"}, "PINK", "Predator", "and 1fish 1worm", "bowl", BirdAction.GRABFISH);
 
 	private final String name; // holds birds name
 	private BufferedImage imageFile; // holds birds image file
@@ -13,23 +13,23 @@ public enum Bird
 	private final int eggMax; // holds the max number of eggs this bird can have
 	private final int wingspan; // holds the wingspan in centimeters this bird has
 	private final int pointValue; // holds the point value this bird has
-	private final String[] biomes; // holds the biomes this bird can be in
+	private final String[] habitat; // holds the biomes this bird can be in
 	private final String actionColor; // holds the action color type this bird has (PINK, WHITE, BROWN)
 	private final String actionType; // holds the action type this bird has (EggLaying, CardDrawing, Flocking, Predator, Other)
 	private final String foodRequired; // holds the food types this bird requires ("and 2worm 1berry" means bird requires 2 worms and 1 berry, or for / foods, any otherwise)
 	private final String nest; // holds the nest type this bird has
-	private final BirdActions action; // holds the action ability this bird has through another ENUM and interface implementation
+	private final BirdAction action; // holds the action ability this bird has through another ENUM and interface implementation
 	
 	// constructor
 	private Bird(String name, String imageFile, int deckCount, int eggMax, int wingspan, int pointValue,
-			String[] biomes, String actionColor, String actionType, String foodRequired, String nest, BirdActions action)
+			String[] habitat, String actionColor, String actionType, String foodRequired, String nest, BirdAction action)
 	{
 		this.name = name;
 		this.deckCount = deckCount;
 		this.eggMax = eggMax;
 		this.wingspan = wingspan;
 		this.pointValue = pointValue;
-		this.biomes = biomes;
+		this.habitat = habitat;
 		this.actionColor = actionColor;
 		this.actionType = actionType;
 		this.foodRequired = foodRequired;
@@ -68,8 +68,8 @@ public enum Bird
 	// returns an int with the bird's point value
 	public int getPointValue() { return pointValue; }
 
-	// returns a String array with the biomes this bird can be in
-	public String[] getBiomes() { return biomes; }
+	// returns a String array with the habitat this bird can be in
+	public String[] getHabitat() { return habitat; }
 
 	// returns a String with the bird's action color type (PINK, WHITE, BROWN)
 	public String getActionColor() { return actionColor; }
@@ -85,6 +85,6 @@ public enum Bird
 	
 	// VOID METHODS
 	
-	// performs this bird's stored BirdActions ability on the given player
+	// performs this bird's stored BirdAction ability on the given player
 	public void performAction(Player player) { action.execute(player); }
 }
