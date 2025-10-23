@@ -1,3 +1,5 @@
+// Basic Interface to implement in BirdActions ENUM to define each ability
+
 @FunctionalInterface
 public interface BirdActionInterface
 {
