@@ -1,5 +1,3 @@
-import java.util.*;
-
 public class Player
 {
     //VARIABLES:
@@ -11,7 +9,7 @@ public class Player
     //stores the eggs on each bird, replicating the bird’s location
     private TreeMap<String, ArrayList<Integer>> eggs;
     //stores the bonus cards of each player
-    private ArrayList<Bonus> bonusHand;
+    private ArrayList<BonusCard> bonusHand;
     //stores the bird hand of each player
     private ArrayList<Bird> birdHand;
     //stores the food amount of each type
@@ -24,7 +22,7 @@ public class Player
     private ArrayList<Integer> goalRankings;
 
     //CONSTRUCTOR:
-    public Player(int points, TreeMap<String, ArrayList<Bird>> board, TreeMap<String, ArrayList<Integer>> eggs, ArrayList<Bonus> bonusHand, ArrayList<Bird> birdHand, HashMap<String, Integer> food, int tuckedCards, int actionCubes)
+    public Player(int points, TreeMap<String, ArrayList<Bird>> board, TreeMap<String, ArrayList<Integer>> eggs, ArrayList<BonusCard> bonusHand, ArrayList<Bird> birdHand, HashMap<String, Integer> food, int tuckedCards, int actionCubes)
     {
         this.points = points;
         this.board = board;
@@ -48,7 +46,7 @@ public class Player
     public TreeMap<String, ArrayList<Integer>> getEggs() {return eggs;}
     
     //returns the arraylist that holds the bonus cards a player has
-    public ArrayList<Bonus> getBonusHand() {return bonusHand;}
+    public ArrayList<BonusCard> getBonusHand() {return bonusHand;}
     
     //eturns the arraylist that holds the bird cards a player has
     public ArrayList<Bird> getBirdHand() {return birdHand;}
