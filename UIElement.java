@@ -76,6 +76,34 @@ class Dim2 {
     }
 }
 
+class Dim {
+    /*
+     * this is just Dim2 but without x and y just scale and offset
+     */
+    private double scale = 0;
+    private int offset = 0;
+
+    public Dim() { }
+
+    public Dim(double scale, int offset) {
+        this.scale = scale;
+        this.offset = offset;
+    }
+
+    public double getScale() { return scale; }
+    public int getOffset() { return offset; }
+    public void setScale(double scale) { this.scale = scale; }
+    public void setOffset(int offset) { this.offset = offset; }
+    public String toString() { return "(" + scale + ", " + offset + ")"; }
+
+    // ok so basically what this method does is it returns a new Dim that starts from Dim and finshes a fraction of the way to Dim goal, determined by a (alpha). just used for animations/tweening
+    public static Dim lerp(Dim start, Dim goal, double a) {
+        double scale = start.scale + (goal.scale - start.scale) * a;
+        double offset = start.offset + (goal.offset - start.offset) * a;
+        return new Dim(scale, (int)offset);
+    }
+}
+
 interface ClickListener { 
     // used to set custom click events
     void onClick(RootMouseEvent e);
@@ -172,6 +200,8 @@ class Tween {
                 return tweenFloat((float)startValue, (float)endValue, alpha);
             case "dim2":
                 return tweenDim2((Dim2)startValue, (Dim2)endValue, alpha);
+            case "dim":
+                return tweenDim((Dim)startValue, (Dim)endValue, alpha);
             case "vector2":
                 return tweenVector2((Vector2)startValue, (Vector2)endValue, alpha);
             case "color":
@@ -204,6 +234,10 @@ class Tween {
 
     private Dim2 tweenDim2(Dim2 startValue, Dim2 endValue, double alpha) {
         return Dim2.lerp(startValue, endValue, handleAnimationAlpha(alpha, animationType));
+    }
+
+    private Dim tweenDim(Dim startValue, Dim endValue, double alpha) {
+        return Dim.lerp(startValue, endValue, handleAnimationAlpha(alpha, animationType));
     }
 
     private Color tweenColor(Color startValue, Color endValue, double alpha) {
@@ -363,14 +397,16 @@ class UIElement {
     protected Vector2 absolutePosition = new Vector2(); // the final literal position on the screen, represented in pixels, after scale and offset calculations
     protected Vector2 absoluteSize = new Vector2(); // the final literal size on the screen, represented in pixels, after scale and offset calculations
     protected double absoluteRotation = 0; // the final literal rotation on the screen after adding rotations from its ancestors (degrees)
+    protected int absoluteBorderRadius = 0;
+    protected int absoluteStrokeThickness = 0;
     public Vector2 anchorPoint = new Vector2(); // controls where to "anchor" the ui element. 0,0 would be top left corner of the element; 0.5,0.5 would be middle; 1,1 would be bottom right corner
     public Dim2 position = new Dim2(); // position using scale and offset
     public Dim2 size = new Dim2(0, 100, 0, 100); // size using scale and offset; default size 100x100 pixels
     public double rotation = 0; // rotation in degrees
     public Color backgroundColor = Color.WHITE; // background color of frame.
     public float backgroundTransparency = 1f; // this number will determine the element's background's transparency. 1 -> fully visible, 0 -> invisible
-    public int borderRadius = 0; // rounded corners
-    public int strokeThickness = 0;
+    public Dim borderRadius = new Dim(); // rounded corners
+    public Dim strokeThickness = new Dim();
     public float strokeTransparency = 0.0f;
     public Color strokeColor = Color.BLUE;
     private int zIndex = 0; // represents the layer the element is on. keep in mind that zIndex is relative, meaning all children will inherit its parent's zIndex
@@ -647,12 +683,9 @@ class UIElement {
 
         absolutePosition.setX(posX);
         absolutePosition.setY(posY);
-    }
 
-    protected void drawChildren(Graphics g) {
-        for (UIElement child : children) {
-            child.draw(g);
-        }
+        absoluteBorderRadius = (int)(borderRadius.getScale() * Math.min(width, height) + borderRadius.getOffset());
+        absoluteStrokeThickness = (int)(strokeThickness.getScale() * Math.min(width, height) + strokeThickness.getOffset());
     }
 
     protected void drawCustom(Graphics2D g2d) {
@@ -700,15 +733,15 @@ class UIElement {
 	        g2d.setColor(backgroundColor);
 	        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // higher quality with antialiasing 
 	        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(backgroundTransparency, 1f)))); // setting transparency for the element
-            g2d.fillRoundRect((int)absolutePosition.getX(), (int)absolutePosition.getY(), (int)absoluteSize.getX(), (int)absoluteSize.getY(), borderRadius, borderRadius);
+            g2d.fillRoundRect((int)absolutePosition.getX(), (int)absolutePosition.getY(), (int)absoluteSize.getX(), (int)absoluteSize.getY(), absoluteBorderRadius, absoluteBorderRadius);
         }
 
         if (strokeTransparency > 0) {
 	        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, strokeTransparency));
 	        g2d.setColor(strokeColor);
-	        g2d.setStroke(new BasicStroke(strokeThickness)); // set border thickness
+	        g2d.setStroke(new BasicStroke(absoluteStrokeThickness)); // set border thickness
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(strokeTransparency, 1f))));
-	        g2d.drawRoundRect((int)absolutePosition.getX(), (int)absolutePosition.getY(), (int)absoluteSize.getX(), (int)absoluteSize.getY(), borderRadius, borderRadius);
+	        g2d.drawRoundRect((int)absolutePosition.getX(), (int)absolutePosition.getY(), (int)absoluteSize.getX(), (int)absoluteSize.getY(), absoluteBorderRadius, absoluteBorderRadius);
         }
         
         if (resort) {
@@ -718,7 +751,9 @@ class UIElement {
 
         drawCustom(g2d);
 
-        drawChildren(g2d);
+        for (UIElement child : children) {
+            child.draw(g2d);
+        }
 
         // just visualizing the element's origin that java uses
         g2d.fillRect((int)absolutePosition.getX() - 4, (int)absolutePosition.getY() - 4, 8, 8);
@@ -737,9 +772,9 @@ class UIElement {
         for (int i = children.size() - 1; i >= 0; i--) {
             UIElement child = children.get(i);
             //System.out.println(child.zIndex);
-            if (child.visible && child.containsPoint(x, y)) { // if child has visible = true and the coordinate is in the bounds of the child...
+            if (child.visible) { // if child has visible = true (we dont check if the mouse is in the bounds of the child because what if a child of the child is not in the bounds of the child we still wanna check that)
                 UIElement deeper = child.findTopmostElement(x, y); // then run findTopmostElement again. if there is another child in that child, this whole loop will happen again until it finally gets to the descendant it's hovering over
-                return deeper != null ? deeper : child;
+                if (deeper != null) return deeper;
             }
         }
 
@@ -993,7 +1028,9 @@ class UIElement {
         } else if (tween.property.equals("stc")) {
             e.strokeColor = (Color)newValue;
         } else if (tween.property.equals("stth")) {
-            e.strokeThickness = (int)newValue;
+            e.strokeThickness = (Dim)newValue;
+        } else if (tween.property.equals("bdr")) {
+            e.borderRadius = (Dim)newValue;
         } else if (tween.property.equals("rot")) {
             e.rotation = (double)newValue;
         } else if (tween.property.equals("anchp")) {
@@ -1051,12 +1088,20 @@ class UIElement {
         return addTween(strokeColor, endStrokeColor, time, "stc", "color", animationStyle);
     }
 
-    public Tween tweenStrokeThickness(int endStrokeThickness, double time) {
-        return addTween(strokeThickness, endStrokeThickness, time, "stth", "int", Tween.LINEAR);
+    public Tween tweenStrokeThickness(Dim endStrokeThickness, double time) {
+        return addTween(strokeThickness, endStrokeThickness, time, "stth", "dim", Tween.LINEAR);
     }
 
-    public Tween tweenStrokeThickness(Color endStrokeThickness, double time, int animationStyle) {
-        return addTween(strokeThickness, endStrokeThickness, time, "stth", "int", animationStyle);
+    public Tween tweenStrokeThickness(Dim endStrokeThickness, double time, int animationStyle) {
+        return addTween(strokeThickness, endStrokeThickness, time, "stth", "dim", animationStyle);
+    }
+
+    public Tween tweenBorderRadius(Dim endBorderRadius, double time) {
+        return addTween(borderRadius, endBorderRadius, time, "bdr", "dim", Tween.LINEAR);
+    }
+
+    public Tween tweenBorderRadius(Dim endBorderRadius, double time, int animationStyle) {
+        return addTween(borderRadius, endBorderRadius, time, "bdr", "dim", animationStyle);
     }
 
     public Tween tweenRotation(double endRotation, double time) {
