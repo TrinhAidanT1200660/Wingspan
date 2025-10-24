@@ -1,5 +1,5 @@
-import javax.imageio.ImageIO;
 import java.awt.image.*;
+import javax.imageio.ImageIO;
 
 public enum Bird 
 {
