@@ -324,68 +324,79 @@ class Tween {
 
 // only reason for this class is in the case that the user rotates the root element so like u want to get the mouse data relative to that ykwim
 class RootMouseEvent {
-    public MouseEvent event;
+    private MouseEvent event;
+    private UIElement element;
     private int x = 0;
     private int y = 0;
 
-    public RootMouseEvent(JPanel panel, MouseEvent event) {
+    public RootMouseEvent(UIElement element, MouseEvent event) {
         this.event = event;
-        /*
-         * so here we gotta calculate the element's position RELATIVE TO the anchor point
-         * absolutePosition represents the top left corner of the element which is what java is looking for
-         * we need to calculate these so we can check if a coordinate is inside the element or not
-         */
-
-        UIElement root = UIElement.getRootForPanel(panel);
+        this.element = element;
         
-        double anchorScreenX = root.absolutePosition.getX() + root.absoluteSize.getX() * root.anchorPoint.getX();
-        double anchorScreenY = root.absolutePosition.getY() + root.absoluteSize.getY() * root.anchorPoint.getY();
+        if (element != null) {
+            JPanel panel = element.panel;
+            /*
+            * so here we gotta calculate the element's position RELATIVE TO the anchor point
+            * absolutePosition represents the top left corner of the element which is what java is looking for
+            * we need to calculate these so we can check if a coordinate is inside the element or not
+            */
 
-        /*
-         * here we move the coordinate so it's relative to the element anchor point. this is needed because to
-         * "unrotate" the element, you have to rotate the coordinate AROUND the same anchor point (which we'll do eventually)
-         */
-        
-        double mouseRelativeToAnchorX = event.getX() - anchorScreenX;
-        double mouseRelativeToAnchorY = event.getY() - anchorScreenY;
+            UIElement root = UIElement.getRootForPanel(panel);
+            
+            double anchorScreenX = root.absolutePosition.getX() + root.absoluteSize.getX() * root.anchorPoint.getX();
+            double anchorScreenY = root.absolutePosition.getY() + root.absoluteSize.getY() * root.anchorPoint.getY();
 
-        /*
-         * here we "cancel" the element's rotation so we can pretend the rotation is 0
-         * and so that the coordinate and element TECHINCALLY have the same rotation
-         * having it at 0 deg just makes the math easier 
-         */
-         
-        double rotationRadians = Math.toRadians(-root.absoluteRotation); // negative rotation to unrotate
-        double rotationCos = Math.cos(rotationRadians);
-        double rotationSin = Math.sin(rotationRadians);
+            /*
+            * here we move the coordinate so it's relative to the element anchor point. this is needed because to
+            * "unrotate" the element, you have to rotate the coordinate AROUND the same anchor point (which we'll do eventually)
+            */
+            
+            double mouseRelativeToAnchorX = event.getX() - anchorScreenX;
+            double mouseRelativeToAnchorY = event.getY() - anchorScreenY;
 
-        /*
-         * this part is confusing but it's based on a formula in math to rotate a point around a given point:
-         * Px, Py: original point (in this case the given coordinate)
-         * Ox, Oy: origin of rotation (anchorScreenX, anchorScreenY)
-         * P'x = Px - Ox: translate point so origin is (0, 0)
-         * P'y = Py - Oy: same as above
-         * xnew = (P'x * cos θ) - (P'y * sin θ)
-         * ynew = (P'x * sin θ) + (P'y * cos θ)
-         * then you add back Ox, Oy so that you move the point so its relative to screen space now
-         */
+            /*
+            * here we "cancel" the element's rotation so we can pretend the rotation is 0
+            * and so that the coordinate and element TECHINCALLY have the same rotation
+            * having it at 0 deg just makes the math easier 
+            */
+            
+            double rotationRadians = Math.toRadians(-root.absoluteRotation); // negative rotation to unrotate
+            double rotationCos = Math.cos(rotationRadians);
+            double rotationSin = Math.sin(rotationRadians);
 
-        double unrotatedMouseX = mouseRelativeToAnchorX * rotationCos - mouseRelativeToAnchorY * rotationSin + anchorScreenX;
-        double unrotatedMouseY = mouseRelativeToAnchorX * rotationSin + mouseRelativeToAnchorY * rotationCos + anchorScreenY;
+            /*
+            * this part is confusing but it's based on a formula in math to rotate a point around a given point:
+            * Px, Py: original point (in this case the given coordinate)
+            * Ox, Oy: origin of rotation (anchorScreenX, anchorScreenY)
+            * P'x = Px - Ox: translate point so origin is (0, 0)
+            * P'y = Py - Oy: same as above
+            * xnew = (P'x * cos θ) - (P'y * sin θ)
+            * ynew = (P'x * sin θ) + (P'y * cos θ)
+            * then you add back Ox, Oy so that you move the point so its relative to screen space now
+            */
 
-        /* int panelWidth = panel.getWidth();
-        int panelHeight = panel.getHeight();
-        double ratioX = (double)root.absoluteSize.getX() / panelWidth;
-        double ratioY = (double)root.absoluteSize.getY() / panelHeight;
+            double unrotatedMouseX = mouseRelativeToAnchorX * rotationCos - mouseRelativeToAnchorY * rotationSin + anchorScreenX;
+            double unrotatedMouseY = mouseRelativeToAnchorX * rotationSin + mouseRelativeToAnchorY * rotationCos + anchorScreenY;
 
-        this.x = (int)(unrotatedMouseX * ratioX);
-        this.y = (int)(unrotatedMouseY * ratioY); */
-        this.x = (int)(unrotatedMouseX - root.absolutePosition.getX());
-        this.y = (int)(unrotatedMouseY - root.absolutePosition.getY());
+            /* int panelWidth = panel.getWidth();
+            int panelHeight = panel.getHeight();
+            double ratioX = (double)root.absoluteSize.getX() / panelWidth;
+            double ratioY = (double)root.absoluteSize.getY() / panelHeight;
+
+            this.x = (int)(unrotatedMouseX * ratioX);
+            this.y = (int)(unrotatedMouseY * ratioY); */
+            this.x = (int)(unrotatedMouseX - root.absolutePosition.getX());
+            this.y = (int)(unrotatedMouseY - root.absolutePosition.getY());
+        } else {
+            this.x = event.getX();
+            this.y = event.getY();
+        }
     }
 
     public int getX() { return x; }
     public int getY() { return y; }
+    public MouseEvent getEvent() { return event; }
+    public UIElement getElement() { return element; }
 }
 
 class UIElement {
@@ -421,11 +432,12 @@ class UIElement {
     private ArrayList<ReleaseListener> releaseListeners = new ArrayList<>(); // used for release events
     private ArrayList<HoverListener> hoverListeners = new ArrayList<>(); // used for hover events
     private ArrayList<ExitListener> exitListeners = new ArrayList<>(); // used for hover exit events
-    private HashSet<UIElement> pressed = new HashSet<>();
+    private UIElement pressed;
     private static UIElement previouslyHovered = null;
     protected JPanel panel;
     private boolean resort = false; // used whenever we need to resort the drawing order based on z-index
     protected AffineTransform mostRecentTransform; // used to check if mouse is inside an element
+    private HashMap<String, Object> attributes = new HashMap<>();
     
     // animation related stuff
     protected static HashSet<UIImage> sprites = new HashSet<>();
@@ -754,10 +766,7 @@ class UIElement {
         for (UIElement child : children) {
             child.draw(g2d);
         }
-
-        // just visualizing the element's origin that java uses
-        g2d.fillRect((int)absolutePosition.getX() - 4, (int)absolutePosition.getY() - 4, 8, 8);
-
+        
         // drawing children
         g2d.dispose(); // good practice to dispose to clean up resources from the graphics object we cloned (g.create())
     }
@@ -793,13 +802,16 @@ class UIElement {
         clickListeners.remove(listener);
     }
 
-    public void handleClick(MouseEvent e) {
+    public RootMouseEvent handleClick(MouseEvent e) {
         UIElement top = findTopmostElement(e.getX(), e.getY());
         if (top != null) {
+            RootMouseEvent event = new RootMouseEvent(top, e);
             for (ClickListener listener : top.clickListeners) { // if we're indeed hovering over something then call all the clickListeners on the element
-                listener.onClick(new RootMouseEvent(panel, e));
+                listener.onClick(event);
             }
+            return event;
         }
+        return new RootMouseEvent(null, e);
     }
     
     public void addPressListener(PressListener listener) {
@@ -810,15 +822,17 @@ class UIElement {
         pressListeners.remove(listener);
     }
 
-    public void handlePress(MouseEvent e) {
+    public RootMouseEvent handlePress(MouseEvent e) {
         UIElement top = findTopmostElement(e.getX(), e.getY());
-        System.out.println(top);
         if (top != null) {
-            pressed.add(top);
+            RootMouseEvent event = new RootMouseEvent(top, e);
             for (PressListener listener : top.pressListeners) { // if we're indeed hovering over something then call all the clickListeners on the element
-                listener.onPress(new RootMouseEvent(panel, e));
+                listener.onPress(event);
             }
+            pressed = top;
+            return event;
         }
+        return new RootMouseEvent(null, e);
     }
     
     public void addReleaseListener(ReleaseListener listener) {
@@ -829,13 +843,16 @@ class UIElement {
     	releaseListeners.remove(listener);
     }
 
-    public void handleRelease(MouseEvent e) {
-        for (UIElement element : pressed) {
-            for (ReleaseListener listener : element.releaseListeners) {
-                listener.onRelease(new RootMouseEvent(panel, e));
-            }
+    public RootMouseEvent handleRelease(MouseEvent e) {
+        if (pressed == null) {
+            return new RootMouseEvent(null, e);
         }
-        pressed.clear();
+        RootMouseEvent event = new RootMouseEvent(pressed, e);
+        for (ReleaseListener listener : pressed.releaseListeners) {
+            listener.onRelease(event);
+        }
+        pressed = null;
+        return event;
     }
 
     // hovering/exiting have basically the same logic as clicking
@@ -879,18 +896,29 @@ class UIElement {
     } */
 
     // this neglects topmost and detects hovering/exiting even if ur hovering on top of an element on top of it
-    public void handleMouseMovement(MouseEvent e) {
+    public RootMouseEvent[] handleMouseMovement(MouseEvent e) {
         UIElement nowHovered = findTopmostElement(e.getX(), e.getY());
 
+        RootMouseEvent[] returning = new RootMouseEvent[2];
+        RootMouseEvent eventPrev = new RootMouseEvent(previouslyHovered, e);
+        returning[1] = eventPrev;
+        RootMouseEvent eventNow = new RootMouseEvent(nowHovered, e);
+        returning[0] = eventNow;
+
         if (nowHovered != previouslyHovered && previouslyHovered != null) {
-            for (ExitListener l : previouslyHovered.exitListeners) l.onExit(new RootMouseEvent(panel, e));
+            for (ExitListener l : previouslyHovered.exitListeners) {
+                l.onExit(eventPrev);
+            }
         }
         if (nowHovered != previouslyHovered && nowHovered != null) {
             for (HoverListener l : nowHovered.hoverListeners) {
-                l.onHover(new RootMouseEvent(panel, e));
+                l.onHover(eventNow);
             }
         }
+        
         previouslyHovered = nowHovered;
+
+        return returning;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1118,6 +1146,20 @@ class UIElement {
 
     public Tween tweenAnchorPoint(Vector2 endAnchorPoint, double time, int animationStyle) {
         return addTween(anchorPoint, endAnchorPoint, time, "anchp", "vector2", animationStyle);
+    }
+
+    //////////////// attributes
+    
+    public Object getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    public Object removeAttribute(String key) {
+        return attributes.remove(key);
+    }
+
+    public Object setAttribute(String key, Object value) {
+        return attributes.put(key, value);
     }
 }
 
