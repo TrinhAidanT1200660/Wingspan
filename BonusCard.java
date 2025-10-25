@@ -9,11 +9,13 @@ public enum BonusCard implements BonusCardInterface
 
     //stores the method for the action, retrieved from the abstract method
     private final BonusCardInterface bonusAbility;
+    private int deckCount;
 
     //CONSTRUCTOR:
     private BonusCard(BonusCardInterface bonusAbility)
     {
         this.bonusAbility = bonusAbility;
+        this.deckCount = 1;
     }
 
     //VOID METHODS:
@@ -24,4 +26,10 @@ public enum BonusCard implements BonusCardInterface
     {
         bonusAbility.bonusScore(player);
     }
+
+    //RETURN METHODS:
+    public int getDeckCount() { return deckCount; }
+
+    //MUTATOR METHODS:
+    public void removeCardFromDeck() { deckCount -= 1; }
 }

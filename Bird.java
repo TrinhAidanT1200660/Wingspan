@@ -3,9 +3,24 @@ import javax.imageio.ImageIO;
 
 public enum Bird 
 {
-	// ENUM SEQUENCE: string name, string image, int dCount, int eggMax, int wingspan, int points, String[] habitat, String color, String aType, String food, String nest, BirdAction action
-	// not an actual bird, just an example
-	BALD_EAGLE("Bald Eagle", "Bald Eagle.jpg", 2, 4, 6, 7, new String[] {"Forest"}, "PINK", "Predator", "and 1fish 1worm", "bowl", BirdAction.GRABFISH);
+	// ENUM SEQUENCE: string name, string image, int eggMax, int wingspan, int points, String[] habitat, String abilityColor, String aType, String food, String nest, BirdAction action
+	// Name: obviously it's top name
+	// Image: get the image from package
+	// eggMax: number of egg photos
+	// Wingspan: number of cms on right of card
+	// Points: number next to feather
+	// Habitats, go in order from top to bottom of board: forest -> grassland -> wetland
+	// abilityColor: WHITE, PINK, BROWN, NONE
+	// actionTypes: EggLaying, CardDrawing, Flocking (card tucks), Predator (food cache), Other
+	// FoodTypes, go in order alphabetically: any -> berry -> fish -> rat -> seed -> worm 
+	// nestTypes: Platform (logs on top each other), Bowl (a bowl), Cavity (tree with hole in it), Ground (bunch of circles), Wild (a star)
+	// action: directly type in from birdAction
+	// ACTUAL BIRD ENUMS, NO IMAGES IMPORTED YET
+	PROTHONOTARY_WARBLER("PROTHONOTARY WARBLER", "temp.jpg", 4, 23, 8, new String[] {"forest", "wetland"}, "NONE", "Other", "and 1seed 2worm", "Cavity", BirdAction.NONE),
+	GREATER_PRAIRIE_CHICKEN("GREATER PRAIRIE-CHICKEN", "temp.jpg", 4, 71, 5, new String[] {"grassland"}, "WHITE", "CardDrawing", "and 2seed 1worm", "Ground", BirdAction.DRAW2BONUSKEEP1),
+	NORTHERN_CARDINAL("NORTHERN CARDINAL", "temp.jpg", 5, 30, 3, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1seed", "Bowl", BirdAction.GET1BERRY),
+	BROWN_PELICAN("BROWN PELICAN", "temp.jpg", 2, 201, 4, new String[] {"wetland"}, "WHITE", "Other", "and 2fish", "Platform", BirdAction.GET3FISH),
+	CANVASBACK("CANVASBACK", "temp.jpg", 4, 82, 4, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1any 1seed", "Wild", BirdAction.ALLDRAW1BIRD);
 
 	private final String name; // holds birds name
 	private BufferedImage imageFile; // holds birds image file
@@ -21,11 +36,11 @@ public enum Bird
 	private final BirdAction action; // holds the action ability this bird has through another ENUM and interface implementation
 	
 	// constructor
-	private Bird(String name, String imageFile, int deckCount, int eggMax, int wingspan, int pointValue,
+	private Bird(String name, String imageFile, int eggMax, int wingspan, int pointValue,
 			String[] habitat, String actionColor, String actionType, String foodRequired, String nest, BirdAction action)
 	{
 		this.name = name;
-		this.deckCount = deckCount;
+		this.deckCount = 1;
 		this.eggMax = eggMax;
 		this.wingspan = wingspan;
 		this.pointValue = pointValue;
