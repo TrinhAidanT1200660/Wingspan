@@ -1,6 +1,7 @@
 import java.awt.image.BufferedImage;
 
 public class BirdCard {
+	// VARIABLES
 	private Bird birdEnum;
     private int heldEggs;
     private int tuckedCards;
