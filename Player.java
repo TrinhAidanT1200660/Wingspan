@@ -38,7 +38,7 @@ public class Player
     public int getPoints() {return points;}
     
     //returns the TreeMap the player has that represents their board
-    public TreeMap<String, ArrayList<Bird>> getBoard() {return board;} 
+    public TreeMap<String, ArrayList<BirdInstance>> getBoard() {return board;} 
     
     //returns the arraylist that holds the bonus cards a player has
     public ArrayList<BonusCard> getBonusHand() {return bonusHand;}
