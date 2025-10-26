@@ -6,6 +6,7 @@ public enum BonusCard implements BonusCardInterface
     // temporary bonus card just so the errors stop. also an example
     ECOLOGIST("temp.jpg", (player) -> {
         // Some logic that finds the habitats with the least amount of birds
+        // test change in code
     });
 
     //VARIABLES:
