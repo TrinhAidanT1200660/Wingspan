@@ -1,13 +1,13 @@
 import java.awt.image.BufferedImage;
 
-public class BirdCard {
+public class BirdInstance {
 	private Bird birdEnum;
     private int heldEggs;
     private int tuckedCards;
     private int cachedFood;
     private boolean playedThisTurn;
 
-	public BirdCard(Bird bird) {
+	public BirdInstance(Bird bird) {
 		this.birdEnum = bird;
         this.heldEggs = 0;
         this.tuckedCards = 0;
@@ -15,6 +15,7 @@ public class BirdCard {
         this.playedThisTurn = false;
 	}
 
+	// returns a String with the bird's name
     public String getName() { return birdEnum.getName(); }
 
 	// returns a BufferedImage with the bird's image file
