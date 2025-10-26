@@ -23,7 +23,8 @@ public enum Bird
 	CANVASBACK("CANVASBACK", "temp.jpg", 4, 82, 4, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1any 1seed", "Wild", BirdAction.ALLDRAW1BIRD);
 
 	private final String name; // holds birds name
-	private BufferedImage imageFile; // holds birds image file
+	private final String imageFileString;
+	private BufferedImage bufferedImageFile; // holds birds image file
 	private int deckCount; // holds the number of bird cards in the deck, decreases when drawn once
 	private final int eggMax; // holds the max number of eggs this bird can have
 	private final int wingspan; // holds the wingspan in centimeters this bird has
@@ -36,10 +37,12 @@ public enum Bird
 	private final BirdAction action; // holds the action ability this bird has through another ENUM and interface implementation
 	
 	// constructor
-	private Bird(String name, String imageFile, int eggMax, int wingspan, int pointValue,
+	private Bird(String name, String imageFileString, int eggMax, int wingspan, int pointValue,
 			String[] habitat, String actionColor, String actionType, String foodRequired, String nest, BirdAction action)
 	{
 		this.name = name;
+		this.imageFileString = imageFileString;
+		this.bufferedImageFile = null;
 		this.deckCount = 1;
 		this.eggMax = eggMax;
 		this.wingspan = wingspan;
@@ -50,17 +53,7 @@ public enum Bird
 		this.foodRequired = foodRequired;
 		this.nest = nest;
 		this.action = action;
-		// directly uses the image file name to create buffered image
-		try
-		{
-			// need to define the package that will be used to hold images before this is done
-			this.imageFile = ImageIO.read(Bird.class.getResource("/packageNameHere/" + imageFile));
-		}
-		catch (Exception E)
-		{
-			System.out.println("Could not load bird ENUM image for" + name + ": " + E.getMessage());
-			return;
-		}
+		
 	}
 	
 	// RETURN METHODS
@@ -68,8 +61,26 @@ public enum Bird
 	// returns a String with the bird's name
 	public String getName() { return name; }
 
-	// returns a BufferedImage with the bird's image file
-	public BufferedImage getImage() { return imageFile; }
+	// returns a BufferedImage with the bird's image file or loads the image if not loaded yet
+	public BufferedImage getImage() 
+	{ 
+		if (bufferedImageFile == null)
+		{
+			// directly uses the image file name to create buffered image
+			try
+			{
+				// need to define the package that will be used to hold images before this is done
+				this.bufferedImageFile = ImageIO.read(Bird.class.getResource("/packageNameHere/" + imageFileString));
+			}
+			catch (Exception E)
+			{
+				System.out.println("Could not load bird ENUM image for" + name + ": " + E.getMessage());
+				return null;
+			}
+		}
+
+		return bufferedImageFile;
+	}
 
 	// returns an int with the number of bird cards left in the deck
 	public int getDeckCount() { return deckCount; }
@@ -98,8 +109,12 @@ public enum Bird
 	// returns a String with the bird's nest type
 	public String getNest() { return nest; }
 	
-	// VOID METHODS
+	// VOID METHODS / MUTATOR METHODS
 	
 	// performs this bird's stored BirdAction ability on the given player
-	public void performAction(Player player) { action.execute(player); }
+	public void performAction(Game gameContext, Player player) { action.execute(gameContext, player); }
+
+	public void releaseImage() { bufferedImageFile = null; }
+
+	public void removeCardFromDeck() { deckCount -= 1; }
 }

@@ -2,11 +2,11 @@
 public enum BirdAction implements BirdActionInterface
 {
 	// This ability is for birds with no ability. My favourite.
-	NONE((player) -> {
+	NONE((gameContext, player) -> {
 
 	}),
 	// This ability draws 2 bonus cards for the player and keep 1 WHEN PLAYED 
-	DRAW2BONUSKEEP1((player) -> {
+	DRAW2BONUSKEEP1((gameContext, player) -> {
 		// Basic variables needed for method. values() gets all types of ENUM for the specificed ENUM
 		BonusCard[] allBonuses = BonusCard.values();
 		BonusCard card1 = null;
@@ -29,16 +29,28 @@ public enum BirdAction implements BirdActionInterface
 
 	}),
 	// This ability allows the player to gain 1 berry WHEN ACTIVATED
-	GET1BERRY((player) -> {
+	GET1BERRY((gameContext, player) -> {
 		player.addFood("berry", 1);
 	}),
 	// This ability allows the player to gain 3 fish WHEN PLAYED
-	GET3FISH((player) -> {
+	GET3FISH((gameContext, player) -> {
 		player.addFood("fish", 3);
 	}),
 	// This ability has all players draw 1 bird card from the deck WHEN ACTIVATED
-	ALLDRAW1BIRD((player) -> {
-		
+	ALLDRAW1BIRD((gameContext, player) -> {
+		for(Player p: gameContext.getPlayers())
+		{
+			Bird[] allBirds = Bird.values();
+
+			while (true) { 
+				int randCard = (int) (Math.random() * allBirds.length);
+				if(allBirds[randCard].getDeckCount() > 0) {
+					p.addBirdHand(allBirds[randCard]);
+					allBirds[randCard].removeCardFromDeck();
+					break;
+				}
+			}
+		}
 	})
 	;
 
@@ -54,8 +66,8 @@ public enum BirdAction implements BirdActionInterface
 	
 	// overriding function for BirdActionInterface; just initiates the action of the bird
 	@Override
-	public void execute(Player player)
+	public void execute(Game gameContext, Player player)
 	{
-		action.execute(player);
+		action.execute(gameContext, player);
 	}
 }

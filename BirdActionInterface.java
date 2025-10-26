@@ -3,5 +3,5 @@
 @FunctionalInterface
 public interface BirdActionInterface
 {
-	void execute(Player player);
+	void execute(Game gameContext,Player player);
 }

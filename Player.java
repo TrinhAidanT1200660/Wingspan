@@ -13,7 +13,7 @@ public class Player
     //stores the bonus cards of each player
     private ArrayList<BonusCard> bonusHand;
     //stores the bird hand of each player
-    private ArrayList<BirdInstance> birdHand;
+    private ArrayList<Bird> birdHand;
     //stores the food amount of each type
     private HashMap<String, Integer> food;
     //stores the number of action cubes each player has
@@ -22,7 +22,7 @@ public class Player
     private ArrayList<Integer> goalRankings;
 
     //CONSTRUCTOR:
-    public Player(int points, TreeMap<String, ArrayList<BirdInstance>> board, ArrayList<BonusCard> bonusHand, ArrayList<BirdInstance> birdHand, HashMap<String, Integer> food, int actionCubes)
+    public Player(int points, TreeMap<String, ArrayList<BirdInstance>> board, ArrayList<BonusCard> bonusHand, ArrayList<Bird> birdHand, HashMap<String, Integer> food, int actionCubes)
     {
         this.points = points;
         this.board = board;
@@ -44,7 +44,7 @@ public class Player
     public ArrayList<BonusCard> getBonusHand() {return bonusHand;}
     
     //eturns the arraylist that holds the bird cards a player has
-    public ArrayList<BirdInstance> getBirdHand() {return birdHand;}
+    public ArrayList<Bird> getBirdHand() {return birdHand;}
     
     //returns the map that holds the food a player has
     public HashMap<String, Integer> getFood() {return food;}
@@ -64,7 +64,7 @@ public class Player
     public void addBonusHand(BonusCard card) {bonusHand.add(card);}
     
     //adds the specified BirdCard card to the birdHand
-    public void addBirdHand(BirdInstance card) {birdHand.add(card);}
+    public void addBirdHand(Bird card) {birdHand.add(card);}
     
     //adds the specified foods and the amount to the food map
     public void addFood(String foodType, int amount) {

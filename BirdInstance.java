@@ -51,5 +51,5 @@ public class BirdInstance {
 	// VOID METHODS
 	
 	// performs this bird's stored BirdAction ability on the given player
-	public void performAction(Player player) { birdEnum.performAction(player); }
+	public void performAction(Game gameContext, Player player) { birdEnum.performAction(gameContext, player); }
 }
