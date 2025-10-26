@@ -33,6 +33,12 @@ class Vector2 {
     public void setX(double x) { this.x = x; }
     public void setY(double y) { this.y = y; }
     public String toString() { return "(" + x + ", " + y + ")"; }
+
+    public Vector2 center() {
+        x = 0.5;
+        y = 0.5;
+        return this;
+    }
 }
 
 class Dim2 {
@@ -73,6 +79,38 @@ class Dim2 {
         double yScale = start.yScale + (goal.yScale - start.yScale) * a;
         double yOffset = start.yOffset + (goal.yOffset - start.yOffset) * a;
         return new Dim2(xScale, (int)xOffset, yScale, (int)yOffset);
+    }
+
+    public Dim2 full() {
+        xScale = 1;
+        xOffset = 0;
+        yScale = 1;
+        yOffset = 0;
+        return this;
+    }
+
+    public Dim2 reset() {
+        xScale = 0;
+        xOffset = 0;
+        yScale = 0;
+        yOffset = 0;
+        return this;
+    }
+
+    public Dim2 topLeft() {
+        return reset();
+    }
+
+    public Dim2 bottomRight() {
+        return full();
+    }
+
+    public Dim2 center() {
+        xScale = 0.5;
+        xOffset = 0;
+        yScale = 0.5;
+        yOffset = 0;
+        return this;
     }
 }
 
@@ -160,6 +198,7 @@ class Tween {
     public static int CUBIC_IN_OUT = 6;
     public static int OVERSHOOT = 7;
     public static int ELASTIC = 8;
+    public static int EXPONENTIAL_IN_OUT = 9;
 
     public Tween(UIElement element, Object startValue, Object endValue, long duration, String property, String propertyType, int animationType) {
         this.element = element;
@@ -299,6 +338,10 @@ class Tween {
         return a < 0.5 ? (Math.pow(2 * a, 2) * ((c1 + 1) * 2 * a - c1)) / 2 : (Math.pow(2 * a - 2, 2) * ((c1 + 1) * (a * 2 - 2) + c1) + 2) / 2;
     }
 
+    private double exponentialInOut(double a) {
+        return a == 0 ? 0 : a == 1 ? 1 : a < 0.5 ? Math.pow(2, 20 * a - 10) / 2 : (2 - Math.pow(2, -20 * a + 10)) / 2;
+    }
+
     // this takes the animation type given and returns alpha based on that
     private double handleAnimationAlpha(double a, int animationType) {
         if (animationType == 1) {
@@ -317,6 +360,8 @@ class Tween {
             a = overshoot(a);
         } else if (animationType == 8) {
             a = elastic(a);
+        } else if (animationType == 9) {
+            a = exponentialInOut(a);
         }
         return a;
     }
@@ -438,6 +483,9 @@ class UIElement {
     private boolean resort = false; // used whenever we need to resort the drawing order based on z-index
     protected AffineTransform mostRecentTransform; // used to check if mouse is inside an element
     private HashMap<String, Object> attributes = new HashMap<>();
+    private static HashMap<String, UIElement> byName = new HashMap<>();
+    private String name;
+    public boolean ignore = false;
     
     // animation related stuff
     protected static HashSet<UIImage> sprites = new HashSet<>();
@@ -445,8 +493,11 @@ class UIElement {
     private static Timer timer;
     private static boolean isTweening = false;
 
-    public UIElement(JPanel panel) {
+    public UIElement(String name, JPanel panel) {
+        UIElement old = byName.put(name, this);
+        if (old != null) throw new IllegalArgumentException("The name \"" + name + "\" has already been used.");
         this.panel = panel;
+        this.name = name;
         // this is making the root element in case there isn't one
         UIElement root = getRootForPanel(panel);
         if (this != root) {
@@ -455,7 +506,8 @@ class UIElement {
     }
 
     // used for making roots
-    private UIElement(JPanel panel, boolean isRoot) {
+    private UIElement(String name, JPanel panel, boolean isRoot) {
+        this.name = name;
         if (isRoot) this.panel = panel;
     }
 
@@ -463,7 +515,7 @@ class UIElement {
     public static UIElement getRootForPanel(JPanel p) {
         UIElement root = rootElements.get(p);
         if (root == null) {
-            root = new UIElement(p, true);
+            root = new UIElement("Root" + p, p, true);
             root.size = new Dim2(1, 0, 1, 0);
             root.position = new Dim2(0, 0, 0, 0);
             root.anchorPoint = new Vector2(0, 0);
@@ -477,8 +529,23 @@ class UIElement {
         resort = true;
         this.zIndex = zIndex;
     }
+
     public int getZIndex() {
         return zIndex;
+    }
+
+    public void setName(String name) {
+        byName.remove(this.name);
+        this.name = name;
+        byName.put(name, this);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public static UIElement getByName(String name) {
+        return byName.get(name);
     }
 
     // used to add children to element
@@ -781,7 +848,7 @@ class UIElement {
         for (int i = children.size() - 1; i >= 0; i--) {
             UIElement child = children.get(i);
             //System.out.println(child.zIndex);
-            if (child.visible) { // if child has visible = true (we dont check if the mouse is in the bounds of the child because what if a child of the child is not in the bounds of the child we still wanna check that)
+            if (child.visible && !child.ignore) { // if child has visible = true (we dont check if the mouse is in the bounds of the child because what if a child of the child is not in the bounds of the child we still wanna check that)
                 UIElement deeper = child.findTopmostElement(x, y); // then run findTopmostElement again. if there is another child in that child, this whole loop will happen again until it finally gets to the descendant it's hovering over
                 if (deeper != null) return deeper;
             }
@@ -995,10 +1062,6 @@ class UIElement {
             if (allTweensComplete || tweens.isEmpty()) {
                 tweens.clear(); // remove all tweens in the array list
             }
-
-            for (TweenEvent event : onFinishEvents) {
-                event.run();
-            }
         }
 
         if (!sprites.isEmpty()) {
@@ -1033,6 +1096,10 @@ class UIElement {
         if (allSpritesComplete && allTweensComplete) {
             timer.stop();
             isTweening = false;
+        }
+
+        for (TweenEvent event : onFinishEvents) {
+            event.run();
         }
 
         for (JPanel root : rootPanels) {
@@ -1165,8 +1232,8 @@ class UIElement {
 
 class UIFrame extends UIElement {
     // so this is literally just UIElement
-    public UIFrame(JPanel p) {
-        super(p);
+    public UIFrame(String name, JPanel p) {
+        super(name, p);
     }
 }
 
@@ -1189,8 +1256,8 @@ class UIImage extends UIElement {
     protected boolean playing = false;
     protected long lastFrame = 0;
 
-    public UIImage(JPanel panel) {
-        super(panel);
+    public UIImage(String name, JPanel panel) {
+        super(name, panel);
     }
 
     public void setImageFillType(int fillType) {
