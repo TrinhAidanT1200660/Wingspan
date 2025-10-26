@@ -9,7 +9,7 @@ public class Player
     //stores the amount of points each player has
     private int points;
     //stores the birds in each habitat
-    private TreeMap<String, ArrayList<Bird>> board;
+    private TreeMap<String, ArrayList<BirdInstance>> board;
     //stores the bonus cards of each player
     private ArrayList<BonusCard> bonusHand;
     //stores the bird hand of each player
@@ -22,7 +22,7 @@ public class Player
     private ArrayList<Integer> goalRankings;
 
     //CONSTRUCTOR:
-    public Player(int points, TreeMap<String, ArrayList<Bird>> board, ArrayList<BonusCard> bonusHand, ArrayList<BirdInstance> birdHand, HashMap<String, Integer> food, int actionCubes)
+    public Player(int points, TreeMap<String, ArrayList<BirdInstance>> board, ArrayList<BonusCard> bonusHand, ArrayList<BirdInstance> birdHand, HashMap<String, Integer> food, int actionCubes)
     {
         this.points = points;
         this.board = board;
