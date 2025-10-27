@@ -1,4 +1,3 @@
-import java.awt.image.BufferedImage;
 
 public class BirdInstance {
 	private Bird birdEnum;
@@ -19,7 +18,7 @@ public class BirdInstance {
     public String getName() { return birdEnum.getName(); }
 
 	// returns a BufferedImage with the bird's image file
-	public BufferedImage getImage() { return birdEnum.getImage(); }
+	public String getImage() { return birdEnum.getImage(); }
 
 	// returns an int with the number of bird cards left in the deck
 	public int getDeckCount() { return birdEnum.getDeckCount(); }
