@@ -22,14 +22,22 @@ public class Player
     private ArrayList<Integer> goalRankings;
 
     //CONSTRUCTOR:
-    public Player(int points, TreeMap<String, ArrayList<BirdInstance>> board, ArrayList<BonusCard> bonusHand, ArrayList<Bird> birdHand, HashMap<String, Integer> food, int actionCubes)
+    public Player()
     {
-        this.points = points;
-        this.board = board;
-        this.bonusHand = bonusHand;
-        this.birdHand = birdHand;
-        this.food = food;
-        this.actionCubes = actionCubes;
+        this.points = 0;
+        this.board = new TreeMap<String, ArrayList<BirdInstance>>();
+        board.put("forest", new ArrayList<BirdInstance>());
+        board.put("grassland", new ArrayList<BirdInstance>());
+        board.put("wetland", new ArrayList<BirdInstance>());
+        this.bonusHand = new ArrayList<BonusCard>();
+        this.birdHand = new ArrayList<Bird>();
+        this.food = new HashMap<String, Integer>();
+        food.put("berry", 0);
+        food.put("fish", 0);
+        food.put("rat", 0);
+        food.put("seed", 0);
+        food.put("worm", 0);
+        this.actionCubes = 8;
     }
 
     //RETURN METHODS:
