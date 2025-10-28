@@ -8,6 +8,17 @@ public class Game {
 	private int roundsPlayed; // holds the number of rounds played so far; starts at 0 beginning of game
 	private ArrayList<Player> playerList;
 
+	// CONSTRUCTOR
+	public Game()
+	{
+		this.startingActionCubes = 8;
+		this.playerTurn = 1;
+		this.startingPlayerTurn = 1;
+		this.roundsPlayed = 0;
+		this.playerList = new ArrayList<>();
+		for(int i = 0; i < 5; ++i) { playerList.add(new Player()); }
+	}
+
 	// RETURN METHODS
 
 	public ArrayList<Player> getPlayers() { return playerList; }
