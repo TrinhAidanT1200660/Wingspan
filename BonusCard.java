@@ -1,11 +1,40 @@
 import java.awt.image.*;
 import javax.imageio.ImageIO;
+import java.util.*;
 
 public enum BonusCard implements BonusCardInterface
 {
     // temporary bonus card just so the errors stop. also an example
     ECOLOGIST("temp.jpg", (player) -> {
         // Some logic that finds the habitats with the least amount of birds
+    });
+
+    VISIONARYLEADER("temp.jpg", (player) -> {
+        /*int size = player.getBirdHand().size();
+        if(size >= 8) player.addPoints(7);
+        else if (size >= 5) player.addPoints(4);*/
+    });
+
+    ENCLOSURE_BUILDER("temp.jpg", (player) -> {
+       int count = 0;
+
+
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String nest = bird.getNest();
+                if (nest.equals("Ground") || nest.equals("Wild")) {
+                    count++;
+                }
+            }
+            if (count == 4 || count == 5) {
+                player.addPoints(4);
+            }
+            if (count >= 6) {
+                player.addPoints(7);
+            }
+        }
     });
 
     //VARIABLES:
