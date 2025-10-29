@@ -25,13 +25,13 @@ public class Player
     public Player()
     {
         this.points = 0;
-        this.board = new TreeMap<String, ArrayList<BirdInstance>>();
-        board.put("forest", new ArrayList<BirdInstance>());
-        board.put("grassland", new ArrayList<BirdInstance>());
-        board.put("wetland", new ArrayList<BirdInstance>());
-        this.bonusHand = new ArrayList<BonusCard>();
-        this.birdHand = new ArrayList<Bird>();
-        this.food = new HashMap<String, Integer>();
+        this.board = new TreeMap<>();
+        board.put("forest", new ArrayList<>());
+        board.put("grassland", new ArrayList<>());
+        board.put("wetland", new ArrayList<>());
+        this.bonusHand = new ArrayList<>();
+        this.birdHand = new ArrayList<>();
+        this.food = new HashMap<>();
         food.put("berry", 0);
         food.put("fish", 0);
         food.put("rat", 0);
