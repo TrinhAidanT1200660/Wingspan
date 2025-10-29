@@ -6,10 +6,16 @@
     "configurations": [
         {
             "type": "java",
+            "name": "WingspanRunner",
+            "request": "launch",
+            "mainClass": "WingspanRunner",
+            "projectName": "Wingspan_96734be1"
+        },
+        {
+            "type": "java",
             "name": "Launch Java Program",
             "request": "launch",
             "mainClass": ""
         }
-
     ]
 }

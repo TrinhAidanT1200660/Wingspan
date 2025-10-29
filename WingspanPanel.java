@@ -141,7 +141,13 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                             ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
                             ((UIImage)(UIElement.getByName("Bird" + i))).imagePath = imageFileString;
                         }
+                        ImageHandler.setGroup("foods/berries.png", "Foods");
+                        ImageHandler.setGroup("foods/fish.png", "Foods");
+                        ImageHandler.setGroup("foods/rat.png", "Foods");
+                        ImageHandler.setGroup("foods/seed.png", "Foods");
+                        ImageHandler.setGroup("foods/worm.png", "Foods");
                         ImageHandler.loadGroup("BirdChoiceCards");
+                        ImageHandler.loadGroup("Foods");
                         startMenu.visible = false;
                         ImageHandler.clearGroupCache("StartMenu");
                         resourceChoosingScreen.visible = true;
@@ -152,7 +158,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                 }
 
                 // resources screen
-                if (released == UIElement.getByName("ResourcesContinueButton")) {
+                if (released == UIElement.getByName("ContinueResourcesButtonBg")) {
 
                 }
             }
@@ -445,6 +451,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         resourceChoosingScreen.anchorPoint.center(); // centered anchor point
         resourceChoosingScreen.position.center(); // center in middle
         resourceChoosingScreen.size.full(); // entire screen
+        resourceChoosingScreen.keepAspectRatio = true;
         resourceChoosingScreen.backgroundTransparency = 0; // invisible
 
         UIText playerChoosingTitle = new UIText("PlayerChoosingTitle", this);
@@ -452,7 +459,6 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         playerChoosingTitle.textColor = Color.white;
         playerChoosingTitle.textScaled = true;
         playerChoosingTitle.size = new Dim2(0.25, 0, 0.1, 0);
-        playerChoosingTitle.keepAspectRatio = true;
         playerChoosingTitle.position = new Dim2(0.5, 0, 0.07, 0);
         playerChoosingTitle.anchorPoint = new Vector2(0.5, 0);
         playerChoosingTitle.text = "Player 1";
@@ -461,18 +467,26 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         playerChoosingTitle.textStrokeTransparency = 1f;
         playerChoosingTitle.textStrokeThickness = new Dim(0.007, 0);
 
+        UIFrame resourcesChoicesFrame = new UIFrame("ResourcesChoicesFrame", this);
+        resourcesChoicesFrame.position = new Dim2(0.5, 0, 0.55, 0);
+        resourcesChoicesFrame.anchorPoint.center();
+        resourcesChoicesFrame.size = new Dim2(0.85, 0, 0.65, 0);
+        resourcesChoicesFrame.keepAspectRatio = true;
+        resourcesChoicesFrame.backgroundTransparency = 0f;
+        resourcesChoicesFrame.setParent(resourceChoosingScreen);
+
+
         UIFrame choosableBirdsContainer = new UIFrame("ChoosableBirdsContainer", this);
-        choosableBirdsContainer.position = new Dim2(0.5, 0, 0.45, 0);
-        choosableBirdsContainer.anchorPoint.center();
-        choosableBirdsContainer.size = new Dim2(0.85, 0, 0.5, 0);
-        choosableBirdsContainer.keepAspectRatio = true;
+        choosableBirdsContainer.position = new Dim2(0.5, 0, 0, 0);
+        choosableBirdsContainer.anchorPoint = new Vector2(0.5, 0);
+        choosableBirdsContainer.size = new Dim2(1, 0, 0.7, 0);
         choosableBirdsContainer.backgroundTransparency = 0f;
-        choosableBirdsContainer.setParent(resourceChoosingScreen);
+        choosableBirdsContainer.setParent(resourcesChoicesFrame);
 
         for (int i = 0; i < 5; i++) {
             UIImage bird = new UIImage("Bird" + i, this);
             bird.position = new Dim2(Math.max(0, 0.2 * i), 0, 0.5, 0);
-            bird.size = new Dim2(0.2, 0, 0.77, 0);
+            bird.size = new Dim2(0.2, 0, 0.82, 0);
             bird.backgroundTransparency = 0f;
             bird.anchorPoint = new Vector2(0, 0.5);
             bird.setImageFillType(UIImage.FIT_IMAGE);
@@ -480,12 +494,19 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
             bird.setParent(choosableBirdsContainer);
         }
 
+        UIFrame continueResourcesHolder = new UIFrame("ContinueResourcesHolder", this);
+        continueResourcesHolder.backgroundTransparency = 0f;
+        continueResourcesHolder.size = new Dim2(0.24, 0, 0.1, 0).dilate(1.1);
+        continueResourcesHolder.anchorPoint = new Vector2(1, 1);
+        continueResourcesHolder.position = new Dim2(0.95, 0, 0.95, 0);
+        continueResourcesHolder.setParent(resourcesChoicesFrame);
+
         UIFrame continueResourcesContainer = new UIFrame("ContinueResourcesContainer", this);
         continueResourcesContainer.backgroundTransparency = 0f;
-        continueResourcesContainer.size = new Dim2(0.35, 0, 0.117, 0);
-        continueResourcesContainer.anchorPoint = new Vector2(1, 1);
-        continueResourcesContainer.position = new Dim2(0.85, 0, 0.85, 0);
-        continueResourcesContainer.setParent(resourceChoosingScreen);
+        continueResourcesContainer.size.full();
+        continueResourcesContainer.anchorPoint.center();
+        continueResourcesContainer.position.center();
+        continueResourcesContainer.setParent(continueResourcesHolder);
         continueResourcesContainer.setAttribute("ogsize", continueResourcesContainer.size.clone());
         continueResourcesContainer.setAttribute("hoversize", continueResourcesContainer.size.clone().dilate(1.15));
         continueResourcesContainer.setAttribute("presssize", continueResourcesContainer.size.clone().dilate(0.8));
@@ -522,10 +543,25 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         continueResourcesDropshadow.borderRadius = new Dim(0.4, 0);
         continueResourcesDropshadow.size.full();
         continueResourcesDropshadow.setZIndex(-1);
-        continueResourcesDropshadow.setParent(continueResourcesDropshadow);
+        continueResourcesDropshadow.setParent(continueResourcesContainer);
         continueResourcesButtonBg.setAttribute("drop", continueResourcesDropshadow);
         continueResourcesButtonBg.setAttribute("animOnHoverRot", continueResourcesContainer);
         continueResourcesButtonBg.setAttribute("animOnPress", continueResourcesContainer);
         continueResourcesButtonBg.setAttribute("pressCover", continueResourcesButtonCover);
+
+        UIFrame berriesChoiceContainer = new UIFrame("BerriesChoiceContainer", this);
+        berriesChoiceContainer.backgroundTransparency = 0f;
+        berriesChoiceContainer.size = new Dim2(0.05, 0, 0.1, 0).dilate(1.33);
+        berriesChoiceContainer.anchorPoint = new Vector2(0, 1);
+        berriesChoiceContainer.position = new Dim2(0.05, 0, 0.95, 0);
+        berriesChoiceContainer.setParent(resourcesChoicesFrame);
+
+        UIImage berriesChoiceIcon = new UIImage("BerriesChoiceIcon", this);
+        berriesChoiceIcon.imagePath = "foods/berries.png";
+        berriesChoiceIcon.backgroundTransparency = 0f;
+        berriesChoiceIcon.size.full();
+        berriesChoiceIcon.anchorPoint.center();
+        berriesChoiceIcon.position.center();
+        berriesChoiceIcon.setParent(berriesChoiceContainer);
     }
 }
