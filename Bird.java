@@ -14,11 +14,11 @@ public enum Bird
 	// nestTypes: Platform (logs on top each other), Bowl (a bowl), Cavity (tree with hole in it), Ground (bunch of circles), Wild (a star)
 	// action: directly type in from birdAction
 	// ACTUAL BIRD ENUMS, NO IMAGES IMPORTED YET
-	PROTHONOTARY_WARBLER("PROTHONOTARY WARBLER", "temp.jpg", 4, 23, 8, new String[] {"forest", "wetland"}, "NONE", "Other", "and 1seed 2worm", "Cavity", BirdAction.NONE),
-	GREATER_PRAIRIE_CHICKEN("GREATER PRAIRIE-CHICKEN", "temp.jpg", 4, 71, 5, new String[] {"grassland"}, "WHITE", "CardDrawing", "and 2seed 1worm", "Ground", BirdAction.DRAW2BONUSKEEP1),
-	NORTHERN_CARDINAL("NORTHERN CARDINAL", "temp.jpg", 5, 30, 3, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1seed", "Bowl", BirdAction.GET1BERRY),
-	BROWN_PELICAN("BROWN PELICAN", "temp.jpg", 2, 201, 4, new String[] {"wetland"}, "WHITE", "Other", "and 2fish", "Platform", BirdAction.GET3FISH),
-	CANVASBACK("CANVASBACK", "temp.jpg", 4, 82, 4, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1any 1seed", "Wild", BirdAction.ALLDRAW1BIRD);
+	PROTHONOTARY_WARBLER("PROTHONOTARY WARBLER", "birds/prothonotary_warbler.png", 4, 23, 8, new String[] {"forest", "wetland"}, "NONE", "Other", "and 1seed 2worm", "Cavity", BirdAction.NONE),
+	GREATER_PRAIRIE_CHICKEN("GREATER PRAIRIE-CHICKEN", "birds/greater_prairie_chicken.png", 4, 71, 5, new String[] {"grassland"}, "WHITE", "CardDrawing", "and 2seed 1worm", "Ground", BirdAction.DRAW2BONUSKEEP1),
+	NORTHERN_CARDINAL("NORTHERN CARDINAL", "birds/northern_cardinal.png", 5, 30, 3, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1seed", "Bowl", BirdAction.GET1BERRY),
+	BROWN_PELICAN("BROWN PELICAN", "birds/brown_pelican.png", 2, 201, 4, new String[] {"wetland"}, "WHITE", "Other", "and 2fish", "Platform", BirdAction.GET3FISH),
+	CANVASBACK("CANVASBACK", "birds/canvasback.png", 4, 82, 4, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1any 1seed", "Wild", BirdAction.ALLDRAW1BIRD);
 
 	private final String name; // holds birds name
 	private final String imageFileString;
@@ -49,7 +49,6 @@ public enum Bird
 		this.foodRequired = foodRequired;
 		this.nest = nest;
 		this.action = action;
-		ImageHandler.setGroup(imageFileString, "BirdCards");
 	}
 	
 	// RETURN METHODS
