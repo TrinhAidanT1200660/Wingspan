@@ -6,4 +6,3 @@ public class WingspanRunner
         WingspanFrame frame = new WingspanFrame("Wingspan");
     }
 }
-

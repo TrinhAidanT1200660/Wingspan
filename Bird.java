@@ -1,5 +1,3 @@
-import java.awt.image.*;
-import javax.imageio.ImageIO;
 
 public enum Bird 
 {
@@ -24,7 +22,6 @@ public enum Bird
 
 	private final String name; // holds birds name
 	private final String imageFileString;
-	private BufferedImage bufferedImageFile; // holds birds image file
 	private int deckCount; // holds the number of bird cards in the deck, decreases when drawn once
 	private final int eggMax; // holds the max number of eggs this bird can have
 	private final int wingspan; // holds the wingspan in centimeters this bird has
@@ -42,7 +39,6 @@ public enum Bird
 	{
 		this.name = name;
 		this.imageFileString = imageFileString;
-		this.bufferedImageFile = null;
 		this.deckCount = 1;
 		this.eggMax = eggMax;
 		this.wingspan = wingspan;
@@ -53,7 +49,7 @@ public enum Bird
 		this.foodRequired = foodRequired;
 		this.nest = nest;
 		this.action = action;
-		
+		ImageHandler.setGroup(imageFileString, "BirdCards");
 	}
 	
 	// RETURN METHODS
@@ -61,26 +57,8 @@ public enum Bird
 	// returns a String with the bird's name
 	public String getName() { return name; }
 
-	// returns a BufferedImage with the bird's image file or loads the image if not loaded yet
-	public BufferedImage getImage() 
-	{ 
-		if (bufferedImageFile == null)
-		{
-			// directly uses the image file name to create buffered image
-			try
-			{
-				// need to define the package that will be used to hold images before this is done
-				this.bufferedImageFile = ImageIO.read(Bird.class.getResource("/packageNameHere/" + imageFileString));
-			}
-			catch (Exception E)
-			{
-				System.out.println("Could not load bird ENUM image for" + name + ": " + E.getMessage());
-				return null;
-			}
-		}
-
-		return bufferedImageFile;
-	}
+	// returns a String of the bird's image file path
+	public String getImage() { return imageFileString; }
 
 	// returns an int with the number of bird cards left in the deck
 	public int getDeckCount() { return deckCount; }
@@ -113,8 +91,6 @@ public enum Bird
 	
 	// performs this bird's stored BirdAction ability on the given player
 	public void performAction(Game gameContext, Player player) { action.execute(gameContext, player); }
-
-	public void releaseImage() { bufferedImageFile = null; }
 
 	public void removeCardFromDeck() { deckCount -= 1; }
 }
