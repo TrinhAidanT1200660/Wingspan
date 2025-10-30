@@ -35,6 +35,33 @@ public enum BonusCard implements BonusCardInterface
                 player.addPoints(7);
             }
         }
+    }),
+
+	PHOTOGRAPHER("temp.jpg", (player) -> {
+	    int c = 0;
+	
+	    for(Map.Entry<String, ArrayList<BirdInstance>> entry: player.getBoard().entrySet()) {
+    		String h = entry.getKey();
+    		ArrayList<BirdInstance> n = entry.getValue();
+    		for(int i = 0; i < n.size; i++) {
+    			BirdInstance current = n.get(i);
+    			String c = current.getName();
+    			if(c.toLowerCase.contains("ash") || c.toLowerCase.contains("black") || c.toLowerCase.contains("blue") ||
+    					c.toLowerCase.contains("bronze") || c.toLowerCase.contains("brown") || c.toLowerCase.contains("cerulean")
+    					|| c.toLowerCase.contains("chestnut") || c.toLowerCase.contains("ferruginous") || 
+    					c.toLowerCase.contains("gold") || c.toLowerCase.contains("gray") || c.toLowerCase.contains("green") || 
+    					c.toLowerCase.contains("indigo") || c.toLowerCase.contains("lazuli") || c.toLowerCase.contains("purple")
+    					|| c.toLowerCase.contains("red") || c.toLowerCase.contains("rose") || c.toLowerCase.contains("roseate") 
+    					|| c.toLowerCase.contains("ruby") || c.toLowerCase.contains("ruddy") || c.toLowerCase.contains("rufous") || 
+    					c.toLowerCase.contains("snowy") || c.toLowerCase.contains("violet") || c.toLowerCase.contains("white") ||
+    					c.toLowerCase.contains("yellow"))
+    				c++;
+    		}
+    	}
+    	if(c == 4 || c == 5)
+    		player.addPoints(3);
+    	if(c >= 6)
+    		player.addPoints(6);
     });
 
     //VARIABLES:
