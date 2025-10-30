@@ -112,25 +112,8 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
 
         if (released != null) { // if we actually pressed and released something
             // we can do whatever with the button that was fully clicked here...
-            Object hasAnimOnPress = released.getAttribute("animOnPress"); // check if the element wants to be animated
-            // when pressed
-            if (hasAnimOnPress != null) { // if so
-                UIElement drop = (UIElement) hasAnimOnPress;
-                drop.tweenSize((Dim2) drop.getAttribute("ogsize"), 0.05, Tween.QUAD_IN_OUT); // set it back to its
-                // original size
-            }
-
-            Object hasPressCover = released.getAttribute("pressCover"); // check if element wants to slightly dim when
-            // pressed
-            if (hasPressCover != null) { // if so
-                UIFrame pressCover = (UIFrame) hasPressCover;
-                pressCover.tweenBackgroundTransparency(0f, 0.075, Tween.QUAD_IN_OUT); // fade it out so u cant see it
-                // anymore
-            }
-
             if (released.containsPoint(e.getX(), e.getY())) {
-                Object isStartButton = released.getAttribute("startButton"); // if its a start button, we can handle its animation here
-                if (isStartButton != null) { // check if the mouse is still on the button and is actually a start button
+                if (released.getAttribute("startButton") != null) { // if its a start button, we can start game here
                     transition.visible = true; // enable the transition frame
                     startMenu.tweenSize(new Dim2(1.5, 0, 1.8, 0), 0.5, Tween.QUAD_IN_OUT); // zoom in the main menu stuff by 3x
                     currentGame = new Game(released == UIElement.getByName("CompetitiveButtonBg"));
@@ -139,7 +122,9 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                         for (int i = 0; i < randomBirds.size(); i++) {
                             String imageFileString = randomBirds.get(i).getImage();
                             ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
-                            ((UIImage)(UIElement.getByName("Bird" + i))).imagePath = imageFileString;
+                            UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i));
+                            birdImage.setAttribute("Bird", randomBirds.get(i));
+                            birdImage.setImagePath(imageFileString);
                         }
                         ImageHandler.setGroup("foods/berries.png", "Foods");
                         ImageHandler.setGroup("foods/fish.png", "Foods");
@@ -155,12 +140,27 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                         startMenu.size = new Dim2(0.5, 0, 0.6, 0);
                         resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
                     });
+                } else if (released.getAttribute("birdChoice") != null) {
+                    Bird bird = (Bird)(released.getAttribute("Bird"));
+                    Object selected = released.getAttribute("Selected");
+                    if (selected != null && (boolean)selected == true) currentGame.deselect(released); else currentGame.select(bird, released);
                 }
 
                 // resources screen
                 if (released == UIElement.getByName("ContinueResourcesButtonBg")) {
 
                 }
+            }
+            Object hasAnimOnPress = released.getAttribute("animOnPress"); // check if the element wants to be animated when pressed
+            if (hasAnimOnPress != null) { // if so
+                UIElement drop = (UIElement) hasAnimOnPress;
+                drop.tweenSize((Dim2) drop.getAttribute("ogsize"), 0.05, Tween.QUAD_IN_OUT); // set it back to its original size
+            }
+
+            Object hasPressCover = released.getAttribute("pressCover"); // check if element wants to slightly dim when pressed
+            if (hasPressCover != null) { // if so
+                UIFrame pressCover = (UIFrame) hasPressCover;
+                pressCover.tweenBackgroundTransparency(0f, 0.075, Tween.QUAD_IN_OUT); // fade it out so u cant see it anymore
             }
         }
 
@@ -255,13 +255,19 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     public void initializeUI() {
         UIText.defaultFontName = "Cardenio Modern Bold";
 
+        UIFrame blackBackground = new UIFrame("BackgroundFrame", this); // background image of the sky
+        blackBackground.setZIndex(-35);
+        blackBackground.size.full(); // take 100% of the screen
+        blackBackground.backgroundColor = Color.black;
+
         UIImage backgroundFrame = new UIImage("Background", this); // background image of the sky
-        backgroundFrame.imagePath = "images/wingspan_background.png"; // setting the picture to the BufferedImage of the
+        backgroundFrame.setImagePath("images/wingspan_background.png"); // setting the picture to the BufferedImage of the
         // sky
         backgroundFrame.size.full(); // take 100% of the screen
         backgroundFrame.backgroundTransparency = 0f; // no background color
         backgroundFrame.setImageFillType(UIImage.CROP_IMAGE); // setting it so even if screen is an awkward size the
         // picture will crop itself to fit the whole screen
+        backgroundFrame.imageTransparency = 0.9f;
 
         UIFrame startScreen = new UIFrame("StartScreen", this); // invisible frame holding startMenu
         startScreen.anchorPoint.center(); // centered anchor point
@@ -298,7 +304,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         birdHitbox.setParent(birdContainer); // setting the birdContainer frame as its parent
 
         UIImage birdImage = new UIImage("BirdImage", this); // picture of the wingspan bird
-        birdImage.imagePath = "images/wingspan_bird.png"; // setting picture to the BufferedImage of the bird
+        birdImage.setImagePath("images/wingspan_bird.png"); // setting picture to the BufferedImage of the bird
         ImageHandler.setGroup("images/wingspan_bird.png", "StartMenu");
         birdImage.size.full(); // 100% size of its container
         birdImage.anchorPoint.center(); // centered anchor point
@@ -307,12 +313,8 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         birdImage.setImageFillType(UIImage.FIT_IMAGE); // setting it so even if screen is an awkward size the picture
         // will fit to the biggest size it can without stretching
         birdImage.setParent(birdContainer); // setting the startscreen frame as its parent
-        birdImage.setAttribute("ogsize", new Dim2().full()); // original size, 100%
-        birdImage.setAttribute("hoversize", new Dim2().full().dilate(1.1)); // size when hovered, 110%
-        birdImage.setAttribute("presssize", new Dim2().full().dilate(0.8)); // size when pressing down, 80%
-        birdHitbox.setAttribute("animOnHoverRot", birdImage); // bird hitbox: when hovered over, it'll resize and rotate
-        // the birdImage
-        birdHitbox.setAttribute("animOnPress", birdImage); // bird hitbox: when pressed, it'll resize birdImage
+        animOnHoverRot(birdHitbox, birdImage);
+        animOnPress(birdHitbox, birdImage);
 
         // buttons on the start screen
         // peaceful button
@@ -322,9 +324,6 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         peacefulContainer.anchorPoint = new Vector2(0.5, 0.5);
         peacefulContainer.position = new Dim2(0.825, 0, 0.5, 0);
         peacefulContainer.setParent(startMenu);
-        peacefulContainer.setAttribute("ogsize", peacefulContainer.size.clone());
-        peacefulContainer.setAttribute("hoversize", peacefulContainer.size.clone().dilate(1.15));
-        peacefulContainer.setAttribute("presssize", peacefulContainer.size.clone().dilate(0.8));
 
         UIFrame peacefulButtonBg = new UIFrame("PeacefulButtonBg", this);
         peacefulButtonBg.size.full();
@@ -359,10 +358,10 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         peacefulDropshadow.size.full();
         peacefulDropshadow.setZIndex(-1);
         peacefulDropshadow.setParent(peacefulContainer);
-        peacefulButtonBg.setAttribute("drop", peacefulDropshadow);
-        peacefulButtonBg.setAttribute("animOnHoverRot", peacefulContainer);
-        peacefulButtonBg.setAttribute("animOnPress", peacefulContainer);
-        peacefulButtonBg.setAttribute("pressCover", peacefulButtonCover);
+        animDropshadow(peacefulButtonBg, peacefulDropshadow);
+        animOnHoverRot(peacefulButtonBg, peacefulContainer);
+        animOnPress(peacefulButtonBg, peacefulContainer);
+        pressCover(peacefulButtonBg, peacefulButtonCover);
         peacefulButtonBg.setAttribute("startButton", true);
 
         // competitive button
@@ -372,9 +371,6 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         competitiveContainer.anchorPoint = new Vector2(0.5, 0.5);
         competitiveContainer.position = new Dim2(0.825, 0, 0.67, 0);
         competitiveContainer.setParent(startMenu);
-        competitiveContainer.setAttribute("ogsize", competitiveContainer.size.clone());
-        competitiveContainer.setAttribute("hoversize", competitiveContainer.size.clone().dilate(1.15));
-        competitiveContainer.setAttribute("presssize", competitiveContainer.size.clone().dilate(0.8));
 
         UIFrame competitiveButtonBg = new UIFrame("CompetitiveButtonBg", this);
         competitiveButtonBg.size.full();
@@ -409,15 +405,15 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         competitiveDropshadow.size.full();
         competitiveDropshadow.setZIndex(-1);
         competitiveDropshadow.setParent(competitiveContainer);
-        competitiveButtonBg.setAttribute("drop", competitiveDropshadow);
-        competitiveButtonBg.setAttribute("animOnHoverRot", competitiveContainer);
-        competitiveButtonBg.setAttribute("animOnPress", competitiveContainer);
-        competitiveButtonBg.setAttribute("pressCover", competitiveButtonCover);
+        animDropshadow(competitiveButtonBg, competitiveDropshadow);
+        animOnHoverRot(competitiveButtonBg, competitiveContainer);
+        animOnPress(competitiveButtonBg, competitiveContainer);
+        pressCover(competitiveButtonBg, competitiveButtonCover);
         competitiveButtonBg.setAttribute("startButton", true);
 
         // title image
         UIImage title = new UIImage("Title", this);
-        title.imagePath = "images/wingspan_title.png";
+        title.setImagePath("images/wingspan_title.png");
         ImageHandler.setGroup("images/wingspan_title.png", "StartMenu");
         title.backgroundTransparency = 0f;
         title.size = new Dim2(1, 0, 0.4, 0);
@@ -483,20 +479,49 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         choosableBirdsContainer.backgroundTransparency = 0f;
         choosableBirdsContainer.setParent(resourcesChoicesFrame);
 
+        ListLayout birdChoicesLayout = new ListLayout();
+        birdChoicesLayout.direction = ListLayout.HORIZONTAL;
+        birdChoicesLayout.verticalAlignment = ListLayout.CENTER;
+        birdChoicesLayout.horizontalAlignment = ListLayout.CENTER;
+        birdChoicesLayout.spacing = new Dim(0.005, 0);
+        choosableBirdsContainer.layout = birdChoicesLayout;
+
         for (int i = 0; i < 5; i++) {
+            UIFrame chooseableBirdContainer = new UIFrame("BirdContainer" + i, this);
+            chooseableBirdContainer.backgroundTransparency = 0f;
+            chooseableBirdContainer.size = new Dim2(0.185, 0, 0.82, 0);
+            chooseableBirdContainer.setParent(choosableBirdsContainer);
+
             UIImage bird = new UIImage("Bird" + i, this);
-            bird.position = new Dim2(Math.max(0, 0.2 * i), 0, 0.5, 0);
-            bird.size = new Dim2(0.2, 0, 0.82, 0);
+            bird.size.full().dilate(0.9);
             bird.backgroundTransparency = 0f;
-            bird.anchorPoint = new Vector2(0, 0.5);
+            bird.position.center();
+            bird.anchorPoint.center();
+            bird.setBrightness(0.7f);
+            bird.setAttribute("birdChoice", true);
             bird.setImageFillType(UIImage.FIT_IMAGE);
-            bird.imagePath = "birds/back_of_bird.png";
-            bird.setParent(choosableBirdsContainer);
+            bird.setParent(chooseableBirdContainer);
+            animOnHover(bird, bird);
+            animOnPress(bird, bird);
+            bird.setAttribute("Select", (Runnable)() -> {
+                bird.setBrightness(1f);
+                Dim2 newSize = new Dim2().full().dilate(0.95);
+                bird.setAttribute("ogsize", newSize);
+                bird.setAttribute("hoversize", newSize.clone().dilate(1.1));
+                bird.setAttribute("presssize", newSize.clone().dilate(0.85));
+            });
+            bird.setAttribute("Deselect", (Runnable)() -> {
+                bird.setBrightness(0.7f);
+                Dim2 newSize = new Dim2().full().dilate(0.9);
+                bird.setAttribute("ogsize", newSize);
+                bird.setAttribute("hoversize", newSize.clone().dilate(1.1));
+                bird.setAttribute("presssize", newSize.clone().dilate(0.85));
+            });
         }
 
         UIFrame continueResourcesHolder = new UIFrame("ContinueResourcesHolder", this);
         continueResourcesHolder.backgroundTransparency = 0f;
-        continueResourcesHolder.size = new Dim2(0.24, 0, 0.1, 0).dilate(1.1);
+        continueResourcesHolder.size = new Dim2(0.18, 0, 0.1, 0).dilate(1.1);
         continueResourcesHolder.anchorPoint = new Vector2(1, 1);
         continueResourcesHolder.position = new Dim2(0.95, 0, 0.95, 0);
         continueResourcesHolder.setParent(resourcesChoicesFrame);
@@ -507,12 +532,10 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         continueResourcesContainer.anchorPoint.center();
         continueResourcesContainer.position.center();
         continueResourcesContainer.setParent(continueResourcesHolder);
-        continueResourcesContainer.setAttribute("ogsize", continueResourcesContainer.size.clone());
-        continueResourcesContainer.setAttribute("hoversize", continueResourcesContainer.size.clone().dilate(1.15));
-        continueResourcesContainer.setAttribute("presssize", continueResourcesContainer.size.clone().dilate(0.8));
 
         UIFrame continueResourcesButtonBg = new UIFrame("ContinueResourcesButtonBg", this);
         continueResourcesButtonBg.size.full();
+        continueResourcesButtonBg.backgroundColor = Color.lightGray;
         continueResourcesButtonBg.borderRadius = new Dim(0.4, 0);
         continueResourcesButtonBg.setParent(continueResourcesContainer);
 
@@ -524,7 +547,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         continueResourcesButton.size = continueResourcesButton.size.full().dilate(0.75);
         continueResourcesButton.position.center();
         continueResourcesButton.anchorPoint.center();
-        continueResourcesButton.borderRadius = new Dim(0.4, 0);
+        continueResourcesButton.backgroundTransparency = 0f;
         continueResourcesButton.setParent(continueResourcesButtonBg);
 
         UIFrame continueResourcesButtonCover = new UIFrame("ContinueResourcesButtonCover", this);
@@ -544,10 +567,10 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         continueResourcesDropshadow.size.full();
         continueResourcesDropshadow.setZIndex(-1);
         continueResourcesDropshadow.setParent(continueResourcesContainer);
-        continueResourcesButtonBg.setAttribute("drop", continueResourcesDropshadow);
-        continueResourcesButtonBg.setAttribute("animOnHoverRot", continueResourcesContainer);
-        continueResourcesButtonBg.setAttribute("animOnPress", continueResourcesContainer);
-        continueResourcesButtonBg.setAttribute("pressCover", continueResourcesButtonCover);
+        animDropshadow(continueResourcesButtonBg, continueResourcesDropshadow);
+        animOnHoverRot(continueResourcesButtonBg, continueResourcesContainer);
+        animOnPress(continueResourcesButtonBg, continueResourcesContainer);
+        pressCover(continueResourcesButtonBg, continueResourcesButtonCover);
 
         UIFrame berriesChoiceContainer = new UIFrame("BerriesChoiceContainer", this);
         berriesChoiceContainer.backgroundTransparency = 0f;
@@ -557,11 +580,37 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         berriesChoiceContainer.setParent(resourcesChoicesFrame);
 
         UIImage berriesChoiceIcon = new UIImage("BerriesChoiceIcon", this);
-        berriesChoiceIcon.imagePath = "foods/berries.png";
+        berriesChoiceIcon.setImagePath("foods/berries.png");
         berriesChoiceIcon.backgroundTransparency = 0f;
         berriesChoiceIcon.size.full();
         berriesChoiceIcon.anchorPoint.center();
         berriesChoiceIcon.position.center();
         berriesChoiceIcon.setParent(berriesChoiceContainer);
+    }
+
+    public void animOnHover(UIElement element, UIElement toAnimate) {
+        element.setAttribute("animOnHover", toAnimate);
+        if (toAnimate.getAttribute("ogsize") == null) toAnimate.setAttribute("ogsize", toAnimate.size.clone());
+        toAnimate.setAttribute("hoversize", toAnimate.size.clone().dilate(1.15));
+    }
+
+    public void animOnHoverRot(UIElement element, UIElement toAnimate) {
+        element.setAttribute("animOnHoverRot", toAnimate);
+        if (toAnimate.getAttribute("ogsize") == null) toAnimate.setAttribute("ogsize", toAnimate.size.clone());
+        toAnimate.setAttribute("hoversize", toAnimate.size.clone().dilate(1.15));
+    }
+
+    public void animOnPress(UIElement element, UIElement toAnimate) {
+        element.setAttribute("animOnPress", toAnimate);
+        if (toAnimate.getAttribute("ogsize") == null) toAnimate.setAttribute("ogsize", toAnimate.size.clone());
+        toAnimate.setAttribute("presssize", toAnimate.size.clone().dilate(0.8));
+    }
+
+    public void pressCover(UIElement element, UIElement toAnimate) {
+        element.setAttribute("pressCover", toAnimate);
+    }
+
+    public void animDropshadow(UIElement element, UIElement toAnimate) {
+        element.setAttribute("drop", toAnimate);
     }
 }

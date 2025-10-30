@@ -14,6 +14,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -535,6 +536,91 @@ class RootMouseEvent {
     }
 }
 
+class ListLayout {
+    // direction options or like which way to stack the items
+    public static int VERTICAL = 0;
+    public static int HORIZONTAL = 1;
+
+    // alignment options for vertical / horizontal alignment
+    public static int TOP = 2;
+    public static int MIDDLE = 3;
+    public static int CENTER = 3; // middle center same thing
+    public static int BOTTOM = 4;
+    public static int LEFT = 5;
+    public static int RIGHT = 6;
+
+    public int direction = VERTICAL; // whether items stack vertically or horizontally
+    public int verticalAlignment = TOP; // how to align vertically (top/middle/bottom)
+    public int horizontalAlignment = LEFT; // how to align horizontally (left/center/right)
+    public Dim padding = new Dim(); // padding is like the margin of the actual content area so if u have a 200x200 area and like padding is 10 then the actual content area would be 180x180
+    public Dim spacing = new Dim(); // spacing is like the space between each child
+    public boolean dirty = true; // used to know if we need to resort children; only true when new child is added
+
+    public void applyLayout(UIElement parent) {
+        ArrayList<UIElement> children = parent.getChildren();
+
+        if (dirty) {
+            children.sort((a, b) -> Integer.compare(a.layoutOrder, b.layoutOrder));
+            dirty = false;
+        }
+        
+        double absolutePadding = (direction == VERTICAL) ? padding.getScale() * parent.absoluteSize.getY() + padding.getOffset() : padding.getScale() * parent.absoluteSize.getX() + padding.getOffset();
+        double absoluteSpacing = (direction == VERTICAL) ? spacing.getScale() * parent.absoluteSize.getY() + spacing.getOffset() : spacing.getScale() * parent.absoluteSize.getX() + spacing.getOffset();
+
+        // start positions at padding (cus like if theres padding u gotta move the content area from the left a little bit)
+        double x = absolutePadding;
+        double y = absolutePadding;
+
+        // this will store total space used by all children and spacing, depends on direction
+        double absoluteContentSize = 0;
+
+        for (UIElement child : children) {
+            if (!child.visible) continue;
+
+            // get the size of the child depending on layout direction
+            double size = (direction == VERTICAL) ? child.absoluteSize.getY() : child.absoluteSize.getX();
+
+            absoluteContentSize += size + absoluteSpacing; // add it to the total and stuff
+        }
+
+        // remove last spacing cus we don't want that extra gap at the end yk
+        absoluteContentSize -= absoluteSpacing;
+
+        // so we gotta find the actual size we can use, which is the bounds of the parent - padding (on both left and right or top and bottom)
+        double availableWidth = parent.absoluteSize.getX() - absolutePadding * 2;
+        double availableHeight = parent.absoluteSize.getY() - absolutePadding * 2;
+
+        // alignment for the direction we chose
+        double offset = 0;
+        if (direction == VERTICAL) {
+            if (verticalAlignment == MIDDLE || verticalAlignment == CENTER) offset = (availableHeight - absoluteContentSize) / 2; else if (verticalAlignment == BOTTOM) offset = (availableHeight - absoluteContentSize);
+            y += offset;
+        } else {
+            if (horizontalAlignment == CENTER || horizontalAlignment == MIDDLE) offset = (availableWidth - absoluteContentSize) / 2; else if (horizontalAlignment == RIGHT) offset = (availableWidth - absoluteContentSize);
+            x += offset;
+        }
+
+        // ok now we gota update the positioning of the children to like fit the stacking of the list and stuff
+        for (UIElement child : children) {
+            if (!child.visible) continue;
+
+            double childX = x;
+            double childY = y;
+
+            // handle the alignment that's opposite to the current one (perperendiuclaar)
+            if (direction == VERTICAL) {
+                if (horizontalAlignment == CENTER || horizontalAlignment == MIDDLE) childX = (availableWidth - child.absoluteSize.getX()) / 2 + absolutePadding; else if (horizontalAlignment == RIGHT) childX = availableWidth - child.absoluteSize.getX() + absolutePadding;
+            } else {
+                if (verticalAlignment == MIDDLE || verticalAlignment == CENTER) childY = (availableHeight - child.absoluteSize.getY()) / 2 + absolutePadding; else if (verticalAlignment == BOTTOM) childY = availableHeight - child.absoluteSize.getY() + absolutePadding;
+            }
+
+            child.position = new Dim2(0, (int)childX, 0, (int)childY);
+
+            if (direction == VERTICAL) y += child.absoluteSize.getY() + absoluteSpacing; else x += child.absoluteSize.getX() + absoluteSpacing;
+        }
+    }
+}
+
 class UIElement {
     // oh boy
     // this is like the big dog like the framework for everything
@@ -577,6 +663,8 @@ class UIElement {
     private static HashMap<String, UIElement> byName = new HashMap<>();
     private String name;
     public boolean ignore = false;
+    public ListLayout layout;
+    public int layoutOrder;
 
     // animation related stuff
     protected static HashSet<UIImage> sprites = new HashSet<>();
@@ -648,6 +736,7 @@ class UIElement {
         if (child.parent != null) {
             child.parent.children.remove(child);
             child.parent.resort = true;
+            if (child.parent.layout != null) child.parent.layout.dirty = true;
         }
         resort = true;
         child.parent = this;
@@ -914,10 +1003,12 @@ class UIElement {
         if (cropOverflow) {
             g2d.setClip((int) absolutePosition.getX(), (int) absolutePosition.getY(), (int) absoluteSize.getX(), (int) absoluteSize.getY());
         }
+        
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         if (backgroundTransparency > 0) {
-            g2d.setColor(backgroundColor);
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // higher quality with antialiasing 
+            g2d.setColor(backgroundColor); 
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(backgroundTransparency, 1f)))); // setting transparency for the element
             g2d.fillRoundRect((int) absolutePosition.getX(), (int) absolutePosition.getY(), (int) absoluteSize.getX(), (int) absoluteSize.getY(), absoluteBorderRadius, absoluteBorderRadius);
         }
@@ -935,6 +1026,10 @@ class UIElement {
         }
 
         drawCustom(g2d);
+
+        if (layout != null) {
+            layout.applyLayout(this);
+        }
 
         for (UIElement child : children) {
             child.draw(g2d);
@@ -1367,8 +1462,12 @@ class UIFrame extends UIElement {
 class UIImage extends UIElement {
 
     public float imageTransparency = 1f; // if there's an image, this number will determine it's transparency. 1 -> fully visible, 0 -> invisible
-    public String imagePath = ""; // draws an image if this is not null
+    private String imagePath = ""; // draws an image if this is not null
     public BufferedImage image = null;
+    private BufferedImage toDraw = null;
+    private float brightness = 1f;
+    private boolean dirtyBrightness = false;
+    private boolean dirtyImagePath = false;
     protected int imageFillType = 0; // by default it's 0 which represents fill. fill will make the image take the whole size, allowing for stretching, while fit will prevent stretching by setting image size to its native dimensions
     public static int FILL_IMAGE = 0;
     public static int FIT_IMAGE = 1;
@@ -1397,24 +1496,62 @@ class UIImage extends UIElement {
         return imageFillType;
     }
 
+    private BufferedImage updateBrightness() {
+        if (image == null) return null;
+        RescaleOp op = new RescaleOp(brightness, 0, null);
+        BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+        op.filter(image, out);
+        return out;
+    }
+
+    public void setBrightness(float newBrightness) {
+        if (brightness != newBrightness) {
+            brightness = newBrightness;
+            dirtyBrightness = true;
+        }
+    }
+
+    public float getBrightness() {
+        return brightness;
+    }
+
+    public void setImagePath(String newImagePath) {
+        if (!imagePath.equals(newImagePath)) {
+            imagePath = newImagePath;
+            dirtyImagePath = true;
+            if (brightness != 1f) dirtyBrightness = true;
+        }
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
     protected void drawCustom(Graphics2D g2d) {
         // draw image if there is one set
-        image = ImageHandler.get(imagePath);
-        if (image != null && imageTransparency > 0) {
+        if (dirtyImagePath) {
+            dirtyImagePath = false;
+            image = ImageHandler.get(imagePath);
+            toDraw = image;
+        }
+        if (dirtyBrightness) {
+            dirtyBrightness = false;
+            toDraw = updateBrightness();
+        }
+        if (toDraw != null && imageTransparency > 0) {
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(imageTransparency, 1f)))); // setting image transparency
-
             int xPos = (int) absolutePosition.getX();
             int yPos = (int) absolutePosition.getY();
             int xSize = (int) absoluteSize.getX();
             int ySize = (int) absoluteSize.getY();
 
             if (imageFillType == FILL_IMAGE) { // stretch to fill
-                g2d.drawImage(image, xPos, yPos, xSize, ySize, null);
+                g2d.drawImage(toDraw, xPos, yPos, xSize, ySize, null);
             } else if (imageFillType == FIT_IMAGE) {
                 // fit while preserving aspect ratio of the image
                 // we get its native dimensions first
-                int imgWidth = image.getWidth();
-                int imgHeight = image.getHeight();
+                int imgWidth = toDraw.getWidth();
+                int imgHeight = toDraw.getHeight();
 
                 /*
                  * here we calculate ratios of width and height by dividing the absoluteSize by the image native size
@@ -1432,10 +1569,10 @@ class UIImage extends UIElement {
                 int drawX = xPos + (xSize - drawWidth) / 2;
                 int drawY = yPos + (ySize - drawHeight) / 2;
 
-                g2d.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
+                g2d.drawImage(toDraw, drawX, drawY, drawWidth, drawHeight, null);
             } else if (imageFillType == CROP_IMAGE) {
-                int imgWidth = image.getWidth();
-                int imgHeight = image.getHeight();
+                int imgWidth = toDraw.getWidth();
+                int imgHeight = toDraw.getHeight();
 
                 double widthRatio = (double) xSize / imgWidth;
                 double heightRatio = (double) ySize / imgHeight;
@@ -1463,9 +1600,9 @@ class UIImage extends UIElement {
                 int bottomLeftBound = (int) ((offsetX + xSize) / ratio);
                 int bottomRightBound = (int) ((offsetY + ySize) / ratio);
 
-                g2d.drawImage(image, xPos, yPos, xPos + xSize, yPos + ySize, topLeftBound, topRightBound, bottomLeftBound, bottomRightBound, null);
+                g2d.drawImage(toDraw, xPos, yPos, xPos + xSize, yPos + ySize, topLeftBound, topRightBound, bottomLeftBound, bottomRightBound, null);
             } else if (imageFillType == SPRITE_ANIMATION) {
-                int framesPerRow = image.getWidth() / frameWidth; // the amount of frames a row is determined by dividing the image native width by how many pixels the user specified
+                int framesPerRow = toDraw.getWidth() / frameWidth; // the amount of frames a row is determined by dividing the image native width by how many pixels the user specified
 
                 /*
                  * below, we gotta find the top corner of the frame on the sprite
@@ -1494,7 +1631,7 @@ class UIImage extends UIElement {
                 int drawX = xPos + (xSize - drawWidth) / 2;
                 int drawY = yPos + (ySize - drawHeight) / 2;
 
-                g2d.drawImage(image, drawX, drawY, drawX + drawWidth, drawY + drawHeight, startingSpriteX, startingSpriteY, startingSpriteX + frameWidth, startingSpriteY + frameHeight, null);
+                g2d.drawImage(toDraw, drawX, drawY, drawX + drawWidth, drawY + drawHeight, startingSpriteX, startingSpriteY, startingSpriteX + frameWidth, startingSpriteY + frameHeight, null);
             }
         }
     }

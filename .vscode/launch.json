@@ -9,6 +9,13 @@
             "name": "WingspanRunner",
             "request": "launch",
             "mainClass": "WingspanRunner",
+            "projectName": "Wingspan_84e8ee94"
+        },
+        {
+            "type": "java",
+            "name": "WingspanRunner",
+            "request": "launch",
+            "mainClass": "WingspanRunner",
             "projectName": "Wingspan_96734be1"
         },
         {
