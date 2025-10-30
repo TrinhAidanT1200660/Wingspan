@@ -144,6 +144,10 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                     Bird bird = (Bird)(released.getAttribute("Bird"));
                     Object selected = released.getAttribute("Selected");
                     if (selected != null && (boolean)selected == true) currentGame.deselect(released); else currentGame.select(bird, released);
+                } else if (released.getAttribute("foodChoice") != null) {
+                    String foodChoice = (String)(released.getAttribute("foodChoice"));
+                    Object selected = released.getAttribute("Selected");
+                    if (selected != null && (boolean)selected == true) currentGame.deselect(released); else currentGame.select(foodChoice, released);
                 }
 
                 // resources screen
@@ -572,20 +576,50 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         animOnPress(continueResourcesButtonBg, continueResourcesContainer);
         pressCover(continueResourcesButtonBg, continueResourcesButtonCover);
 
+        UIFrame choosableFoodsContainer = new UIFrame("ChoosableFoodsContainer", this);
+        choosableFoodsContainer.position = new Dim2(0.05, 0, 0.95, 0);
+        choosableFoodsContainer.anchorPoint = new Vector2(0, 1);
+        choosableFoodsContainer.size = new Dim2(0.25, 0, 0.1, 0).dilate(1.33);
+        choosableFoodsContainer.backgroundTransparency = 0f;
+        choosableFoodsContainer.setParent(resourcesChoicesFrame);
+
+        ListLayout foodChoicesLayout = new ListLayout();
+        foodChoicesLayout.direction = ListLayout.HORIZONTAL;
+        foodChoicesLayout.verticalAlignment = ListLayout.CENTER;
+        foodChoicesLayout.horizontalAlignment = ListLayout.LEFT;
+        foodChoicesLayout.spacing = new Dim(0.005, 0);
+        choosableFoodsContainer.layout = foodChoicesLayout;
+
         UIFrame berriesChoiceContainer = new UIFrame("BerriesChoiceContainer", this);
         berriesChoiceContainer.backgroundTransparency = 0f;
-        berriesChoiceContainer.size = new Dim2(0.05, 0, 0.1, 0).dilate(1.33);
-        berriesChoiceContainer.anchorPoint = new Vector2(0, 1);
-        berriesChoiceContainer.position = new Dim2(0.05, 0, 0.95, 0);
-        berriesChoiceContainer.setParent(resourcesChoicesFrame);
+        berriesChoiceContainer.size = new Dim2(0.2, 0, 1, 0);
+        berriesChoiceContainer.setParent(choosableFoodsContainer);
 
         UIImage berriesChoiceIcon = new UIImage("BerriesChoiceIcon", this);
         berriesChoiceIcon.setImagePath("foods/berries.png");
         berriesChoiceIcon.backgroundTransparency = 0f;
         berriesChoiceIcon.size.full();
+        berriesChoiceIcon.setBrightness(0.7f);
         berriesChoiceIcon.anchorPoint.center();
         berriesChoiceIcon.position.center();
+        berriesChoiceIcon.setAttribute("FoodChoice", "berries");
         berriesChoiceIcon.setParent(berriesChoiceContainer);
+        animOnPress(berriesChoiceIcon, berriesChoiceIcon);
+        animOnHover(berriesChoiceIcon, berriesChoiceIcon);
+        berriesChoiceIcon.setAttribute("Select", (Runnable)() -> {
+            berriesChoiceIcon.setBrightness(1f);
+            Dim2 newSize = new Dim2().full().dilate(0.95);
+            berriesChoiceIcon.setAttribute("ogsize", newSize);
+            berriesChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            berriesChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+        });
+        berriesChoiceIcon.setAttribute("Deselect", (Runnable)() -> {
+            berriesChoiceIcon.setBrightness(0.7f);
+            Dim2 newSize = new Dim2().full().dilate(0.9);
+            berriesChoiceIcon.setAttribute("ogsize", newSize);
+            berriesChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            berriesChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+        });
     }
 
     public void animOnHover(UIElement element, UIElement toAnimate) {
