@@ -1,11 +1,11 @@
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-public class Player
-{
+public class Player {
     //VARIABLES:
-    
+
     //stores the amount of points each player has
     private int points;
     //stores the birds in each habitat
@@ -22,8 +22,7 @@ public class Player
     private ArrayList<Integer> goalRankings;
 
     //CONSTRUCTOR:
-    public Player()
-    {
+    public Player() {
         this.points = 0;
         this.board = new TreeMap<>();
         board.put("forest", new ArrayList<>());
@@ -41,52 +40,76 @@ public class Player
     }
 
     //RETURN METHODS:
-    
     //returns the amount of points the player has as an int
-    public int getPoints() {return points;}
-    
+    public int getPoints() {
+        return points;
+    }
+
     //returns the TreeMap the player has that represents their board
-    public TreeMap<String, ArrayList<BirdInstance>> getBoard() {return board;} 
-    
+    public TreeMap<String, ArrayList<BirdInstance>> getBoard() {
+        return board;
+    }
+
     //returns the arraylist that holds the bonus cards a player has
-    public ArrayList<BonusCard> getBonusHand() {return bonusHand;}
-    
+    public ArrayList<BonusCard> getBonusHand() {
+        return bonusHand;
+    }
+
     //eturns the arraylist that holds the bird cards a player has
-    public ArrayList<Bird> getBirdHand() {return birdHand;}
-    
+    public ArrayList<Bird> getBirdHand() {
+        return birdHand;
+    }
+
     //returns the map that holds the food a player has
-    public HashMap<String, Integer> getFood() {return food;}
-    
+    public HashMap<String, Integer> getFood() {
+        return food;
+    }
+
     //returns the amount of actionCubes a player has
-    public int getActionCubes() {return actionCubes;}
-    
+    public int getActionCubes() {
+        return actionCubes;
+    }
+
     //returns the ranking of the player of the round
-    public int getGoalRankings(int round) {return goalRankings.get(round);}
+    public int getGoalRankings(int round) {
+        return goalRankings.get(round);
+    }
 
     //MUTATOR METHOD:
-
     //adds the specificed amount of points
-    public void addPoints(int points) {this.points += points;}
-    
+    public void addPoints(int points) {
+        this.points += points;
+    }
+
     //adds the specified Bonus card to the bonusHand
-    public void addBonusHand(BonusCard card) {bonusHand.add(card);}
-    
+    public void addBonusHand(BonusCard card) {
+        bonusHand.add(card);
+    }
+
     //adds the specified BirdCard card to the birdHand
-    public void addBirdHand(Bird card) {birdHand.add(card);}
-    
+    public void addBirdHand(Bird card) {
+        birdHand.add(card);
+    }
+
     //adds the specified foods and the amount to the food map
     public void addFood(String foodType, int amount) {
         int current = food.getOrDefault(foodType, 0);
         food.put(foodType, current + amount);
     }
-    
+
     //decreases the amount of actionCubes a player has by 1
-    public void decreaseActionCubes() {actionCubes-=1;}
+    public void decreaseActionCubes() {
+        actionCubes -= 1;
+    }
 
     //sets the amount of actionCubes a player has to the specified number
-    public void setActionCubes(int amount) {actionCubes=amount;}
-    
+    public void setActionCubes(int amount) {
+        actionCubes = amount;
+    }
+
     //sets the ranking of the player of the round
-    public void setGoalRankings(int round, int ranking) {goalRankings.set(round, ranking);}
+    public void setGoalRankings(int round, int ranking) {
+        goalRankings.set(round, ranking);
+    }
 
 }
