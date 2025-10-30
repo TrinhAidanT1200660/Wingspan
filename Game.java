@@ -10,6 +10,7 @@ public class Game {
     private int roundsPlayed; // holds the number of rounds played so far; starts at 0 beginning of game
     private ArrayList<Player> playerList; // holds the list of players in the game
 	private TreeSet<Selectable> selected = new TreeSet<>(); // temporarily holding the items selected pre-game (birds/food tokens)
+	private ArrayList<String> birdFeeder;
 
     // CONSTRUCTOR
     public Game(boolean isCompetitive) {
@@ -22,14 +23,17 @@ public class Game {
         for (int i = 0; i < 5; ++i) {
             playerList.add(new Player());
         }
+		birdFeeder = rollBirdFeeder();
     }
 
-    // GAME METHODS
+    // GAME | VOID METHODS
+
     // RETURN METHODS
     public ArrayList<Player> getPlayers() {
         return playerList;
     }
 
+	// Randomly draws bird card to simulate the random drawing, has no remove card rn because lack of bird cards
 	public ArrayList<Bird> pullRandomBirds() {
 		Bird[] allBirds = Bird.values();
 		ArrayList<Bird> returning = new ArrayList<>();
@@ -41,6 +45,31 @@ public class Game {
 			returning.add(allBirds[randCard]);
 		}
 		return returning;
+	}
+
+	// Simulates rolling the birdFeeder to generate 5 random food dies
+	public ArrayList<String> rollBirdFeeder() {
+		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
+		ArrayList<String> rolledFoods = new ArrayList<String>();
+		for(int i = 0; i < 5; ++i)
+		{
+			int randFood = (int) (Math.random() * foods.length);
+			rolledFoods.add(foods[randFood]);
+		}
+
+		return rolledFoods;
+	}
+
+	// Checks if the birdFeeder has the food type and if so adds it to player. Returns boolean to show whether or not food was actually grabbed.
+	public boolean grabFood(String food, Player player)
+	{
+		if(birdFeeder.contains(food))
+		{
+			player.addFood(food, 1);
+			birdFeeder.remove(food);
+			return true;
+		}
+		return false;
 	}
 
 	private void handleSelected() { // if the user selected more than 5 things deselect the least recent thing selected (could be bird or food token)
