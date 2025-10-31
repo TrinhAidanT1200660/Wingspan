@@ -9,7 +9,7 @@ public class Game {
     private boolean isCompetitive; // holds the gamemode being played: true for competitive, false for non-competitive
     private int roundsPlayed; // holds the number of rounds played so far; starts at 0 beginning of game
     private ArrayList<Player> playerList; // holds the list of players in the game
-	private TreeSet<Selectable> selected = new TreeSet<>(); // temporarily holding the items selected pre-game (birds/food tokens)
+	private TreeSet<Selectable> selected; // temporarily holding the items selected pre-game (birds/food tokens)
 
     // CONSTRUCTOR
     public Game(boolean isCompetitive) {
@@ -18,6 +18,7 @@ public class Game {
         this.startingPlayerTurn = 1;
         this.roundsPlayed = 0;
         this.playerList = new ArrayList<>();
+		this.selected = new TreeSet<>();
 		this.isCompetitive = isCompetitive;
         for (int i = 0; i < 5; ++i) {
             playerList.add(new Player());
@@ -52,7 +53,15 @@ public class Game {
 		}
 	}
 
-	public void deselect(UIElement element) {
+	private void deselect(Selectable element) { // deselects a specific selectable item
+		if (element != null) {
+			element.getElement().setAttribute("Selected", false);
+			selected.remove(element);
+			((Runnable)(element.getElement().getAttribute("Deselect"))).run();
+		}
+	}
+
+	public void deselect(UIElement element) { // deselects a selectable item based on its UIElement
 		Selectable found = null;
 		for (Selectable s : selected) {
 			if (s.getElement().equals(element)) {
@@ -60,18 +69,27 @@ public class Game {
 				break;
 			}
     	}
-		if (found != null) {
-			found.getElement().setAttribute("Selected", false);
-			selected.remove(found);
-			((Runnable)(found.getElement().getAttribute("Deselect"))).run();
+		deselect(found);
+	}
+
+	public void select(UIElement element) {
+		element.setAttribute("Selected", true);
+		selected.add(new Selectable(element.getAttribute("selectionValue"), element));
+		((Runnable)(element.getAttribute("Select"))).run();
+		handleSelected();
+	}
+
+	public void toggleSelect(UIElement element) {
+		Object selectedAttr = element.getAttribute("Selected");
+		if (selectedAttr != null && (boolean)selectedAttr == true) {
+			deselect(element);
+		} else {
+			select(element);
 		}
 	}
 
-	public void select(Object value, UIElement element) {
-		element.setAttribute("Selected", true);
-		selected.add(new Selectable(value, element));
-		((Runnable)(element.getAttribute("Select"))).run();
-		handleSelected();
+	public boolean canContinueResources() {
+		return selected.size() == 5;
 	}
 }
 
@@ -93,4 +111,8 @@ class Selectable implements Comparable<Selectable> {
     public int compareTo(Selectable o) {
         return Long.compare(added, o.added);
     }
+
+	public String toString() {
+		return "Selectable(value=" + value.toString() + ", element=" + element.getName() + ")";
+	}
 }

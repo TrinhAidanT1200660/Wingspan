@@ -123,7 +123,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                             String imageFileString = randomBirds.get(i).getImage();
                             ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
                             UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i));
-                            birdImage.setAttribute("Bird", randomBirds.get(i));
+                            birdImage.setAttribute("selectionValue", randomBirds.get(i));
                             birdImage.setImagePath(imageFileString);
                         }
                         ImageHandler.setGroup("foods/berries.png", "Foods");
@@ -140,19 +140,20 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                         startMenu.size = new Dim2(0.5, 0, 0.6, 0);
                         resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
                     });
-                } else if (released.getAttribute("birdChoice") != null) {
-                    Bird bird = (Bird)(released.getAttribute("Bird"));
-                    Object selected = released.getAttribute("Selected");
-                    if (selected != null && (boolean)selected == true) currentGame.deselect(released); else currentGame.select(bird, released);
-                } else if (released.getAttribute("foodChoice") != null) {
-                    String foodChoice = (String)(released.getAttribute("foodChoice"));
-                    Object selected = released.getAttribute("Selected");
-                    if (selected != null && (boolean)selected == true) currentGame.deselect(released); else currentGame.select(foodChoice, released);
+                } else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null) {
+                    currentGame.toggleSelect(released);
+                    boolean canContinue = currentGame.canContinueResources();
+                    UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+                    continueButton.setAttribute("Clickable", canContinue);
+                    continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray;
                 }
 
                 // resources screen
                 if (released == UIElement.getByName("ContinueResourcesButtonBg")) {
-
+                    Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
+                    if (ready != null && (boolean)ready) {
+                        System.out.println("move on");
+                    }
                 }
             }
             Object hasAnimOnPress = released.getAttribute("animOnPress"); // check if the element wants to be animated when pressed
@@ -598,27 +599,60 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         UIImage berriesChoiceIcon = new UIImage("BerriesChoiceIcon", this);
         berriesChoiceIcon.setImagePath("foods/berries.png");
         berriesChoiceIcon.backgroundTransparency = 0f;
-        berriesChoiceIcon.size.full();
+        berriesChoiceIcon.size.full().dilate(0.7);
         berriesChoiceIcon.setBrightness(0.7f);
         berriesChoiceIcon.anchorPoint.center();
         berriesChoiceIcon.position.center();
-        berriesChoiceIcon.setAttribute("FoodChoice", "berries");
+        berriesChoiceIcon.setAttribute("foodChoice", true);
+        berriesChoiceIcon.setAttribute("selectionValue", "berries");
         berriesChoiceIcon.setParent(berriesChoiceContainer);
         animOnPress(berriesChoiceIcon, berriesChoiceIcon);
         animOnHover(berriesChoiceIcon, berriesChoiceIcon);
         berriesChoiceIcon.setAttribute("Select", (Runnable)() -> {
             berriesChoiceIcon.setBrightness(1f);
-            Dim2 newSize = new Dim2().full().dilate(0.95);
+            Dim2 newSize = new Dim2().full().dilate(1.15);
             berriesChoiceIcon.setAttribute("ogsize", newSize);
             berriesChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
             berriesChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
         });
         berriesChoiceIcon.setAttribute("Deselect", (Runnable)() -> {
             berriesChoiceIcon.setBrightness(0.7f);
-            Dim2 newSize = new Dim2().full().dilate(0.9);
+            Dim2 newSize = new Dim2().full().dilate(0.7);
             berriesChoiceIcon.setAttribute("ogsize", newSize);
             berriesChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
             berriesChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+        });
+
+        UIFrame fishChoiceContainer = new UIFrame("FishChoiceContainer", this);
+        fishChoiceContainer.backgroundTransparency = 0f;
+        fishChoiceContainer.size = new Dim2(0.2, 0, 1, 0);
+        fishChoiceContainer.setParent(choosableFoodsContainer);
+
+        UIImage fishChoiceIcon = new UIImage("FishChoiceIcon", this);
+        fishChoiceIcon.setImagePath("foods/fish.png");
+        fishChoiceIcon.backgroundTransparency = 0f;
+        fishChoiceIcon.size.full().dilate(0.7);
+        fishChoiceIcon.setBrightness(0.7f);
+        fishChoiceIcon.anchorPoint.center();
+        fishChoiceIcon.position.center();
+        fishChoiceIcon.setAttribute("foodChoice", true);
+        fishChoiceIcon.setAttribute("selectionValue", "fish");
+        fishChoiceIcon.setParent(fishChoiceContainer);
+        animOnPress(fishChoiceIcon, fishChoiceIcon);
+        animOnHover(fishChoiceIcon, fishChoiceIcon);
+        fishChoiceIcon.setAttribute("Select", (Runnable)() -> {
+            fishChoiceIcon.setBrightness(1f);
+            Dim2 newSize = new Dim2().full().dilate(1.15);
+            fishChoiceIcon.setAttribute("ogsize", newSize);
+            fishChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            fishChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+        });
+        fishChoiceIcon.setAttribute("Deselect", (Runnable)() -> {
+            fishChoiceIcon.setBrightness(0.7f);
+            Dim2 newSize = new Dim2().full().dilate(0.7);
+            fishChoiceIcon.setAttribute("ogsize", newSize);
+            fishChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            fishChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
         });
     }
 

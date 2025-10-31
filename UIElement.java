@@ -624,7 +624,6 @@ class ListLayout {
 class UIElement {
     // oh boy
     // this is like the big dog like the framework for everything
-
     // private/public values
     private static HashMap<JPanel, UIElement> rootElements = new HashMap<>(); // rootElements act like containers for all the UIElements; each panel has its own "root element". this is used to control all UIElements and handle zIndex (which are essentially layers) and handle clicking
     protected Vector2 absolutePosition = new Vector2(); // the final literal position on the screen, represented in pixels, after scale and offset calculations
@@ -1498,10 +1497,15 @@ class UIImage extends UIElement {
 
     private BufferedImage updateBrightness() {
         if (image == null) return null;
-        RescaleOp op = new RescaleOp(brightness, 0, null);
-        BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
-        op.filter(image, out);
-        return out;
+        try {
+            RescaleOp op = new RescaleOp(brightness, 0, null);
+            BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+            op.filter(image, out);
+            return out;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return image;
+        }
     }
 
     public void setBrightness(float newBrightness) {
