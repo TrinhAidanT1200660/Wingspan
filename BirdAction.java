@@ -31,7 +31,7 @@ public enum BirdAction implements BirdActionInterface
 		player.addBirdHand(gameContext.pullRandomBirds(1).get(0));
 	}),
 	// This ability allows for the player to gain 1 seed if there is one in the birdFeeder. If it is available, cache it on the bird
-	GAIN1WHEATANDCACHE((gameContext, player, birdInstance) -> {
+	GAIN1SEEDANDCACHE((gameContext, player, birdInstance) -> {
 		if(gameContext.grabFood("seed", player)) // this method auto adds the food into player
 		{
 			// need some UI prompt to ask the player whether they want to cache the food or not; false for now
@@ -53,15 +53,19 @@ public enum BirdAction implements BirdActionInterface
 			leastAmount = p.getBoard().get("wetland").size();
 
 		for(Player p: players)
-			if (leastAmount == p.getBoard().get("wetland").size())
+			if (leastAmount > p.getBoard().get("wetland").size())
 				p.addBirdHand(gameContext.pullRandomBirds(1).get(0));
 	}),
 	// This ability allows a player to tuck a bird card behind the bird and if done, draw 1 bird card
 	TUCK1BIRDANDDRAW1BIRD((gameContext, player, birdInstance) -> {
-		// UI has the player choose which card they want to remove / tuck, for now will be the first card 
-		Bird card = player.getBirdHand().remove(0);
-		birdInstance.tuckCard(1);
-		player.addBirdHand(gameContext.pullRandomBirds(1).get(0));
+		// UI has the player choose which card they want to remove / tuck, for now will be false
+		boolean tuck = false;
+		if(tuck)
+		{
+			Bird card = player.getBirdHand().remove(0);
+			birdInstance.tuckCard(1);
+			player.addBirdHand(gameContext.pullRandomBirds(1).get(0));
+		}
 	}),
 	// This ability ahs a player discard an egg from any bird to gain 1 food from the supply
 	DISCARDEGGANDGAINFOOD((gameContext, player, birdInstance) -> {
