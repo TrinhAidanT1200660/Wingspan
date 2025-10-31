@@ -16,11 +16,29 @@ public enum Bird
 	// nestTypes: Platform (logs on top each other), Bowl (a bowl), Cavity (tree with hole in it), Ground (bunch of circles), Wild (a star)
 	// action: directly type in from birdAction
 	// ACTUAL BIRD ENUMS, NO IMAGES IMPORTED YET
-	PROTHONOTARY_WARBLER("PROTHONOTARY WARBLER", "birds/prothonotary_warbler.png", 4, 23, 8, new String[] {"forest", "wetland"}, "NONE", "Other", "and 1seed 2worm", "Cavity", BirdAction.NONE),
-	GREATER_PRAIRIE_CHICKEN("GREATER PRAIRIE-CHICKEN", "birds/greater_prairie_chicken.png", 4, 71, 5, new String[] {"grassland"}, "WHITE", "CardDrawing", "and 2seed 1worm", "Ground", BirdAction.DRAW2BONUSKEEP1),
-	NORTHERN_CARDINAL("NORTHERN CARDINAL", "birds/northern_cardinal.png", 5, 30, 3, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1seed", "Bowl", BirdAction.GET1BERRY),
+	ACORN_WOODPECKER("ACORN WOODPECKER", "temp", 4, 46, 5, new String[] {"forest"}, "BROWN", "Other", "and 3seed", "Cavity", BirdAction.GAIN1SEEDANDCACHE),
+	// AMERICAN_AVOCET
+	AMERICAN_BITTERN("AMERICAN BITTERN", "temp", 2, 107, 7, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1fish 1rat 1worm", "Platform", BirdAction.DRAW1BONUSIFLEASTWETLAND),
+	AMERICAN_COOT("AMERICAN COOT", "temp", 5, 61, 3, new String[] {"wetland"}, "BROWN", "Flocking", "and 1any 1seed", "Platform", BirdAction.TUCK1BIRDANDDRAW1BIRD),
+	AMERICAN_CROW("AMERICAN CROW", "temp", 2, 99, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1any", "Platform", BirdAction.DISCARDEGGANDGAINFOOD),
+	AMERICAN_GOLDFINCH("AMERICAN GOLDFINCH", "temp", 3, 23, 3, new String[] {"grassland"}, "WHITE", "Other", "and 2seed", "Bowl", BirdAction.GET3SEED),
+	AMERICAN_KESTREL("AMERICAN KESTREL", "temp", 3, 56, 5, new String[] {"grassland"}, "BROWN", "Predator", "and 1rat 1worm", "Cavity", BirdAction.ROLLDICEANDFINDRAT),
+	AMERICAN_OYSTERCATCHER("AMERICAN OYSTERCATCHER", "temp", 2, 81, 5, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 2worm", "Ground", BirdAction.DRAWBIRDEQUALTOPLAYERANDCLOCKWISEDISTRIBUTE),
+	AMERICAN_REDSTART("AMERICAN REDSTART", "temp", 2, 20, 4, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1worm", "Bowl", BirdAction.GET1FOODBIRDFEEDER),
+	AMERICAN_ROBIN("AMERICAN ROBIN", "temp", 4, 43, 1, new String[] {"grassland", "forest"}, "BROWN", "Flocking", "or 1berry 1worm", "Bowl", BirdAction.TUCK1BIRDANDDRAW1BIRD),
+	// AMERICAN_WHITE_PELICAN
+	AMERICAN_WOODCOCK("AMERICAN WOODCOCK", "temp", 2, 46, 9, new String[] {"forest", "grassland"}, "NONE", "Other", "and 1seed 2worm", "Ground", BirdAction.NONE),
+	ANHINGA("ANHINGA", "temp", 2, 114, 6, new String[] {"wetland"}, "BROWN", "Predator", "and 2fish", "Platform", BirdAction.ROLLDICEANDFINDFISH),
+	// ANNAS_HUMMINGBIRD
+	ASH_THROATED_FLYCATCHER("ASH THROATED FLYCATCHER", "temp", 4, 30, 4, new String[] {"grassland"}, "WHITE", "EggLaying", "and 1berry 2worm", "Cavity", BirdAction.LAYEGGONALLCAVITY),
+	ATLANTIC_PUFFIN("ATLANTIC PUFFIN", "temp", 1, 53, 8, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 3fish", "Wild", BirdAction.DRAW2BONUSKEEP1),
+	BAIRDS_SPARROW("BIARDS SPARROW", "temp", 2, 23, 3, new String[] {"grassland"}, "BROWN", "EggLaying", "and 1seed 1worm", "Ground", BirdAction.LAYEGGONANYBIRD),
 	BROWN_PELICAN("BROWN PELICAN", "birds/brown_pelican.png", 2, 201, 4, new String[] {"wetland"}, "WHITE", "Other", "and 2fish", "Platform", BirdAction.GET3FISH),
-	CANVASBACK("CANVASBACK", "birds/canvasback.png", 4, 82, 4, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1any 1seed", "Wild", BirdAction.ALLDRAW1BIRD);
+	CANVASBACK("CANVASBACK", "birds/canvasback.png", 4, 82, 4, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1any 1seed", "Wild", BirdAction.ALLDRAW1BIRD),
+	GREATER_PRAIRIE_CHICKEN("GREATER PRAIRIE CHICKEN", "birds/greater_prairie_chicken.png", 4, 71, 5, new String[] {"grassland"}, "WHITE", "CardDrawing", "and 2seed 1worm", "Ground", BirdAction.DRAW2BONUSKEEP1),
+	NORTHERN_CARDINAL("NORTHERN CARDINAL", "birds/northern_cardinal.png", 5, 30, 3, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1seed", "Bowl", BirdAction.GET1BERRY),
+	PROTHONOTARY_WARBLER("PROTHONOTARY WARBLER", "birds/prothonotary_warbler.png", 4, 23, 8, new String[] {"forest", "wetland"}, "NONE", "Other", "and 1seed 2worm", "Cavity", BirdAction.NONE)
+	;
 
 	private final String name; // holds birds name
 	private final String imageFileString;

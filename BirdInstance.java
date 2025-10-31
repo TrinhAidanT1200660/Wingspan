@@ -52,6 +52,9 @@ public class BirdInstance {
 	
 	// VOID METHODS
 
+	// adds an egg to the amount of eggs held
+	public void addEggs(int amt) { heldEggs+=amt; }
+
 	// caches a food. Doesn't matter what type as the class that called it will remove it from the player to make the logic easier
 	public void cacheFood(int amt) { cachedFood+=amt; }
 
