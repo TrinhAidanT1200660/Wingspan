@@ -10,7 +10,7 @@ public class Game {
     private int roundsPlayed; // holds the number of rounds played so far; starts at 0 beginning of game
     private ArrayList<Player> playerList; // holds the list of players in the game
 	private TreeSet<Selectable> selected = new TreeSet<>(); // temporarily holding the items selected pre-game (birds/food tokens)
-	private ArrayList<String> birdFeeder;
+	private ArrayList<String> birdFeeder; // replicates a bird feeder using a simple arrayList
 
     // CONSTRUCTOR
     public Game(boolean isCompetitive) {
@@ -50,7 +50,7 @@ public class Game {
 	// Simulates rolling the birdFeeder to generate 5 random food dies
 	public ArrayList<String> rollBirdFeeder() {
 		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
-		ArrayList<String> rolledFoods = new ArrayList<String>();
+		ArrayList<String> rolledFoods = new ArrayList<>();
 		for(int i = 0; i < 5; ++i)
 		{
 			int randFood = (int) (Math.random() * foods.length);
@@ -70,6 +70,12 @@ public class Game {
 			return true;
 		}
 		return false;
+	}
+
+	// Returns the birdFeeder
+	public ArrayList<String> getBirdFeeder()
+	{
+		return birdFeeder;
 	}
 
 	private void handleSelected() { // if the user selected more than 5 things deselect the least recent thing selected (could be bird or food token)
