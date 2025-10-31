@@ -14,6 +14,9 @@ public class BirdInstance {
         this.playedThisTurn = false;
 	}
 
+	// returns the bird enum
+    public Bird getBirdEnum() {return birdEnum;}
+
 	// returns a String with the bird's name
     public String getName() { return birdEnum.getName(); }
 
