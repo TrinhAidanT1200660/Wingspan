@@ -3,6 +3,7 @@ import java.util.*;
 public enum BirdAction implements BirdActionInterface
 {
 	// USED THIS LINK TO VIEW SOME BIRD ABILITIES. CAN USE BUT NEED TO DESELECT ALL EXPANSIONS AND PROMO PACKS
+	// https://navarog.github.io/wingsearch/
 
 	// This ability is for birds with no ability. My favourite.
 	NONE((gameContext, player, birdInstance) -> {

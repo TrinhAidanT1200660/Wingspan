@@ -34,15 +34,55 @@ public class Game {
     }
 
 	// Randomly draws bird card to simulate the random drawing, has no remove card rn because lack of bird cards
-	public ArrayList<Bird> pullRandomBirds() {
+	// I NEED TO MAKE THIS HAVE SIZE BUT WILL DO LATER TO TELL MOHAMMED TO MAKE SURE HE CAN CHANGE IT IN UI
+	public ArrayList<Bird> pullRandomBirds(int amount) {
 		Bird[] allBirds = Bird.values();
 		ArrayList<Bird> returning = new ArrayList<>();
-		while (returning.size() < 5) { 
+
+		// makes sure there are cards available
+		int availableCards = 0;
+		for (Bird card : allBirds)
+        	availableCards += card.getDeckCount();
+
+		// just sends a message in case we're testing and wondering what went wrong
+		if (amount < availableCards) System.out.println("Ran out of bird cards"); 
+	
+		amount = Math.min(amount, availableCards);
+
+		while (returning.size() < amount) { 
 			int randCard = (int) (Math.random() * allBirds.length);
 			/* if(allBirds[randCard].getDeckCount() > 0) {
 				allBirds[randCard].removeCardFromDeck();
 			} */
-			returning.add(allBirds[randCard]);
+			returning.add(allBirds[randCard]); // this has to be in that getDeckCount if statement once actually implemented SUPER IMPORTANT
+		}
+		return returning;
+	}
+
+	// Randomly draws bonus cards to simulate the random drawing.
+	public ArrayList<BonusCard> pullRandomBonusCards(int amount)
+	{
+		BonusCard[] allBonuses = BonusCard.values();
+		ArrayList<BonusCard> returning = new ArrayList<>();
+
+		// makes sure there are cards available
+		int availableCards = 0;
+		for (BonusCard card : allBonuses)
+        	availableCards += card.getDeckCount();
+
+		// just sends a message in case we're testing and wondering what went wrong
+		if (amount < availableCards) System.out.println("Ran out of bonus cards");
+
+		amount = Math.min(amount, availableCards);
+		
+		while(returning.size() < amount) {
+			while (true) {
+				int randCard = (int) (Math.random() * allBonuses.length);
+				if(allBonuses[randCard].getDeckCount() > 0) {
+					allBonuses[randCard].removeCardFromDeck();
+					returning.add(allBonuses[randCard]);
+				}
+			}
 		}
 		return returning;
 	}
