@@ -111,8 +111,4 @@ class Selectable implements Comparable<Selectable> {
     public int compareTo(Selectable o) {
         return Long.compare(added, o.added);
     }
-
-	public String toString() {
-		return "Selectable(value=" + value.toString() + ", element=" + element.getName() + ")";
-	}
 }
