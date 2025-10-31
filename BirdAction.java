@@ -46,14 +46,15 @@ public enum BirdAction implements BirdActionInterface
 	}),
 	// This ability checks for the player(s) with the fewest bird in the wetlands and has them draw 1 bird card
 	DRAW1BONUSIFLEASTWETLAND((gameContext, player, birdInstance) -> {
-		int leastAmount = 0;
+		int leastAmount = 6;
 		ArrayList<Player> players = gameContext.getPlayers();
 
 		for(Player p: players)
-			leastAmount = p.getBoard().get("wetland").size();
+			if (leastAmount > p.getBoard().get("wetland").size())
+				leastAmount = p.getBoard().get("wetland").size();
 
 		for(Player p: players)
-			if (leastAmount > p.getBoard().get("wetland").size())
+			if (leastAmount == p.getBoard().get("wetland").size())
 				p.addBirdHand(gameContext.pullRandomBirds(1).get(0));
 	}),
 	// This ability allows a player to tuck a bird card behind the bird and if done, draw 1 bird card
