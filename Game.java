@@ -23,10 +23,23 @@ public class Game {
         for (int i = 0; i < 5; ++i) {
             playerList.add(new Player());
         }
-		birdFeeder = rollBirdFeeder();
+		rollBirdFeeder();
     }
 
     // GAME | VOID METHODS
+
+	// Simulates rolling the birdFeeder to generate 5 random food dies
+	public void rollBirdFeeder() {
+		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
+		ArrayList<String> rolledFoods = new ArrayList<>();
+		for(int i = 0; i < 5; ++i)
+		{
+			int randFood = (int) (Math.random() * foods.length);
+			rolledFoods.add(foods[randFood]);
+		}
+
+		birdFeeder = rolledFoods;
+	}
 
     // RETURN METHODS
     public ArrayList<Player> getPlayers() {
@@ -85,19 +98,6 @@ public class Game {
 			}
 		}
 		return returning;
-	}
-
-	// Simulates rolling the birdFeeder to generate 5 random food dies
-	public ArrayList<String> rollBirdFeeder() {
-		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
-		ArrayList<String> rolledFoods = new ArrayList<>();
-		for(int i = 0; i < 5; ++i)
-		{
-			int randFood = (int) (Math.random() * foods.length);
-			rolledFoods.add(foods[randFood]);
-		}
-
-		return rolledFoods;
 	}
 
 	// Checks if the birdFeeder has the food type and if so adds it to player. Returns boolean to show whether or not food was actually grabbed.
