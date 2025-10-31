@@ -10,6 +10,7 @@ public class Game {
     private int roundsPlayed; // holds the number of rounds played so far; starts at 0 beginning of game
     private ArrayList<Player> playerList; // holds the list of players in the game
 	private TreeSet<Selectable> selected = new TreeSet<>(); // temporarily holding the items selected pre-game (birds/food tokens)
+	private ArrayList<String> birdFeeder; // replicates a bird feeder using a simple arrayList
 
     // CONSTRUCTOR
     public Game(boolean isCompetitive) {
@@ -22,25 +23,99 @@ public class Game {
         for (int i = 0; i < 5; ++i) {
             playerList.add(new Player());
         }
+		rollBirdFeeder();
     }
 
-    // GAME METHODS
+    // GAME | VOID METHODS
+
+	// Simulates rolling the birdFeeder to generate 5 random food dies
+	public void rollBirdFeeder() {
+		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
+		ArrayList<String> rolledFoods = new ArrayList<>();
+		for(int i = 0; i < 5; ++i)
+		{
+			int randFood = (int) (Math.random() * foods.length);
+			rolledFoods.add(foods[randFood]);
+		}
+
+		birdFeeder = rolledFoods;
+	}
+
     // RETURN METHODS
     public ArrayList<Player> getPlayers() {
         return playerList;
     }
 
-	public ArrayList<Bird> pullRandomBirds() {
+	// Randomly draws bird card to simulate the random drawing, has no remove card rn because lack of bird cards
+	// I NEED TO MAKE THIS HAVE SIZE BUT WILL DO LATER TO TELL MOHAMMED TO MAKE SURE HE CAN CHANGE IT IN UI
+	public ArrayList<Bird> pullRandomBirds(int amount) {
 		Bird[] allBirds = Bird.values();
 		ArrayList<Bird> returning = new ArrayList<>();
-		while (returning.size() < 5) { 
+
+		// makes sure there are cards available
+		int availableCards = 0;
+		for (Bird card : allBirds)
+        	availableCards += card.getDeckCount();
+
+		// just sends a message in case we're testing and wondering what went wrong
+		if (amount < availableCards) System.out.println("Ran out of bird cards"); 
+	
+		amount = Math.min(amount, availableCards);
+
+		while (returning.size() < amount) { 
 			int randCard = (int) (Math.random() * allBirds.length);
 			/* if(allBirds[randCard].getDeckCount() > 0) {
 				allBirds[randCard].removeCardFromDeck();
 			} */
-			returning.add(allBirds[randCard]);
+			returning.add(allBirds[randCard]); // this has to be in that getDeckCount if statement once actually implemented SUPER IMPORTANT
 		}
 		return returning;
+	}
+
+	// Randomly draws bonus cards to simulate the random drawing.
+	public ArrayList<BonusCard> pullRandomBonusCards(int amount)
+	{
+		BonusCard[] allBonuses = BonusCard.values();
+		ArrayList<BonusCard> returning = new ArrayList<>();
+
+		// makes sure there are cards available
+		int availableCards = 0;
+		for (BonusCard card : allBonuses)
+        	availableCards += card.getDeckCount();
+
+		// just sends a message in case we're testing and wondering what went wrong
+		if (amount < availableCards) System.out.println("Ran out of bonus cards");
+
+		amount = Math.min(amount, availableCards);
+		
+		while(returning.size() < amount) {
+			while (true) {
+				int randCard = (int) (Math.random() * allBonuses.length);
+				if(allBonuses[randCard].getDeckCount() > 0) {
+					allBonuses[randCard].removeCardFromDeck();
+					returning.add(allBonuses[randCard]);
+				}
+			}
+		}
+		return returning;
+	}
+
+	// Checks if the birdFeeder has the food type and if so adds it to player. Returns boolean to show whether or not food was actually grabbed.
+	public boolean grabFood(String food, Player player)
+	{
+		if(birdFeeder.contains(food))
+		{
+			player.addFood(food, 1);
+			birdFeeder.remove(food);
+			return true;
+		}
+		return false;
+	}
+
+	// Returns the birdFeeder
+	public ArrayList<String> getBirdFeeder()
+	{
+		return birdFeeder;
 	}
 
 	private void handleSelected() { // if the user selected more than 5 things deselect the least recent thing selected (could be bird or food token)

@@ -51,7 +51,13 @@ public class BirdInstance {
 	public String getNest() { return birdEnum.getNest(); }
 	
 	// VOID METHODS
+
+	// caches a food. Doesn't matter what type as the class that called it will remove it from the player to make the logic easier
+	public void cacheFood(int amt) { cachedFood+=amt; }
+
+	// tucks a bird card. Doesn't matter what type or which card as the class that called it will remove it from the player to make the logic easier
+	public void tuckCard(int amt) { tuckedCards+=amt; }
 	
 	// performs this bird's stored BirdAction ability on the given player
-	public void performAction(Game gameContext, Player player) { birdEnum.performAction(gameContext, player); }
+	public void performAction(Game gameContext, Player player) { birdEnum.performAction(gameContext, player, this); }
 }

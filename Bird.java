@@ -91,7 +91,7 @@ public enum Bird
 	// VOID METHODS / MUTATOR METHODS
 	
 	// performs this bird's stored BirdAction ability on the given player
-	public void performAction(Game gameContext, Player player) { action.execute(gameContext, player); }
+	public void performAction(Game gameContext, Player player, BirdInstance birdInstance) { action.execute(gameContext, player, birdInstance); }
 
 	public void removeCardFromDeck() { deckCount -= 1; }
 
