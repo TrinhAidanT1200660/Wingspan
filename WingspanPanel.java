@@ -114,7 +114,6 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
             // we can do whatever with the button that was fully clicked here...
             if (released.containsPoint(e.getX(), e.getY())) {
                 if (released.getAttribute("startButton") != null) { // if its a start button, we can start game here
-                    transition.visible = true; // enable the transition frame
                     startMenu.tweenSize(new Dim2(1.5, 0, 1.8, 0), 0.5, Tween.QUAD_IN_OUT); // zoom in the main menu stuff by 3x
                     currentGame = new Game(released == UIElement.getByName("CompetitiveButtonBg"));
                     playTransition(() -> {
