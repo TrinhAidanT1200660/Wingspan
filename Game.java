@@ -101,11 +101,11 @@ public class Game {
 	}
 
 	// Checks if the birdFeeder has the food type and if so adds it to player. Returns boolean to show whether or not food was actually grabbed.
-	public boolean grabFood(String food, Player player)
+	public boolean grabFood(String food, Player player, int amt)
 	{
 		if(birdFeeder.contains(food))
 		{
-			player.addFood(food, 1);
+			player.addFood(food, amt);
 			birdFeeder.remove(food);
 			return true;
 		}

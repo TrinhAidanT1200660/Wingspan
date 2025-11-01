@@ -3,6 +3,9 @@ import java.util.HashSet;
 
 public enum Bird 
 {
+	// USED THIS LINK TO VIEW SOME BIRD ABILITIES. CAN USE BUT NEED TO DESELECT ALL EXPANSIONS AND PROMO PACKS
+	// https://navarog.github.io/wingsearch/
+	
 	// ENUM SEQUENCE: string name, string image, int eggMax, int wingspan, int points, String[] habitat, String abilityColor, String aType, String food, String nest, BirdAction action
 	// Name: obviously it's top name
 	// Image: get the image from package
@@ -32,7 +35,14 @@ public enum Bird
 	// ANNAS_HUMMINGBIRD
 	ASH_THROATED_FLYCATCHER("ASH THROATED FLYCATCHER", "temp", 4, 30, 4, new String[] {"grassland"}, "WHITE", "EggLaying", "and 1berry 2worm", "Cavity", BirdAction.LAYEGGONALLCAVITY),
 	ATLANTIC_PUFFIN("ATLANTIC PUFFIN", "temp", 1, 53, 8, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 3fish", "Wild", BirdAction.DRAW2BONUSKEEP1),
-	BAIRDS_SPARROW("BIARDS SPARROW", "temp", 2, 23, 3, new String[] {"grassland"}, "BROWN", "EggLaying", "and 1seed 1worm", "Ground", BirdAction.LAYEGGONANYBIRD),
+	BAIRDS_SPARROW("BAIRD'S SPARROW", "temp", 2, 23, 3, new String[] {"grassland"}, "BROWN", "EggLaying", "and 1seed 1worm", "Ground", BirdAction.LAYEGGONANYBIRD),
+	BALD_EAGLE("BALD EAGLE", "temp", 1, 203, 9, new String[] {"wetland"}, "WHITE", "Other", "and 2fish 1rat", "Platform", BirdAction.ROLLDICEANDFINDFISH),
+	BALTIMORE_ORIOLE("BALTIMORE ORIOLE", "temp", 2, 30, 9, new String[] {"forest"}, "BROWN", "Other", "and 2berry 1worm", "Wild", BirdAction.GET1BERRY),
+	BARN_OWL("BARN OWL", "temp", 4, 107, 5, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Predator", "and 2rat", "Cavity",BirdAction.ROLLDICEANDFINDRAT),
+	BARN_SWALLOW("BARN SWALLOW", "temp", 2, 107, 3, new String[] {"grassland", "wetland"}, "BROWN", "Flocking", "and 1worm", "Wild", BirdAction.TUCK1BIRDANDDRAW1BIRD),
+	BARRED_OWL("BARRED OWL", "temp", 2, 107, 3, new String[] {"forest"}, "BROWN", "Predator", "and 1rat", "Cavity", BirdAction.DRAW1BIRDANDTUCKIF75CM),
+	// BARROWS_GOLDENEYE
+	BELLS_VIREO("BELL'S VIREO", "temp", 2, 18, 4, new String[] {"forest", "grassland"}, "WHITE", "CardDrawing", "and 2worm", "Wild", BirdAction.DRAW2BONUSKEEP1),
 	BROWN_PELICAN("BROWN PELICAN", "birds/brown_pelican.png", 2, 201, 4, new String[] {"wetland"}, "WHITE", "Other", "and 2fish", "Platform", BirdAction.GET3FISH),
 	CANVASBACK("CANVASBACK", "birds/canvasback.png", 4, 82, 4, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1any 1seed", "Wild", BirdAction.ALLDRAW1BIRD),
 	GREATER_PRAIRIE_CHICKEN("GREATER PRAIRIE CHICKEN", "birds/greater_prairie_chicken.png", 4, 71, 5, new String[] {"grassland"}, "WHITE", "CardDrawing", "and 2seed 1worm", "Ground", BirdAction.DRAW2BONUSKEEP1),

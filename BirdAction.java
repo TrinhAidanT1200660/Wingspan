@@ -38,7 +38,7 @@ public enum BirdAction implements BirdActionInterface
 				p.addBirdHand(gameContext.pullRandomBirds(1).get(0));
 	}),
 	// This ability draws 2 bonus cards for the player and keep 1 WHEN PLAYED 
-	// GREATER_PRAIRIE_CHICKEN | ATLANTIC_PUFFIN
+	// GREATER_PRAIRIE_CHICKEN | ATLANTIC_PUFFIN | BELLS_VIREO
 	DRAW2BONUSKEEP1((gameContext, player, birdInstance) -> {
 		ArrayList<BonusCard> cards = gameContext.pullRandomBonusCards(2);
 		BonusCard card1 = cards.get(0);
@@ -47,10 +47,17 @@ public enum BirdAction implements BirdActionInterface
 		// Need UI implementation here to allow the player to choose which card they would like to keep. Cannot continue this ability for now.
 
 	}),
+	// Look at a bird card from deck (face down pile) and if less than 75 cm wingpsan, tuck it behind card, if not discard
+	// BARRED_OWL
+	DRAW1BIRDANDTUCKIF75CM((gameContext, player, birdInstance) -> {
+		Bird card = gameContext.pullRandomBirds(1).get(0);
+		if(card.getWingspan() < 75)
+			birdInstance.tuckCard(1);
+	}),
 	// This ability allows for the player to gain 1 seed if there is one in the birdFeeder. If it is available, cache it on the bird
 	// ACORN_WOODPECKER
 	GAIN1SEEDANDCACHE((gameContext, player, birdInstance) -> {
-		if(gameContext.grabFood("seed", player)) // this method auto adds the food into player
+		if(gameContext.grabFood("seed", player, 1)) // this method auto adds the food into player
 		{
 			// need some UI prompt to ask the player whether they want to cache the food or not; false for now
 			boolean cached = false;
@@ -70,7 +77,7 @@ public enum BirdAction implements BirdActionInterface
 		player.addFood(food, 1);
 	}),
 	// This ability allows the player to gain 1 berry WHEN ACTIVATED
-	// NORTHERN_CARDINAL
+	// NORTHERN_CARDINAL | BALTIMORE_ORIOLE
 	GET1BERRY((gameContext, player, birdInstance) -> {
 		player.addFood("berry", 1);
 	}),
@@ -91,7 +98,7 @@ public enum BirdAction implements BirdActionInterface
 		for(String s: gameContext.getBirdFeeder())
 			if(s.equals("fish"))	
 				count++;
-		player.addFood("fish", count);
+		gameContext.grabFood("fish", player, count);
 	}),
 	// Lays 1 egg on each of your birds with a cavity nest
 	// ASH_THROATED_FLYCATCHER
@@ -100,7 +107,7 @@ public enum BirdAction implements BirdActionInterface
 		{
 			ArrayList<BirdInstance> birdList = entry.getValue();
 			for(BirdInstance bird : birdList)
-				if(bird.getNest().toLowerCase().equals("cavity"))
+				if(bird.getNest().equalsIgnoreCase("cavity"))
 					bird.addEggs(1);
 		}
 	}),
@@ -130,7 +137,7 @@ public enum BirdAction implements BirdActionInterface
 			birdInstance.cacheFood(1);
 	}),
 	// Rolls all the dice not in the birdFeeder and if any are rat, cache 1 rat into the supply of the bird
-	// AMERICAN_KESTREL
+	// AMERICAN_KESTREL | BARN_OWL
 	ROLLDICEANDFINDRAT((gameContext, player, birdInstance) -> {
 		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
 		ArrayList<String> rolledFoods = new ArrayList<>();
@@ -143,11 +150,11 @@ public enum BirdAction implements BirdActionInterface
 			birdInstance.cacheFood(1);
 	}),
 	// This ability allows a player to tuck a bird card behind the bird and if done, draw 1 bird card
-	// AMERICAN_ROBIN | AMERICAN_COOT
+	// AMERICAN_ROBIN | AMERICAN_COOT | BARN_SWALLOW
 	TUCK1BIRDANDDRAW1BIRD((gameContext, player, birdInstance) -> {
 		// UI has the player choose which card they want to remove / tuck, for now will be false
 		boolean tuck = false;
-		if(tuck)
+		if(tuck && !player.getBirdHand().isEmpty())
 		{
 			Bird card = player.getBirdHand().remove(0);
 			birdInstance.tuckCard(1);
