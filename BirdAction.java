@@ -11,11 +11,35 @@ public enum BirdAction implements BirdActionInterface
 		for(Player p: gameContext.getPlayers())
 			p.addBirdHand(gameContext.pullRandomBirds(1).get(0));
 	}),
+	// All players gain 1 berry
+	// BLACK_CHINNED_HUMMINGBIRD
+	ALLGET1BERRY((gameContext, player, birdInstance) -> {
+		for(Player p: gameContext.getPlayers())
+			p.addFood("berry", 1);
+	}),
 	// This ability has a player discard an egg from any bird to gain 1 food from the supply
-	// AMERICAN_CROW
+	// AMERICAN_CROW | BLACK_CROWNED_NIGHT_HERON
 	DISCARDEGGANDGAINFOOD((gameContext, player, birdInstance) -> {
 		// UI has the player choose what egg to remove and which food to gain
 		// really can't bs the method for now just will be blank
+	}),
+	// Discard 1 fish to tuck 2 bird cards from the deck behind this bird
+	// AMERICAN_WHITE_PELICAN
+	DISCARDFISHANDTUCK2BIRDS((gameContext, player, birdInstance) -> {
+		if(player.getFood().get("fish") > 0) {
+			player.addFood("fish", -1); // negative usage here cause lazy to make a remove one
+			gameContext.pullRandomBirds(2); // should auto remove the birds from deck, no need to track which ones exactly
+			birdInstance.tuckCard(2);
+		}
+	}),
+	// Discard 1 seed to tuck 2 bird cards from the deck behind this bird
+	// BLACK_BELLIED_WHISTLING_DUCK
+	DISCARDSEEDANDTUCK2BIRDS((gameContext, player, birdInstance) -> {
+		if(player.getFood().get("seed") > 0) {
+			player.addFood("seed", -1); // negative usage here cause lazy to make a remove one
+			gameContext.pullRandomBirds(2); // should auto remove the birds from deck, no need to track which ones exactly
+			birdInstance.tuckCard(2);
+		}
 	}),
 	// This ability has the table draw bird cards equal to num of players + 1 and go clockwise from player who played it. Each plaeyr selects 1 of the cards and places in their hand
 	// with the player who activated it keeping the extra
@@ -37,6 +61,13 @@ public enum BirdAction implements BirdActionInterface
 			if (leastAmount == p.getBoard().get("wetland").size())
 				p.addBirdHand(gameContext.pullRandomBirds(1).get(0));
 	}),
+	// Draw 2 bird cards
+	// BLACK_NECKED_STILT
+	DRAW2BIRDCARDS((gameContext, player, birdInstance) -> {
+		ArrayList<Bird> cards = gameContext.pullRandomBirds(2);
+		for(Bird b: cards)
+			player.addBirdHand(b);
+	}),
 	// This ability draws 2 bonus cards for the player and keep 1 WHEN PLAYED 
 	// GREATER_PRAIRIE_CHICKEN | ATLANTIC_PUFFIN | BELLS_VIREO
 	DRAW2BONUSKEEP1((gameContext, player, birdInstance) -> {
@@ -55,7 +86,7 @@ public enum BirdAction implements BirdActionInterface
 			birdInstance.tuckCard(1);
 	}),
 	// This ability allows for the player to gain 1 seed if there is one in the birdFeeder. If it is available, cache it on the bird
-	// ACORN_WOODPECKER
+	// ACORN_WOODPECKER | BLUE_JAY
 	GAIN1SEEDANDCACHE((gameContext, player, birdInstance) -> {
 		if(gameContext.grabFood("seed", player, 1)) // this method auto adds the food into player
 		{
@@ -118,13 +149,31 @@ public enum BirdAction implements BirdActionInterface
 		BirdInstance bird = birdInstance;
 		bird.addEggs(1);
 	}),
+	// If this bird is to the right of all other birds in its habitat move it to another habitat
+	// BEWICKS_WREN | BLUE_GROSBEAK
+	MOVEIFATVERYRIGHT((gameContext, player, birdInstance) -> {
+		String habitat = "";
+		for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet())
+		{
+			if(entry.getValue().contains(birdInstance))
+				habitat = entry.getKey();
+		}
+		ArrayList<BirdInstance> birdInstances = player.getBoard().get(habitat);
+		if(birdInstances.get(birdInstances.size()-1) == birdInstance)
+		{
+			// Has the UI ask which habitat the player would like the bird to move in; for now it will just not move the bird
+			String newHabitat = "";
+			// player.getBoard().get(newHabitat).add(birdInstance);
+			// birdInstances.remove(birdInstance);
+		}
+	}),
 	// This ability is for birds with no ability. My favourite.
 	// PROTHONOTARY_WARBLER | AMERICAN_WOODCOCK
 	NONE((gameContext, player, birdInstance) -> {
 
 	}),
 	// Rolls all the dice not in the birdFeeder and if any are fish, cache 1 fish into the supply of the bird
-	// ANHINGA
+	// ANHINGA | BLACK_SKIMMER
 	ROLLDICEANDFINDFISH((gameContext, player, birdInstance) -> {
 		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
 		ArrayList<String> rolledFoods = new ArrayList<>();
