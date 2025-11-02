@@ -17,6 +17,11 @@ public enum BirdAction implements BirdActionInterface
 		for(Player p: gameContext.getPlayers())
 			p.addFood("berry", 1);
 	}),
+	// Cache 1 seed from the supply on this bird
+	// CAROLINA_CHICKADEE
+	CACHE1SEED((gameContext, player, birdInstance) -> {
+		birdInstance.cacheFood(1);
+	}),
 	// This ability has a player discard an egg from any bird to gain 1 food from the supply
 	// AMERICAN_CROW | BLACK_CROWNED_NIGHT_HERON
 	DISCARDEGGANDGAINFOOD((gameContext, player, birdInstance) -> {
@@ -33,7 +38,7 @@ public enum BirdAction implements BirdActionInterface
 		}
 	}),
 	// Discard 1 seed to tuck 2 bird cards from the deck behind this bird
-	// BLACK_BELLIED_WHISTLING_DUCK
+	// BLACK_BELLIED_WHISTLING_DUCK | CANADA_GOOSE
 	DISCARDSEEDANDTUCK2BIRDS((gameContext, player, birdInstance) -> {
 		if(player.getFood().get("seed") > 0) {
 			player.addFood("seed", -1); // negative usage here cause lazy to make a remove one
@@ -62,14 +67,14 @@ public enum BirdAction implements BirdActionInterface
 				p.addBirdHand(gameContext.pullRandomBirds(1).get(0));
 	}),
 	// Draw 2 bird cards
-	// BLACK_NECKED_STILT
+	// BLACK_NECKED_STILT | CAROLINA_WREN
 	DRAW2BIRDCARDS((gameContext, player, birdInstance) -> {
 		ArrayList<Bird> cards = gameContext.pullRandomBirds(2);
 		for(Bird b: cards)
 			player.addBirdHand(b);
 	}),
 	// This ability draws 2 bonus cards for the player and keep 1 WHEN PLAYED 
-	// GREATER_PRAIRIE_CHICKEN | ATLANTIC_PUFFIN | BELLS_VIREO
+	// GREATER_PRAIRIE_CHICKEN | ATLANTIC_PUFFIN | BELLS_VIREO | CALIFORNIA_CONDOR | CASSINS_FINCH
 	DRAW2BONUSKEEP1((gameContext, player, birdInstance) -> {
 		ArrayList<BonusCard> cards = gameContext.pullRandomBonusCards(2);
 		BonusCard card1 = cards.get(0);
@@ -84,6 +89,15 @@ public enum BirdAction implements BirdActionInterface
 		Bird card = gameContext.pullRandomBirds(1).get(0);
 		if(card.getWingspan() < 75)
 			birdInstance.tuckCard(1);
+	}),
+	// Draw the 3 face up bird cards in the bird tray
+	// BRANT
+	DRAW3FACEUPBIRD((gameContext, player, birdInstance) -> {
+		ArrayList<Bird> cards = gameContext.getFaceUpTray();
+		for(Bird c: cards)
+			player.addBirdHand(c);
+		// Not sure if restore the faceuptray within this method or at the end of player turn
+		// I think player turn because it'll be more consistent logic
 	}),
 	// This ability allows for the player to gain 1 seed if there is one in the birdFeeder. If it is available, cache it on the bird
 	// ACORN_WOODPECKER | BLUE_JAY
@@ -112,6 +126,11 @@ public enum BirdAction implements BirdActionInterface
 	GET1BERRY((gameContext, player, birdInstance) -> {
 		player.addFood("berry", 1);
 	}),
+	// Gain 1 worm 
+	// BLUE_GRAY_GNATCATCHER
+	GET1WORM((gameContext, player, birdInstance) -> {
+		player.addFood("worm", 1);
+	}),
 	// This ability allows the player to gain 3 fish WHEN PLAYED
 	// BROWN_PELICAN
 	GET3FISH((gameContext, player, birdInstance) -> {
@@ -138,7 +157,18 @@ public enum BirdAction implements BirdActionInterface
 		{
 			ArrayList<BirdInstance> birdList = entry.getValue();
 			for(BirdInstance bird : birdList)
-				if(bird.getNest().equalsIgnoreCase("cavity"))
+				if(bird.getNest().equalsIgnoreCase("Cavity"))
+					bird.addEggs(1);
+		}
+	}),
+	// Lays 1 wgg on each of your birds with a ground nest
+	// BOBOLINK
+	LAYEGGONALLGROUND((gameContext, player, birdInstance) -> {
+		for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet())
+		{
+			ArrayList<BirdInstance> birdList = entry.getValue();
+			for(BirdInstance bird : birdList)
+				if(bird.getNest().equalsIgnoreCase("Ground"))
 					bird.addEggs(1);
 		}
 	}),
@@ -148,6 +178,11 @@ public enum BirdAction implements BirdActionInterface
 		// need UI to ask player which bird, for now will just place on this bird
 		BirdInstance bird = birdInstance;
 		bird.addEggs(1);
+	}),
+	// Lay 1 egg on this bird
+	// CALIFORNIA_QUAIL
+	LAYEGGONTHISBIRD((gameContext, player, birdInstance) -> {
+		birdInstance.addEggs(1);
 	}),
 	// If this bird is to the right of all other birds in its habitat move it to another habitat
 	// BEWICKS_WREN | BLUE_GROSBEAK
@@ -168,7 +203,7 @@ public enum BirdAction implements BirdActionInterface
 		}
 	}),
 	// This ability is for birds with no ability. My favourite.
-	// PROTHONOTARY_WARBLER | AMERICAN_WOODCOCK
+	// PROTHONOTARY_WARBLER | AMERICAN_WOODCOCK | BLUE_WINGED_WARBLER
 	NONE((gameContext, player, birdInstance) -> {
 
 	}),
@@ -186,7 +221,7 @@ public enum BirdAction implements BirdActionInterface
 			birdInstance.cacheFood(1);
 	}),
 	// Rolls all the dice not in the birdFeeder and if any are rat, cache 1 rat into the supply of the bird
-	// AMERICAN_KESTREL | BARN_OWL
+	// AMERICAN_KESTREL | BARN_OWL | BROAD_WINGED_HAWK | BURROWING_OWL
 	ROLLDICEANDFINDRAT((gameContext, player, birdInstance) -> {
 		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
 		ArrayList<String> rolledFoods = new ArrayList<>();
@@ -208,6 +243,18 @@ public enum BirdAction implements BirdActionInterface
 			Bird card = player.getBirdHand().remove(0);
 			birdInstance.tuckCard(1);
 			player.addBirdHand(gameContext.pullRandomBirds(1).get(0));
+		}
+	}),
+	// tuck 1 bird from hand behind the bird and if done, lay 1 egg on this bird
+	// BREWERS_BLACKBIRD | BUSHTIT 
+	TUCK1BIRDANDLAY1EGG((gameContext, player, birdInstance) -> {
+		// UI has the player choose which card they want to remove / tuck, for now will be false
+		boolean tuck = false;
+		if(tuck && !player.getBirdHand().isEmpty())
+		{
+			Bird card = player.getBirdHand().remove(0);
+			birdInstance.tuckCard(1);
+			birdInstance.addEggs(1);
 		}
 	})
 	;

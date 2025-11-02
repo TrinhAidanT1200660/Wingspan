@@ -11,6 +11,7 @@ public class Game {
     private ArrayList<Player> playerList; // holds the list of players in the game
 	private TreeSet<Selectable> selected = new TreeSet<>(); // temporarily holding the items selected pre-game (birds/food tokens)
 	private ArrayList<String> birdFeeder; // replicates a bird feeder using a simple arrayList
+	private ArrayList<Bird> faceUpBirds; // replicates the 3 face up bird cards in the bird tray ; not sure when we want to create this
 
     // CONSTRUCTOR
     public Game(boolean isCompetitive) {
@@ -39,6 +40,12 @@ public class Game {
 		}
 
 		birdFeeder = rolledFoods;
+	}
+
+	public void regenerateFaceUpTray() {
+		ArrayList<Bird> cards = pullRandomBirds(3);
+		for(Bird b: cards)
+			faceUpBirds.add(b);
 	}
 
     // RETURN METHODS
@@ -98,6 +105,11 @@ public class Game {
 			}
 		}
 		return returning;
+	}
+
+	// Returns the face up bird card tray
+	public ArrayList<Bird> getFaceUpTray() {
+		return faceUpBirds;
 	}
 
 	// Checks if the birdFeeder has the food type and if so adds it to player. Returns boolean to show whether or not food was actually grabbed.
