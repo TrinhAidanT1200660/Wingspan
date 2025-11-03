@@ -119,6 +119,7 @@ public class Game {
 				if(allBonuses[randCard].getDeckCount() > 0) {
 					allBonuses[randCard].removeCardFromDeck();
 					returning.add(allBonuses[randCard]);
+					break;
 				}
 			}
 		}

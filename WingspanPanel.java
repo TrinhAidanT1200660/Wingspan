@@ -117,7 +117,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                     startMenu.tweenSize(new Dim2(1.5, 0, 1.8, 0), 0.5, Tween.QUAD_IN_OUT); // zoom in the main menu stuff by 3x
                     currentGame = new Game(released == UIElement.getByName("CompetitiveButtonBg"));
                     playTransition(() -> {
-                        ArrayList<Bird> randomBirds = currentGame.pullRandomBirds();
+                        ArrayList<Bird> randomBirds = currentGame.pullRandomBirds(5);
                         for (int i = 0; i < randomBirds.size(); i++) {
                             String imageFileString = randomBirds.get(i).getImage();
                             ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
@@ -139,7 +139,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                         startMenu.size = new Dim2(0.5, 0, 0.6, 0);
                         resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
                     });
-                } else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null) {
+                } else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null) {
                     currentGame.toggleSelect(released);
                     boolean canContinue = currentGame.canContinueResources();
                     UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
@@ -151,7 +151,23 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                 if (released == UIElement.getByName("ContinueResourcesButtonBg")) {
                     Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
                     if (ready != null && (boolean)ready) {
-                        System.out.println("move on");
+                        playTransition((Runnable)() -> {
+                            System.out.println("bout to get some");
+                            ArrayList<BonusCard> cards = currentGame.pullRandomBonusCards(2);
+                            System.out.println("ok got them " + cards);
+                            BonusCard firstBonus = cards.get(0);
+                            BonusCard secondBonus = cards.get(1);
+                            ImageHandler.setGroup("bonus/back_of_bonus.png", "Bonus");
+                            ImageHandler.loadGroup("Bonus");
+                            for (int i = 0; i < 2; i++) {
+                                UIImage bonusImage = (UIImage)(UIElement.getByName("Bonus" + i));
+                                bonusImage.setAttribute("selectionValue", cards.get(i));
+                                bonusImage.setImagePath("bonus/back_of_bonus.png");
+                            }
+                            UIElement.getByName("ChoosableBirdsContainer").visible = false;
+                            UIElement.getByName("ChoosableFoodsContainer").visible = false;
+                            UIElement.getByName("ChoosableBonusesContainer").visible = true;
+                        });
                     }
                 }
             }
@@ -475,6 +491,54 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         resourcesChoicesFrame.backgroundTransparency = 0f;
         resourcesChoicesFrame.setParent(resourceChoosingScreen);
 
+        UIFrame choosableBonusesContainer = new UIFrame("ChoosableBonusesContainer", this);
+        choosableBonusesContainer.visible = false;
+        choosableBonusesContainer.position.center();
+        choosableBonusesContainer.anchorPoint = new Vector2(0.5, 0.5);
+        choosableBonusesContainer.size = new Dim2(1, 0, 0.7, 0);
+        choosableBonusesContainer.backgroundTransparency = 0f;
+        choosableBonusesContainer.setParent(resourcesChoicesFrame);
+
+        ListLayout bonusChoicesLayout = new ListLayout();
+        bonusChoicesLayout.direction = ListLayout.HORIZONTAL;
+        bonusChoicesLayout.verticalAlignment = ListLayout.CENTER;
+        bonusChoicesLayout.horizontalAlignment = ListLayout.CENTER;
+        bonusChoicesLayout.spacing = new Dim(0.005, 0);
+        choosableBonusesContainer.layout = bonusChoicesLayout;
+
+        for (int i = 0; i < 2; i++) {
+            UIFrame chooseableBonusContainer = new UIFrame("BonusContainer" + i, this);
+            chooseableBonusContainer.backgroundTransparency = 0f;
+            chooseableBonusContainer.size = new Dim2(0.185, 0, 0.82, 0);
+            chooseableBonusContainer.setParent(choosableBonusesContainer);
+
+            UIImage bonus = new UIImage("Bonus" + i, this);
+            bonus.size.full().dilate(0.85);
+            bonus.backgroundTransparency = 0f;
+            bonus.position.center();
+            bonus.anchorPoint.center();
+            bonus.setBrightness(0.6f);
+            bonus.setAttribute("bonusChoice", true);
+            bonus.setImageFillType(UIImage.FIT_IMAGE);
+            bonus.setParent(chooseableBonusContainer);
+            animOnHover(bonus, bonus);
+            animOnPress(bonus, bonus);
+            bonus.setAttribute("Select", (Runnable)() -> {
+                bonus.setBrightness(1f);
+                Dim2 newSize = new Dim2().full().dilate(0.95);
+                bonus.setAttribute("ogsize", newSize);
+                bonus.setAttribute("hoversize", newSize.clone().dilate(1.1));
+                bonus.setAttribute("presssize", newSize.clone().dilate(0.85));
+            });
+            bonus.setAttribute("Deselect", (Runnable)() -> {
+                bonus.setBrightness(0.6f);
+                Dim2 newSize = new Dim2().full().dilate(0.85);
+                bonus.setAttribute("ogsize", newSize);
+                bonus.setAttribute("hoversize", newSize.clone().dilate(1.1));
+                bonus.setAttribute("presssize", newSize.clone().dilate(0.85));
+                bonus.tweenSize(newSize, 0.1, Tween.QUAD_IN_OUT);
+            });
+        }
 
         UIFrame choosableBirdsContainer = new UIFrame("ChoosableBirdsContainer", this);
         choosableBirdsContainer.position = new Dim2(0.5, 0, 0, 0);

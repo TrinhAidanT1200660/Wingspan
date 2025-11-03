@@ -109,7 +109,7 @@ public enum BirdAction implements BirdActionInterface
 		BonusCard card2 = cards.get(1);
 
 		// Need UI implementation here to allow the player to choose which card they would like to keep. Cannot continue this ability for now.
-
+		
 	}),
 	// Look at a bird card from deck (face down pile) and if less than 50 cm wingpsan, tuck it behind card, if not discard
 	// GREATER_ROADRUNNER
