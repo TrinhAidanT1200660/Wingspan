@@ -114,7 +114,6 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
             // we can do whatever with the button that was fully clicked here...
             if (released.containsPoint(e.getX(), e.getY())) {
                 if (released.getAttribute("startButton") != null) { // if its a start button, we can start game here
-                    transition.visible = true; // enable the transition frame
                     startMenu.tweenSize(new Dim2(1.5, 0, 1.8, 0), 0.5, Tween.QUAD_IN_OUT); // zoom in the main menu stuff by 3x
                     currentGame = new Game(released == UIElement.getByName("CompetitiveButtonBg"));
                     playTransition(() -> {
@@ -123,7 +122,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                             String imageFileString = randomBirds.get(i).getImage();
                             ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
                             UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i));
-                            birdImage.setAttribute("Bird", randomBirds.get(i));
+                            birdImage.setAttribute("selectionValue", randomBirds.get(i));
                             birdImage.setImagePath(imageFileString);
                         }
                         ImageHandler.setGroup("foods/berries.png", "Foods");
@@ -140,15 +139,20 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                         startMenu.size = new Dim2(0.5, 0, 0.6, 0);
                         resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
                     });
-                } else if (released.getAttribute("birdChoice") != null) {
-                    Bird bird = (Bird)(released.getAttribute("Bird"));
-                    Object selected = released.getAttribute("Selected");
-                    if (selected != null && (boolean)selected == true) currentGame.deselect(released); else currentGame.select(bird, released);
+                } else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null) {
+                    currentGame.toggleSelect(released);
+                    boolean canContinue = currentGame.canContinueResources();
+                    UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+                    continueButton.setAttribute("Clickable", canContinue);
+                    continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray;
                 }
 
                 // resources screen
                 if (released == UIElement.getByName("ContinueResourcesButtonBg")) {
-
+                    Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
+                    if (ready != null && (boolean)ready) {
+                        System.out.println("move on");
+                    }
                 }
             }
             Object hasAnimOnPress = released.getAttribute("animOnPress"); // check if the element wants to be animated when pressed
@@ -493,11 +497,11 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
             chooseableBirdContainer.setParent(choosableBirdsContainer);
 
             UIImage bird = new UIImage("Bird" + i, this);
-            bird.size.full().dilate(0.9);
+            bird.size.full().dilate(0.85);
             bird.backgroundTransparency = 0f;
             bird.position.center();
             bird.anchorPoint.center();
-            bird.setBrightness(0.7f);
+            bird.setBrightness(0.6f);
             bird.setAttribute("birdChoice", true);
             bird.setImageFillType(UIImage.FIT_IMAGE);
             bird.setParent(chooseableBirdContainer);
@@ -511,11 +515,12 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                 bird.setAttribute("presssize", newSize.clone().dilate(0.85));
             });
             bird.setAttribute("Deselect", (Runnable)() -> {
-                bird.setBrightness(0.7f);
-                Dim2 newSize = new Dim2().full().dilate(0.9);
+                bird.setBrightness(0.6f);
+                Dim2 newSize = new Dim2().full().dilate(0.85);
                 bird.setAttribute("ogsize", newSize);
                 bird.setAttribute("hoversize", newSize.clone().dilate(1.1));
                 bird.setAttribute("presssize", newSize.clone().dilate(0.85));
+                bird.tweenSize(newSize, 0.1, Tween.QUAD_IN_OUT);
             });
         }
 
@@ -572,20 +577,184 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         animOnPress(continueResourcesButtonBg, continueResourcesContainer);
         pressCover(continueResourcesButtonBg, continueResourcesButtonCover);
 
+        UIFrame choosableFoodsContainer = new UIFrame("ChoosableFoodsContainer", this);
+        choosableFoodsContainer.position = new Dim2(0.05, 0, 0.95, 0);
+        choosableFoodsContainer.anchorPoint = new Vector2(0, 1);
+        choosableFoodsContainer.size = new Dim2(0.25, 0, 0.1, 0).dilate(1.33);
+        choosableFoodsContainer.backgroundTransparency = 0f;
+        choosableFoodsContainer.setParent(resourcesChoicesFrame);
+
+        ListLayout foodChoicesLayout = new ListLayout();
+        foodChoicesLayout.direction = ListLayout.HORIZONTAL;
+        foodChoicesLayout.verticalAlignment = ListLayout.CENTER;
+        foodChoicesLayout.horizontalAlignment = ListLayout.LEFT;
+        foodChoicesLayout.spacing = new Dim(0.005, 0);
+        choosableFoodsContainer.layout = foodChoicesLayout;
+
         UIFrame berriesChoiceContainer = new UIFrame("BerriesChoiceContainer", this);
         berriesChoiceContainer.backgroundTransparency = 0f;
-        berriesChoiceContainer.size = new Dim2(0.05, 0, 0.1, 0).dilate(1.33);
-        berriesChoiceContainer.anchorPoint = new Vector2(0, 1);
-        berriesChoiceContainer.position = new Dim2(0.05, 0, 0.95, 0);
-        berriesChoiceContainer.setParent(resourcesChoicesFrame);
+        berriesChoiceContainer.size = new Dim2(0.2, 0, 1, 0);
+        berriesChoiceContainer.setParent(choosableFoodsContainer);
 
         UIImage berriesChoiceIcon = new UIImage("BerriesChoiceIcon", this);
         berriesChoiceIcon.setImagePath("foods/berries.png");
         berriesChoiceIcon.backgroundTransparency = 0f;
-        berriesChoiceIcon.size.full();
+        berriesChoiceIcon.size.full().dilate(0.7);
+        berriesChoiceIcon.setBrightness(0.4f);
         berriesChoiceIcon.anchorPoint.center();
         berriesChoiceIcon.position.center();
+        berriesChoiceIcon.setAttribute("foodChoice", true);
+        berriesChoiceIcon.setAttribute("selectionValue", "berries");
         berriesChoiceIcon.setParent(berriesChoiceContainer);
+        animOnPress(berriesChoiceIcon, berriesChoiceIcon);
+        animOnHover(berriesChoiceIcon, berriesChoiceIcon);
+        berriesChoiceIcon.setAttribute("Select", (Runnable)() -> {
+            berriesChoiceIcon.setBrightness(1f);
+            Dim2 newSize = new Dim2().full().dilate(1.15);
+            berriesChoiceIcon.setAttribute("ogsize", newSize);
+            berriesChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            berriesChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+        });
+        berriesChoiceIcon.setAttribute("Deselect", (Runnable)() -> {
+            berriesChoiceIcon.setBrightness(0.4f);
+            Dim2 newSize = new Dim2().full().dilate(0.7);
+            berriesChoiceIcon.setAttribute("ogsize", newSize);
+            berriesChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            berriesChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+            berriesChoiceIcon.tweenSize(newSize, 0.1, Tween.QUAD_IN_OUT);
+        });
+
+        UIFrame fishChoiceContainer = new UIFrame("FishChoiceContainer", this);
+        fishChoiceContainer.backgroundTransparency = 0f;
+        fishChoiceContainer.size = new Dim2(0.2, 0, 1, 0);
+        fishChoiceContainer.setParent(choosableFoodsContainer);
+
+        UIImage fishChoiceIcon = new UIImage("FishChoiceIcon", this);
+        fishChoiceIcon.setImagePath("foods/fish.png");
+        fishChoiceIcon.backgroundTransparency = 0f;
+        fishChoiceIcon.size.full().dilate(0.7);
+        fishChoiceIcon.setBrightness(0.4f);
+        fishChoiceIcon.anchorPoint.center();
+        fishChoiceIcon.position.center();
+        fishChoiceIcon.setAttribute("foodChoice", true);
+        fishChoiceIcon.setAttribute("selectionValue", "fish");
+        fishChoiceIcon.setParent(fishChoiceContainer);
+        animOnPress(fishChoiceIcon, fishChoiceIcon);
+        animOnHover(fishChoiceIcon, fishChoiceIcon);
+        fishChoiceIcon.setAttribute("Select", (Runnable)() -> {
+            fishChoiceIcon.setBrightness(1f);
+            Dim2 newSize = new Dim2().full().dilate(1.15);
+            fishChoiceIcon.setAttribute("ogsize", newSize);
+            fishChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            fishChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+        });
+        fishChoiceIcon.setAttribute("Deselect", (Runnable)() -> {
+            fishChoiceIcon.setBrightness(0.4f);
+            Dim2 newSize = new Dim2().full().dilate(0.7);
+            fishChoiceIcon.setAttribute("ogsize", newSize);
+            fishChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            fishChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+            fishChoiceIcon.tweenSize(newSize, 0.1, Tween.QUAD_IN_OUT);
+        });
+
+        UIFrame seedChoiceContainer = new UIFrame("SeedChoiceContainer", this);
+        seedChoiceContainer.backgroundTransparency = 0f;
+        seedChoiceContainer.size = new Dim2(0.2, 0, 1, 0);
+        seedChoiceContainer.setParent(choosableFoodsContainer);
+
+        UIImage seedChoiceIcon = new UIImage("SeedChoiceIcon", this);
+        seedChoiceIcon.setImagePath("foods/seed.png");
+        seedChoiceIcon.backgroundTransparency = 0f;
+        seedChoiceIcon.size.full().dilate(0.7);
+        seedChoiceIcon.setBrightness(0.4f);
+        seedChoiceIcon.anchorPoint.center();
+        seedChoiceIcon.position.center();
+        seedChoiceIcon.setAttribute("foodChoice", true);
+        seedChoiceIcon.setAttribute("selectionValue", "seed");
+        seedChoiceIcon.setParent(seedChoiceContainer);
+        animOnPress(seedChoiceIcon, seedChoiceIcon);
+        animOnHover(seedChoiceIcon, seedChoiceIcon);
+        seedChoiceIcon.setAttribute("Select", (Runnable)() -> {
+            seedChoiceIcon.setBrightness(1f);
+            Dim2 newSize = new Dim2().full().dilate(1.15);
+            seedChoiceIcon.setAttribute("ogsize", newSize);
+            seedChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            seedChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+        });
+        seedChoiceIcon.setAttribute("Deselect", (Runnable)() -> {
+            seedChoiceIcon.setBrightness(0.4f);
+            Dim2 newSize = new Dim2().full().dilate(0.7);
+            seedChoiceIcon.setAttribute("ogsize", newSize);
+            seedChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            seedChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+            seedChoiceIcon.tweenSize(newSize, 0.1, Tween.QUAD_IN_OUT);
+        });
+
+        UIFrame ratChoiceContainer = new UIFrame("RatChoiceContainer", this);
+        ratChoiceContainer.backgroundTransparency = 0f;
+        ratChoiceContainer.size = new Dim2(0.2, 0, 1, 0);
+        ratChoiceContainer.setParent(choosableFoodsContainer);
+
+        UIImage ratChoiceIcon = new UIImage("RatChoiceIcon", this);
+        ratChoiceIcon.setImagePath("foods/rat.png");
+        ratChoiceIcon.backgroundTransparency = 0f;
+        ratChoiceIcon.size.full().dilate(0.7);
+        ratChoiceIcon.setBrightness(0.4f);
+        ratChoiceIcon.anchorPoint.center();
+        ratChoiceIcon.position.center();
+        ratChoiceIcon.setAttribute("foodChoice", true);
+        ratChoiceIcon.setAttribute("selectionValue", "rat");
+        ratChoiceIcon.setParent(ratChoiceContainer);
+        animOnPress(ratChoiceIcon, ratChoiceIcon);
+        animOnHover(ratChoiceIcon, ratChoiceIcon);
+        ratChoiceIcon.setAttribute("Select", (Runnable)() -> {
+            ratChoiceIcon.setBrightness(1f);
+            Dim2 newSize = new Dim2().full().dilate(1.15);
+            ratChoiceIcon.setAttribute("ogsize", newSize);
+            ratChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            ratChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+        });
+        ratChoiceIcon.setAttribute("Deselect", (Runnable)() -> {
+            ratChoiceIcon.setBrightness(0.4f);
+            Dim2 newSize = new Dim2().full().dilate(0.7);
+            ratChoiceIcon.setAttribute("ogsize", newSize);
+            ratChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            ratChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+            ratChoiceIcon.tweenSize(newSize, 0.1, Tween.QUAD_IN_OUT);
+        });
+
+        UIFrame wormChoiceContainer = new UIFrame("WormChoiceContainer", this);
+        wormChoiceContainer.backgroundTransparency = 0f;
+        wormChoiceContainer.size = new Dim2(0.2, 0, 1, 0);
+        wormChoiceContainer.setParent(choosableFoodsContainer);
+
+        UIImage wormChoiceIcon = new UIImage("WormChoiceIcon", this);
+        wormChoiceIcon.setImagePath("foods/worm.png");
+        wormChoiceIcon.backgroundTransparency = 0f;
+        wormChoiceIcon.size.full().dilate(0.7);
+        wormChoiceIcon.setBrightness(0.4f);
+        wormChoiceIcon.anchorPoint.center();
+        wormChoiceIcon.position.center();
+        wormChoiceIcon.setAttribute("foodChoice", true);
+        wormChoiceIcon.setAttribute("selectionValue", "worm");
+        wormChoiceIcon.setParent(wormChoiceContainer);
+        animOnPress(wormChoiceIcon, wormChoiceIcon);
+        animOnHover(wormChoiceIcon, wormChoiceIcon);
+        wormChoiceIcon.setAttribute("Select", (Runnable)() -> {
+            wormChoiceIcon.setBrightness(1f);
+            Dim2 newSize = new Dim2().full().dilate(1.15);
+            wormChoiceIcon.setAttribute("ogsize", newSize);
+            wormChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            wormChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+        });
+        wormChoiceIcon.setAttribute("Deselect", (Runnable)() -> {
+            wormChoiceIcon.setBrightness(0.4f);
+            Dim2 newSize = new Dim2().full().dilate(0.7);
+            wormChoiceIcon.setAttribute("ogsize", newSize);
+            wormChoiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
+            wormChoiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
+            wormChoiceIcon.tweenSize(newSize, 0.1, Tween.QUAD_IN_OUT);
+        });
     }
 
     public void animOnHover(UIElement element, UIElement toAnimate) {

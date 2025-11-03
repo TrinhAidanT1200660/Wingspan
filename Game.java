@@ -19,6 +19,7 @@ public class Game {
         this.startingPlayerTurn = 1;
         this.roundsPlayed = 0;
         this.playerList = new ArrayList<>();
+		this.selected = new TreeSet<>();
 		this.isCompetitive = isCompetitive;
         for (int i = 0; i < 5; ++i) {
             playerList.add(new Player());
@@ -127,7 +128,15 @@ public class Game {
 		}
 	}
 
-	public void deselect(UIElement element) {
+	private void deselect(Selectable element) { // deselects a specific selectable item
+		if (element != null) {
+			element.getElement().setAttribute("Selected", false);
+			selected.remove(element);
+			((Runnable)(element.getElement().getAttribute("Deselect"))).run();
+		}
+	}
+
+	public void deselect(UIElement element) { // deselects a selectable item based on its UIElement
 		Selectable found = null;
 		for (Selectable s : selected) {
 			if (s.getElement().equals(element)) {
@@ -135,18 +144,27 @@ public class Game {
 				break;
 			}
     	}
-		if (found != null) {
-			found.getElement().setAttribute("Selected", false);
-			selected.remove(found);
-			((Runnable)(found.getElement().getAttribute("Deselect"))).run();
+		deselect(found);
+	}
+
+	public void select(UIElement element) {
+		element.setAttribute("Selected", true);
+		selected.add(new Selectable(element.getAttribute("selectionValue"), element));
+		((Runnable)(element.getAttribute("Select"))).run();
+		handleSelected();
+	}
+
+	public void toggleSelect(UIElement element) {
+		Object selectedAttr = element.getAttribute("Selected");
+		if (selectedAttr != null && (boolean)selectedAttr == true) {
+			deselect(element);
+		} else {
+			select(element);
 		}
 	}
 
-	public void select(Object value, UIElement element) {
-		element.setAttribute("Selected", true);
-		selected.add(new Selectable(value, element));
-		((Runnable)(element.getAttribute("Select"))).run();
-		handleSelected();
+	public boolean canContinueResources() {
+		return selected.size() == 5;
 	}
 }
 
