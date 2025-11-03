@@ -7,7 +7,7 @@ import java.util.*;
 public enum BonusCard implements BonusCardInterface
 {
     // temporary bonus card just so the errors stop. also an example
-    ECOLOGIST("temp.jpg", (player) -> {
+    ECOLOGISTTEST("temp.jpg", (player) -> {
         // Some logic that finds the habitats with the least amount of birds
     }),
 
@@ -18,9 +18,65 @@ public enum BonusCard implements BonusCardInterface
         else if (size >= 5) player.addPoints(4);
     }),
 
-	//checks for all birds on board with Ground or Wild nest type, adds 4 points if 4-5 birds or adds 7 points if 6+ birds 
-    ENCLOSURE_BUILDER("temp.jpg", (player) -> {
+    //
+    BACKYARD_BIRDER("temp.jpg", (player) -> {
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            int val = bird.getPointValue();
+                if (val < 4) {
+                    count++;
+                }
+            }
+        }
+         if (count == 5 || count == 6) {
+            player.addPoints(3);
+        }
+        if (count >= 7) {
+            player.addPoints(6);
+        }
+    }),
+
+    BIRD_COUNTER("temp.jpg", (player) -> {
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String power = bird.getActionType();
+                if (power.equals("Flocking")) {
+                    count++;
+                }
+            }
+        }
+        player.addPoints(count*2);
+    }),
+
+    BIRD_FEEDER("temp.jpg", (player) -> {
        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String food = bird.geFoodRequired();
+                if (food.contains("seed")) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 5 && count <= 7) {
+            player.addPoints(3);
+        }
+        if (count >= 8) {
+            player.addPoints(7);
+        }
+    }),
+
+    //checks for all birds on board with Ground or Wild nest type, adds 4 points if 4-5 birds or adds 7 points if 6+ birds 
+    ENCLOSURE_BUILDER("temp.jpg", (player) -> {
+        int count = 0;
         for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
             ArrayList<BirdInstance> birdList = entry.getValue();
 
@@ -30,14 +86,91 @@ public enum BonusCard implements BonusCardInterface
                     count++;
                 }
             }
-            if (count == 4 || count == 5) {
-                player.addPoints(4);
-            }
-            if (count >= 6) {
-                player.addPoints(7);
-            }
+        }
+        if (count == 4 || count == 5) {
+            player.addPoints(4);
+        }
+        if (count >= 6) {
+            player.addPoints(7);
         }
     }),
+
+
+    FALCONER("temp.jpg", (player) -> {
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String power = bird.getActionType();
+                if (power.equals("Predator")) {
+                    count++;
+                }
+            }
+        }
+        player.addPoints(count*2);
+    }),
+
+
+    FISHERY_MANAGER("temp.jpg", (player) -> {
+       int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String food = bird.geFoodRequired();
+                if (food.contains("fish")) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 2 && count <= 3) {
+            player.addPoints(3);
+        }
+        if (count >= 4) {
+            player.addPoints(8);
+        }
+    }),
+
+
+    FOOD_WEB_EXPERT("temp.jpg", (player) -> {
+       int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String food = bird.geFoodRequired();
+                if (food.contains("worm")) {
+                    count++;
+                }
+            }
+        }
+        player.addPoints(count*2);
+    }),
+
+
+    FORESTER("temp.jpg", (player) -> {
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String[] habitat = bird.getHabitat();
+                for (int i = 0; i < habitat.length; i++) {
+                    if habitat[i].equals("forest")  {
+                        count++;
+                    }
+                }
+            }
+        }
+        if (count >= 3 && count <= 4) {
+            player.addPoints(4);
+        }
+        if (count >= 5) {
+            player.addPoints(5);
+        }
+    }),
+
 
     //PHOTOGRAPHER:
 
