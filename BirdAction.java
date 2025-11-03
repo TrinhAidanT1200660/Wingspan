@@ -16,7 +16,7 @@ public enum BirdAction implements BirdActionInterface
 		BonusCard card2 = cards.get(1);
 
 		// Need UI implementation here to allow the player to choose which card they would like to keep. Cannot continue this ability for now.
-
+		
 	}),
 	// This ability allows the player to gain 1 berry WHEN ACTIVATED
 	GET1BERRY((gameContext, player, birdInstance) -> {

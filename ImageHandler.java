@@ -65,6 +65,10 @@ public interface ImageHandler {
         HashSet<String> items = getGroup(group);
         for (String path : items) cache.remove(path);
     }
+
+    public static void clearImageFromCache(String imagePath) {
+        cache.remove(imagePath);
+    }
 }
 
 class ImageObject {

@@ -85,7 +85,7 @@ public class Game {
         	availableCards += card.getDeckCount();
 
 		// just sends a message in case we're testing and wondering what went wrong
-		if (amount < availableCards) System.out.println("Ran out of bonus cards");
+		if (amount > availableCards) System.out.println("Ran out of bonus cards");
 
 		amount = Math.min(amount, availableCards);
 		
@@ -95,6 +95,7 @@ public class Game {
 				if(allBonuses[randCard].getDeckCount() > 0) {
 					allBonuses[randCard].removeCardFromDeck();
 					returning.add(allBonuses[randCard]);
+					break;
 				}
 			}
 		}
