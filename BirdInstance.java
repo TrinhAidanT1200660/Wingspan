@@ -65,7 +65,26 @@ public class BirdInstance {
 	// VOID METHODS
 
 	// adds an egg to the amount of eggs held
-	public void addEggs(int amt) { heldEggs+=amt; }
+	public boolean addEggs(int amt) { 
+		if (heldEggs < this.getEggMax() && amt + heldEggs < this.getEggMax()) {
+			heldEggs+=amt; 
+			return true;
+		}
+		else if(heldEggs < this.getEggMax() && amt + heldEggs > this.getEggMax()) {
+			heldEggs = this.getEggMax();
+			return true;
+		}
+		return false;
+	}
+
+	// adds an egg to the amount of eggs held
+	public boolean removeEggs(int amt) { 
+		if (heldEggs > 0) {
+			heldEggs-=amt; 
+			return true;
+		}
+		return false;
+	}
 
 	// caches a food. Doesn't matter what type as the class that called it will remove it from the player to make the logic easier
 	public void cacheFood(int amt) { cachedFood+=amt; }

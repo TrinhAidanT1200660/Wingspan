@@ -45,8 +45,7 @@ public enum BirdAction implements BirdActionInterface
 	DISCARDEGGANDGAIN2BIRDS((gameContext, player, birdInstance) -> {
 		// UI has the player choose what egg to remove; for now it'll just remove from this bird
 		BirdInstance bird = birdInstance;
-		if(bird.getEggStored() > 0) {
-			bird.addEggs(-1);
+		if(bird.removeEggs(1)) {
 			ArrayList<Bird> birds = gameContext.pullRandomBirds(2);
 			for(Bird b: birds)
 				player.addBirdHand(b);
@@ -55,8 +54,7 @@ public enum BirdAction implements BirdActionInterface
 	// Discard 1 fish to tuck 2 bird cards from the deck behind this bird
 	// AMERICAN_WHITE_PELICAN | DOUBLE_CRESTED_CORMORANT
 	DISCARDFISHANDTUCK2BIRDS((gameContext, player, birdInstance) -> {
-		if(player.getFood().get("fish") > 0) {
-			player.addFood("fish", -1); // negative usage here cause lazy to make a remove one
+		if(player.removeFood("fish", 1)) {
 			gameContext.pullRandomBirds(2); // should auto remove the birds from deck, no need to track which ones exactly
 			birdInstance.tuckCard(2);
 		}
@@ -64,8 +62,7 @@ public enum BirdAction implements BirdActionInterface
 	// Discard 1 seed to tuck 2 bird cards from the deck behind this bird
 	// BLACK_BELLIED_WHISTLING_DUCK | CANADA_GOOSE
 	DISCARDSEEDANDTUCK2BIRDS((gameContext, player, birdInstance) -> {
-		if(player.getFood().get("seed") > 0) {
-			player.addFood("seed", -1); // negative usage here cause lazy to make a remove one
+		if(player.removeFood("seed", 1)) {
 			gameContext.pullRandomBirds(2); // should auto remove the birds from deck, no need to track which ones exactly
 			birdInstance.tuckCard(2);
 		}
@@ -150,11 +147,9 @@ public enum BirdAction implements BirdActionInterface
 		{
 			// need some UI prompt to ask the player whether they want to cache the food or not; false for now
 			boolean cached = false;
-			if(cached && player.getFood().get("seed") > 0)
+			if(cached && player.removeFood("seed", 1))
 			{
 				birdInstance.cacheFood(1);
-				// too lazy to make another method so -1 works hehe
-				player.addFood("seed", -1);
 			}
 		}
 	}),	
@@ -200,8 +195,7 @@ public enum BirdAction implements BirdActionInterface
 		if(gameContext.getBirdFeeder().contains(food))
 			gameContext.grabFood(food, player, 1);
 		// Not sure what i am lwk doing but lwk just delete what is below once UI is made
-		else
-		{
+		else {
 			if(gameContext.getBirdFeeder().contains(food))
 				gameContext.grabFood(food, player, 1);
 		}
@@ -232,37 +226,49 @@ public enum BirdAction implements BirdActionInterface
 	// Lays 1 egg on each of your birds with a cavity nest
 	// ASH_THROATED_FLYCATCHER
 	LAYEGGONALLCAVITY((gameContext, player, birdInstance) -> {
-		for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet())
-		{
-			ArrayList<BirdInstance> birdList = entry.getValue();
-			for(BirdInstance bird : birdList)
-				if(bird.getNest().equalsIgnoreCase("Cavity"))
-					if(bird.getEggStored() < bird.getEggMax())
-						bird.addEggs(1);
+		//ArrayList of every bird on the board
+		ArrayList<BirdInstance> birdSuperList = new ArrayList<>();
+
+		//iterates through the player board, combining the habitats into one ArrayList
+		for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+			birdSuperList.addAll(birdList);
+
+		//iterates through all cards on the board, adding eggs to birds with correct nest
+		for (BirdInstance birdCard: birdSuperList) {
+			if(birdCard.getNest().equalsIgnoreCase("Cavity"))
+			birdCard.addEggs(1);
 		}
 	}),
 	// Lays 1 egg on each of your birds with a ground nest
 	// BOBOLINK
 	LAYEGGONALLGROUND((gameContext, player, birdInstance) -> {
-		for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet())
-		{
-			ArrayList<BirdInstance> birdList = entry.getValue();
-			for(BirdInstance bird : birdList)
-				if(bird.getNest().equalsIgnoreCase("Ground"))
-					if(bird.getEggStored() < bird.getEggMax())
-						bird.addEggs(1);
+		//ArrayList of every bird on the board
+		ArrayList<BirdInstance> birdSuperList = new ArrayList<>();
+
+		//iterates through the player board, combining the habitats into one ArrayList
+		for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+			birdSuperList.addAll(birdList);
+
+		//iterates through all cards on the board, adding eggs to birds with correct nest
+		for (BirdInstance birdCard: birdSuperList) {
+			if(birdCard.getNest().equalsIgnoreCase("Ground"))
+			birdCard.addEggs(1);
 		}
 	}),
 	// Lays 1 egg on each of your birds with a platform nest
 	// INCA_DOVE
 	LAYEGGONALLPLATFORM((gameContext, player, birdInstance) -> {
-		for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet())
-		{
-			ArrayList<BirdInstance> birdList = entry.getValue();
-			for(BirdInstance bird : birdList)
-				if(bird.getNest().equalsIgnoreCase("Platform"))
-					if(bird.getEggStored() < bird.getEggMax())
-						bird.addEggs(1);
+		//ArrayList of every bird on the board
+		ArrayList<BirdInstance> birdSuperList = new ArrayList<>();
+
+		//iterates through the player board, combining the habitats into one ArrayList
+		for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+			birdSuperList.addAll(birdList);
+
+		//iterates through all cards on the board, adding eggs to birds with correct nest
+		for (BirdInstance birdCard: birdSuperList) {
+			if(birdCard.getNest().equalsIgnoreCase("Platform"))
+			birdCard.addEggs(1);
 		}
 	}),
 	// Lay 1 egg on any bird of player choosing
@@ -270,14 +276,12 @@ public enum BirdAction implements BirdActionInterface
 	LAYEGGONANYBIRD((gameContext, player, birdInstance) -> {
 		// need UI to ask player which bird, for now will just place on this bird
 		BirdInstance bird = birdInstance;
-		if(bird.getEggStored() < bird.getEggMax())
-			bird.addEggs(1);
+		bird.addEggs(1);
 	}),
 	// Lay 1 egg on this bird
 	// CALIFORNIA_QUAIL
 	LAYEGGONTHISBIRD((gameContext, player, birdInstance) -> {
-		if(birdInstance.getEggStored() < birdInstance.getEggMax())
-			birdInstance.addEggs(1);
+		birdInstance.addEggs(1);
 	}),
 	// If this bird is to the right of all other birds in its habitat move it to another habitat
 	// BEWICKS_WREN | BLUE_GROSBEAK | CHIMNEY_SWIFT | COMMON_NIGHTHAWK | LINCOLNS_SPARROW
@@ -331,11 +335,10 @@ public enum BirdAction implements BirdActionInterface
 	// trade 1 of any type of food for any other type from the supply
 	// GREEN_HERON
 	TRADE1FOODFOR1OTHERFOOD((gameContext, player, birdInstance) -> {
-		// UI has the player choose what food they give up for what food they want ; for now it'll just do nothing
+		// UI has the player choose what food they give up for what food they want ; for now it'll just switch seed for worm
 		String foodRemoved = "seed";
-		String foodAdded = "seed";
-		if(player.getFood().get(foodRemoved) > 0) {
-			player.addFood(foodRemoved, -1);
+		String foodAdded = "worm";
+		if(player.removeFood(foodRemoved, 1)) {
 			player.addFood(foodAdded, 1);
 		}
 	}),
@@ -384,8 +387,7 @@ public enum BirdAction implements BirdActionInterface
 		{
 			Bird card = player.getBirdHand().remove(0);
 			birdInstance.tuckCard(1);
-			if(birdInstance.getEggStored() < birdInstance.getEggMax())
-				birdInstance.addEggs(1);
+			birdInstance.addEggs(1);
 		}
 	})
 	;
