@@ -68,7 +68,7 @@ public enum BonusCard implements BonusCardInterface
         //iterates through all cards on the board, counting cards whose Bird ENUM has a color in name
         for (BirdInstance birdCard: birdSuperList)
         {
-            if(applicableBirds.contains(birdCard.getBirdEnum()));
+            if(applicableBirds.contains(birdCard.getBirdEnum()))
                 count++;
         }
 
