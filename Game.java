@@ -11,6 +11,7 @@ public class Game {
     private ArrayList<Player> playerList; // holds the list of players in the game
 	private TreeSet<Selectable> selected = new TreeSet<>(); // temporarily holding the items selected pre-game (birds/food tokens)
 	private ArrayList<String> birdFeeder; // replicates a bird feeder using a simple arrayList
+	private ArrayList<Bird> faceUpBirds; // replicates the 3 face up bird cards in the bird tray ; not sure when we want to create this, before or after player select resources
 
     // CONSTRUCTOR
     public Game(boolean isCompetitive) {
@@ -24,7 +25,8 @@ public class Game {
         for (int i = 0; i < 5; ++i) {
             playerList.add(new Player());
         }
-		rollBirdFeeder();
+		this.rollBirdFeeder();
+		this.faceUpBirds = new ArrayList<>();
     }
 
     // GAME | VOID METHODS
@@ -40,6 +42,28 @@ public class Game {
 		}
 
 		birdFeeder = rolledFoods;
+	}
+
+	// Restores the faceup pile with new bird cards, keeps the old ones
+	public void regenerateFaceUpTray() {
+		int amount = 3 - faceUpBirds.size();
+		ArrayList<Bird> cards = pullRandomBirds(amount);
+		for(Bird b: cards)
+			faceUpBirds.add(b);
+	}
+
+	// Clears the faceup pile completely before adding 3 new bird cards
+	public void clearAndRegenerateFaceUpTray() {
+		faceUpBirds.clear();
+		ArrayList<Bird> cards = pullRandomBirds(3);
+		for(Bird b: cards)
+			faceUpBirds.add(b);
+	}
+
+	// Directly removes card from faceup pile and adds to the player
+	public void grabFaceUpCard(int index, Player player) {
+		 if (index < 0 || index >= faceUpBirds.size()) { System.out.println("Out of bound face up pile index"); return; } // safety check should nto be needed
+		player.addBirdHand(faceUpBirds.remove(index));
 	}
 
     // RETURN METHODS
@@ -59,7 +83,7 @@ public class Game {
         	availableCards += card.getDeckCount();
 
 		// just sends a message in case we're testing and wondering what went wrong
-		if (amount < availableCards) System.out.println("Ran out of bird cards"); 
+		if (amount > availableCards) System.out.println("Ran out of bird cards"); 
 	
 		amount = Math.min(amount, availableCards);
 
@@ -85,7 +109,7 @@ public class Game {
         	availableCards += card.getDeckCount();
 
 		// just sends a message in case we're testing and wondering what went wrong
-		if (amount < availableCards) System.out.println("Ran out of bonus cards");
+		if (amount > availableCards) System.out.println("Ran out of bonus cards");
 
 		amount = Math.min(amount, availableCards);
 		
@@ -101,16 +125,24 @@ public class Game {
 		return returning;
 	}
 
+	// Returns the face up bird card tray
+	public ArrayList<Bird> getFaceUpTray() {
+		return faceUpBirds;
+	}
+
 	// Checks if the birdFeeder has the food type and if so adds it to player. Returns boolean to show whether or not food was actually grabbed.
-	public boolean grabFood(String food, Player player)
+	public boolean grabFood(String food, Player player, int amt)
 	{
-		if(birdFeeder.contains(food))
-		{
-			player.addFood(food, 1);
-			birdFeeder.remove(food);
-			return true;
+		boolean atLeast1Grabbed = false;
+		for(int i = 0; i < amt; ++i) {
+			if(birdFeeder.contains(food))
+			{
+				player.addFood(food, 1);
+				birdFeeder.remove(food);
+				atLeast1Grabbed = true;
+			}
 		}
-		return false;
+		return atLeast1Grabbed;
 	}
 
 	// Returns the birdFeeder

@@ -75,8 +75,18 @@ public class Player {
         return goalRankings.get(round);
     }
 
+    //removes the specified amount of food and the amount
+    public boolean removeFood(String foodType, int amount) {
+        int current = food.getOrDefault(foodType, 0);
+        if(current >= amount && current != 0) {
+            food.put(foodType, current - amount);
+            return true;
+        }
+        return false;
+    }
+
     //MUTATOR METHOD:
-    //adds the specificed amount of points
+    //adds the specified amount of points
     public void addPoints(int points) {
         this.points += points;
     }
