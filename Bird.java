@@ -1,3 +1,5 @@
+import java.util.Arrays;
+import java.util.HashSet;
 
 public enum Bird 
 {
@@ -89,7 +91,28 @@ public enum Bird
 	// VOID METHODS / MUTATOR METHODS
 	
 	// performs this bird's stored BirdAction ability on the given player
-	public void performAction(Game gameContext, Player player) { action.execute(gameContext, player); }
+	public void performAction(Game gameContext, Player player, BirdInstance birdInstance) { action.execute(gameContext, player, birdInstance); }
 
 	public void removeCardFromDeck() { deckCount -= 1; }
+
+	//For BonusCard: returns all the birdEnums applicable to a name-based bonus card (photographer, anatomist, cartographer)
+	public static HashSet<Bird> getBonusName(String type)
+	{
+		if (type.equals("photographer"))
+		{
+			Bird[] birds = {BROWN_PELICAN};
+           return new HashSet<Bird>(Arrays.asList(birds));
+		}
+		if (type.equals("anatomist"))
+		{
+			Bird[] birds = {CANVASBACK};
+           return new HashSet<Bird>(Arrays.asList(birds));
+		}
+		if (type.equals("cartographer"))
+		{
+			Bird[] birds = {GREATER_PRAIRIE_CHICKEN, NORTHERN_CARDINAL};
+           return new HashSet<Bird>(Arrays.asList(birds));
+		}
+		return new HashSet<Bird>();
+	}
 }
