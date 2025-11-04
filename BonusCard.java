@@ -11,11 +11,28 @@ public enum BonusCard implements BonusCardInterface
         // Some logic that finds the habitats with the least amount of birds
     }),
 
-	//if player's hand has more than 8 birds, adds 7 points, else if more than 5 birds, adds 4 points 
-    VISIONARYLEADER("temp.jpg", (player) -> {
-        int size = player.getBirdHand().size();
-        if(size >= 8) player.addPoints(7);
-        else if (size >= 5) player.addPoints(4);
+
+    ANATOMIST("temp.jpg", (player) -> {
+        String[] bodyParts = new String[] {"BEAK", "BELLY", "BILL", "BREAST", "CAP", "CHIN", "COLLAR", "CREST", "CROWN", "EYE", "FACE", "HEAD", "NECK", "RUMP", "SHOULDER", "TAIL", "THROAT", "WING"};
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+                String name = bird.getName();
+                for (int i = 0; i < bodyParts.length; i++) {
+                    if (name.contains(bodyParts[i])) {
+                        count++;
+                    }
+                }
+            }
+        }
+        if (count >= 2 && count <= 3) {
+            player.addPoints(3);
+        }
+        if (count >= 4) {
+            player.addPoints(7);
+        }
     }),
 
     //
@@ -194,7 +211,7 @@ public enum BonusCard implements BonusCardInterface
             ArrayList<BirdInstance> birdList = entry.getValue();
 
             for (BirdInstance bird : birdList) {
-            int Wginspan = bird.getWingspan();
+            int Wingspan = bird.getWingspan();
                 if (Wingspan > 65) {
                     count++;
                 }
@@ -243,6 +260,178 @@ public enum BonusCard implements BonusCardInterface
             }
         }
         player.addPoints(count*2);
+    }),
+
+
+    OOLOGIST("temp.jpg", (player) -> {
+       int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            int numeggs = bird.getEggStored();
+                if (numeggs >= 1) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 7 && count <= 8) {
+            player.addPoints(3);
+        }
+        if (count >= 9) {
+            player.addPoints(6);
+        }
+    }),
+
+
+    PASSERINE_SPECIALIST("temp.jpg", (player) -> {
+       int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            int Wginspan = bird.getWingspan();
+                if (Wingspan <= 30) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 4 && count <= 5) {
+            player.addPoints(3);
+        }
+        if (count >= 6) {
+            player.addPoints(6);
+        }
+    }),
+
+
+    PLATFORM_BUILDER("temp.jpg", (player) -> {
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String nest = bird.getNest();
+                if (nest.equals("Platform") || nest.equals("Wild")) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 4 && count <= 5) {
+            player.addPoints(4);
+        }
+        if (count >= 6) {
+            player.addPoints(7);
+        }
+    }),
+
+
+    PRAIRIE_MANAGER("temp.jpg", (player) -> {
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String[] habitat = bird.getHabitat();
+                for (int i = 0; i < habitat.length; i++) {
+                    if habitat[i].equals("grassland")  {
+                        count++;
+                    }
+                }
+            }
+        }
+        if (count >= 2 && count <= 3) {
+            player.addPoints(3);
+        }
+        if (count >= 4) {
+            player.addPoints(8);
+        }
+    }),
+
+
+    RODENTOLOGIST("temp.jpg", (player) -> {
+       int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String food = bird.getFoodRequired();
+                if (food.contains("rat")) {
+                    count++;
+                }
+            }
+        }
+        player.addPoints(count*2);
+    }),
+
+    //if player's hand has more than 8 birds, adds 7 points, else if more than 5 birds, adds 4 points 
+    VISIONARYLEADER("temp.jpg", (player) -> {
+        int size = player.getBirdHand().size();
+        if(size >= 8) player.addPoints(7);
+        else if (size >= 5) player.addPoints(4);
+    }),
+
+
+    VITACULTURALIST("temp.jpg", (player) -> {
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String food = bird.getFoodRequired();
+                if (food.contains("berry")) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 2 && count <= 3) {
+            player.addPoints(3);
+        }
+        if (count >= 4) {
+            player.addPoints(7);
+        }
+    }),
+
+
+    WETLAND_SCIENTIST("temp.jpg", (player) -> {
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String[] habitat = bird.getHabitat();
+                if (habitat[0].equals("wetland") && habitat.length == 1) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 3 && count <= 4) {
+            player.addPoints(3);
+        }
+        if (count >= 5) {
+            player.addPoints(7);
+        }
+    }),
+
+
+    WILFLIFE_GARDENER("temp.jpg", (player) -> {
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String nest = bird.getNest();
+                if (nest.equals("Bowl") || nest.equals("Wild")) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 4 && count <= 5) {
+            player.addPoints(4);
+        }
+        if (count >= 6) {
+            player.addPoints(7);
+        }
     }),
 
     //PHOTOGRAPHER:
