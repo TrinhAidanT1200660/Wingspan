@@ -172,6 +172,79 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
+    HISTORIAN("temp.jpg", (player) -> {
+       int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String name = bird.getName();
+                if (food.contains("'s")) {
+                    count++;
+                }
+            }
+        }
+        player.addPoints(count*2);
+    }),
+
+
+    LARGE_BIRD_SPECIALIST("temp.jpg", (player) -> {
+       int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            int Wginspan = bird.getWingspan();
+                if (Wingspan > 65) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 4 && count <= 5) {
+            player.addPoints(3);
+        }
+        if (count >= 6) {
+            player.addPoints(6);
+        }
+    }),
+
+
+    NEST_BOX_BUILDER("temp.jpg", (player) -> {
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String nest = bird.getNest();
+                if (nest.equals("Cavity") || nest.equals("Wild")) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 4 && count <= 5) {
+            player.addPoints(4);
+        }
+        if (count >= 6) {
+            player.addPoints(7);
+        }
+    }),
+
+
+    OMNIVORE_SPECIALIST("temp.jpg", (player) -> {
+       int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            String food = bird.getFoodRequired();
+                if (food.contains("any")) {
+                    count++;
+                }
+            }
+        }
+        player.addPoints(count*2);
+    }),
+
     //PHOTOGRAPHER:
 
     //  AMERICAN GOLDFINCH AMERICAN REDSTART AMERICAN WHITE PELICAN ASH-THROATED FLYCATCHER BARROW’S GOLDENEYE3 BLACK REDSTART BLACK SKIMMER BLACK TERN BLACK VULTURE 
