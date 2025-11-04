@@ -14,6 +14,7 @@ public interface ImageHandler {
     }
 
     public static BufferedImage get(String imagePath, String group) {
+        if (imagePath.contains("temp")) imagePath = "birds/back_of_bird.png";
         ImageObject imgObj = cache.get(imagePath);
         if (imgObj != null && imgObj.image != null) return imgObj.image;
         

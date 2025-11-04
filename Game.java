@@ -9,7 +9,8 @@ public class Game {
     private boolean isCompetitive; // holds the gamemode being played: true for competitive, false for non-competitive
     private int roundsPlayed; // holds the number of rounds played so far; starts at 0 beginning of game
     private ArrayList<Player> playerList; // holds the list of players in the game
-	private TreeSet<Selectable> selected = new TreeSet<>(); // temporarily holding the items selected pre-game (birds/food tokens)
+	private TreeSet<Selectable> selected; // temporarily holding the items selected pre-game (birds/food tokens)
+	private int gamePhase; // what point are we in during the game
 	private ArrayList<String> birdFeeder; // replicates a bird feeder using a simple arrayList
 	private ArrayList<Bird> faceUpBirds; // replicates the 3 face up bird cards in the bird tray ; not sure when we want to create this, before or after player select resources
 
@@ -20,6 +21,7 @@ public class Game {
         this.startingPlayerTurn = 1;
         this.roundsPlayed = 0;
         this.playerList = new ArrayList<>();
+		this.gamePhase = 0;
 		this.selected = new TreeSet<>();
 		this.isCompetitive = isCompetitive;
         for (int i = 0; i < 5; ++i) {

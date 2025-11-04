@@ -122,4 +122,32 @@ public class Player {
         goalRankings.set(round, ranking);
     }
 
+    public boolean hasEnoughFood(Bird bird) {
+        String foodRequired = bird.getFoodRequired();
+        String[] split = foodRequired.split(" ");
+        String type = split[0];
+        boolean result = type.equals("and");
+        int sumOfAny = 0;
+        int sumOfFoodRequired = 0;
+        for (int v : food.values()) sumOfAny += v;
+        for (int i = 1; i < split.length; i++) {
+            sumOfFoodRequired += Integer.parseInt(split[i].substring(0, 1));
+        }
+        if (sumOfFoodRequired < sumOfAny) return false;
+        for (int i = 1; i < split.length; i++) {
+            int amount = Integer.parseInt(split[i].substring(0, 1));
+            String foodType = split[i].substring(1);
+            if (foodType.equals("any")) {
+                if (sumOfAny > amount) result = true;
+            }
+            if (type.contains("and")) {
+                if (!foodType.equals("any") && food.get(foodType) < amount) result = false;
+                if (!result) break;
+            } else if (type.equals("or")) {
+                if (!foodType.equals("any") && food.get(foodType) > amount) result = true;
+                if (result) break;
+            }
+        }
+        return result;
+    }
 }
