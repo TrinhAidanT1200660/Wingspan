@@ -152,6 +152,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                     Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
                     if (ready != null && (boolean)ready) {
                         playTransition((Runnable)() -> {
+                            currentGame.continueSelection();
                             System.out.println("bout to get some");
                             ArrayList<BonusCard> cards = currentGame.pullRandomBonusCards(2);
                             System.out.println("ok got them " + cards);

@@ -10,6 +10,7 @@ public class Game {
     private int roundsPlayed; // holds the number of rounds played so far; starts at 0 beginning of game
     private ArrayList<Player> playerList; // holds the list of players in the game
 	private TreeSet<Selectable> selected; // temporarily holding the items selected pre-game (birds/food tokens)
+	private int selectionPhase;
 	private int gamePhase; // what point are we in during the game
 	private ArrayList<String> birdFeeder; // replicates a bird feeder using a simple arrayList
 	private ArrayList<Bird> faceUpBirds; // replicates the 3 face up bird cards in the bird tray ; not sure when we want to create this, before or after player select resources
@@ -23,6 +24,7 @@ public class Game {
         this.playerList = new ArrayList<>();
 		this.gamePhase = 0;
 		this.selected = new TreeSet<>();
+		this.selectionPhase = 1;
 		this.isCompetitive = isCompetitive;
         for (int i = 0; i < 5; ++i) {
             playerList.add(new Player());
@@ -155,7 +157,7 @@ public class Game {
 	}
 
 	private void handleSelected() { // if the user selected more than 5 things deselect the least recent thing selected (could be bird or food token)
-		if (selected.size() > 5) {
+		if (selectionPhase == 1 ? selected.size() > 5 : selected.size() > 1) {
 			Selectable first = selected.first();
 			first.getElement().setAttribute("Selected", false);
 			selected.remove(first);
@@ -199,7 +201,33 @@ public class Game {
 	}
 
 	public boolean canContinueResources() {
-		return selected.size() == 5;
+		return selectionPhase == 1 ? selected.size() == 5 : selected.size() == 1;
+	}
+
+	public void continueSelection() {
+		if (!canContinueResources()) return;
+		selectionPhase = (selectionPhase % 2) + 1;
+		Player current = playerList.get(playerTurn - 1);
+		if (selectionPhase == 1) {
+			playerTurn++;
+			current.addBonusHand((BonusCard)selected.first().getValue());
+			System.out.println(current.getFood());
+			System.out.println(current.getBirdHand());
+			System.out.println(current.getBonusHand());
+			if (playerTurn > playerList.size()) {
+				// here we move onto actual board 
+			}
+		} else if (selectionPhase == 2) {
+			for (Selectable selection : selected) {
+				UIElement element = selection.getElement();
+				if (element.getAttribute("birdChoice") != null) {
+					current.addBirdHand((Bird)selection.getValue());
+				} else if (element.getAttribute("foodChoice") != null) {
+					current.addFood((String)selection.getValue(), 1);
+				}
+			}
+		}
+		selected.clear();
 	}
 }
 
@@ -218,7 +246,5 @@ class Selectable implements Comparable<Selectable> {
 
 	public UIElement getElement() { return element; }
 
-    public int compareTo(Selectable o) {
-        return Long.compare(added, o.added);
-    }
+    public int compareTo(Selectable o) { return Long.compare(added, o.added); }
 }
