@@ -91,6 +91,44 @@ public enum BonusCard implements BonusCardInterface
         }
     }),
 
+    BREEDING_MANAGER("temp.jpg", (player) -> {
+       int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+            int numeggs = bird.getEggStored();
+                if (numeggs >= 4) {
+                    count++;
+                }
+            }
+        }
+        player.addPoints(count*2);
+    }),
+
+    CARTOGRAPHER("temp.jpg", (player) -> {
+        String[] names = {"AMERICAN","ATLANTIC","BALTIMORE","CALIFORNIA","CANADA","CAROLINA","CHIHUAHUA","EASTERN","INCA","MISSISSIPPI","MOUNTAIN","NORTHERN","PRAIRIE","SANDHILL","SAVANNAH","WESTERN"};
+        int count = 0;
+        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
+            ArrayList<BirdInstance> birdList = entry.getValue();
+
+            for (BirdInstance bird : birdList) {
+                String name = bird.getName();
+                for (int i = 0; i < bodyParts.length; i++) {
+                    if (name.contains(bodyParts[i])) {
+                        count++;
+                    }
+                }
+            }
+        }
+        if (count >= 2 && count <= 3) {
+            player.addPoints(3);
+        }
+        if (count >= 4) {
+            player.addPoints(7);
+        }
+    }),
+
     //checks for all birds on board with Ground or Wild nest type, adds 4 points if 4-5 birds or adds 7 points if 6+ birds 
     ENCLOSURE_BUILDER("temp.jpg", (player) -> {
         int count = 0;
