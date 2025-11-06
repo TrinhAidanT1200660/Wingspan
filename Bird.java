@@ -127,8 +127,42 @@ public enum Bird
 	// LOGGERHEAD_SHRIKE
 	MALLARD("MALLARD", "temp", 4, 89, 0, new String[] {"wetland"}, "BROWN", "CardDrawing", "or 1seed 1worm", "Ground", BirdAction.DRAW1BIRD),
 	MISSISSIPPI_KITE("MISSISSIPPI KITE", "temp", 1, 79, 4, new String[] {"forest", "grassland"}, "BROWN", "Predator", "or 1rat 1worm", "Platform", BirdAction.ROLLDICEANDFINDRAT),
+	// MOUNTAIN_BLUEBIRD
+	MOUNTAIN_CHICKADEE(),
+	MOURNING_DOVE(),
+	NORTHERN_BOBWHITE(),
 	NORTHERN_CARDINAL("NORTHERN CARDINAL", "birds/northern_cardinal.png", 5, 30, 3, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1seed", "Bowl", BirdAction.GET1BERRY),
+	NORTHERN_FLICKER(),
+	NORTHERN_HARRIER(),
+	// NORTHERN_MOCKINGBIRD
+	NORTHERN_SHOVELER(),
+	OSPREY(),
+	PAINTED_BUNTING(),
+	PAINTED_WHITESTART(),
+	PEREGRINE_FALCON(),
+	// PIED_BILLED_GREBE
+	// PILEATED_WOODPECKER
+	PINE_SISKIN(),
 	PROTHONOTARY_WARBLER("PROTHONOTARY WARBLER", "birds/prothonotary_warbler.png", 4, 23, 8, new String[] {"forest", "wetland"}, "NONE", "Other", "and 1seed 2worm", "Cavity", BirdAction.NONE)
+	PURPLE_GALLINULE(),
+	PURPLE_MARTIN(),
+	PYGMY_NUTHATCH(),
+	RED_CROSSBILL(),
+	RED_BELLIED_WOODPECKER(),
+	// RED_BREASTED_MERGANSER
+	RED_BREASTED_NUTHATCH(),
+	RED_COCKADED_WOODPECKER(),
+	// RED_EYED_VIREO
+	RED_HEADED_WOODPECKER(),
+	RED_SHOULDERED_HAWK(),
+	RED_TAILED_HAWK(),
+	RED_WINGED_BLACKBIRD(),
+	RING_BILLED_GULL(),
+	ROSE_BREASTED_GROSBEAK(),
+	ROSEATE_SPOONBILL(),
+	// RUBY_CROWNED_KINGLET
+	// RUBY_THROATED_HUMMINGBIRD
+	// RUDDY_DUCK
 	;
 
 	private final String name; // holds birds name
