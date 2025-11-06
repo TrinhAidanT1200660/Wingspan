@@ -1,492 +1,430 @@
-import java.awt.image.*;
-import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashSet;
 
-import javax.imageio.ImageIO;
-import java.util.*;
 
 public enum BonusCard implements BonusCardInterface
 {
-    // temporary bonus card just so the errors stop. also an example
-    ECOLOGISTTEST("temp.jpg", (player) -> {
-        // Some logic that finds the habitats with the least amount of birds
+
+    ANATOMIST("anatomist.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
+        //HashSet of bird ENUMs with body parts in their names
+        HashSet<Bird> applicableBirds = Bird.getBonusName("cartographer"); 
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //iterates through all cards on the board, counting cards whose Bird ENUM has a body part in name
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(applicableBirds.contains(birdCard.getBirdEnum()))
+                count++;
+        }
+
+    	if(count == 2 || count == 3)
+    		player.addPoints(3);
+    	if(count >= 4)
+    		player.addPoints(7);
     }),
 
+    BACKYARD_BIRDER("backyard_birder.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-    ANATOMIST("temp.jpg", (player) -> {
-        String[] bodyParts = new String[] {"BEAK", "BELLY", "BILL", "BREAST", "CAP", "CHIN", "COLLAR", "CREST", "CROWN", "EYE", "FACE", "HEAD", "NECK", "RUMP", "SHOULDER", "TAIL", "THROAT", "WING"};
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
 
-            for (BirdInstance bird : birdList) {
-                String name = bird.getName();
-                for (int i = 0; i < bodyParts.length; i++) {
-                    if (name.contains(bodyParts[i])) {
-                        count++;
-                    }
-                }
-            }
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getPointValue() < 4)
+                count++;
         }
-        if (count >= 2 && count <= 3) {
-            player.addPoints(3);
-        }
-        if (count >= 4) {
-            player.addPoints(7);
-        }
+
+        //calculates points
+    	if(count == 5 || count == 6)
+    		player.addPoints(3);
+    	if(count >= 7)
+    		player.addPoints(6);
     }),
 
-    //
-    BACKYARD_BIRDER("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    BIRD_COUNTER("bird_counter.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            int val = bird.getPointValue();
-                if (val < 4) {
-                    count++;
-                }
-            }
-        }
-         if (count == 5 || count == 6) {
-            player.addPoints(3);
-        }
-        if (count >= 7) {
-            player.addPoints(6);
-        }
-    }),
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
 
-    BIRD_COUNTER("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
-
-            for (BirdInstance bird : birdList) {
-            String power = bird.getActionType();
-                if (power.equals("Flocking")) {
-                    count++;
-                }
-            }
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getActionType().equalsIgnoreCase("Flocking"))
+                count++;
         }
+
+        //calculates points
         player.addPoints(count*2);
     }),
 
-    BIRD_FEEDER("temp.jpg", (player) -> {
-       int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    BIRD_FEEDER("bird_feeder.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            String food = bird.geFoodRequired();
-                if (food.contains("seed")) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getFoodRequired().contains("seed"))
+                count++;
         }
-        if (count >= 5 && count <= 7) {
+
+        //calculates points
+        if (count >= 5 && count <= 7) 
             player.addPoints(3);
-        }
-        if (count >= 8) {
+        if (count >= 8) 
             player.addPoints(7);
-        }
     }),
 
-    BREEDING_MANAGER("temp.jpg", (player) -> {
-       int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    BREEDING_MANAGER("breeding_manager.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            int numeggs = bird.getEggStored();
-                if (numeggs >= 4) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getEggStored() >= 4)
+                count++;
         }
+
+        //calculates points
         player.addPoints(count*2);
     }),
 
-    CARTOGRAPHER("temp.jpg", (player) -> {
-        String[] names = {"AMERICAN","ATLANTIC","BALTIMORE","CALIFORNIA","CANADA","CAROLINA","CHIHUAHUA","EASTERN","INCA","MISSISSIPPI","MOUNTAIN","NORTHERN","PRAIRIE","SANDHILL","SAVANNAH","WESTERN"};
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    CARTOGRAPHER("cartographer.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
+        //HashSet of bird ENUMs with places in their names
+        HashSet<Bird> applicableBirds = Bird.getBonusName("cartographer"); 
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
 
-            for (BirdInstance bird : birdList) {
-                String name = bird.getName();
-                for (int i = 0; i < bodyParts.length; i++) {
-                    if (name.contains(bodyParts[i])) {
-                        count++;
-                    }
-                }
-            }
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //iterates through all cards on the board, counting cards whose Bird ENUM has a place in name
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(applicableBirds.contains(birdCard.getBirdEnum()))
+                count++;
         }
-        if (count >= 2 && count <= 3) {
-            player.addPoints(3);
-        }
-        if (count >= 4) {
-            player.addPoints(7);
-        }
+
+        //calculates points
+    	if(count == 2 || count == 3)
+    		player.addPoints(3);
+    	if(count >= 4)
+    		player.addPoints(7);
     }),
 
     //checks for all birds on board with Ground or Wild nest type, adds 4 points if 4-5 birds or adds 7 points if 6+ birds 
-    ENCLOSURE_BUILDER("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    ENCLOSURE_BUILDER("enclosure_builder.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            String nest = bird.getNest();
-                if (nest.equals("Ground") || nest.equals("Wild")) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getNest().equalsIgnoreCase("Ground") || birdCard.getNest().equalsIgnoreCase("Wild"))
+                count++;
         }
-        if (count == 4 || count == 5) {
+
+        //calculates points
+        if (count == 4 || count == 5) 
             player.addPoints(4);
-        }
-        if (count >= 6) {
+        if (count >= 6)
             player.addPoints(7);
-        }
     }),
 
 
-    FALCONER("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    FALCONER("falconer.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            String power = bird.getActionType();
-                if (power.equals("Predator")) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getActionType().equalsIgnoreCase("Predator"))
+                count++;
         }
+
+        //calculates points
         player.addPoints(count*2);
     }),
 
 
-    FISHERY_MANAGER("temp.jpg", (player) -> {
-       int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    FISHERY_MANAGER("fishery_manager.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            String food = bird.geFoodRequired();
-                if (food.contains("fish")) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getFoodRequired().contains("fish"))
+                count++;
         }
-        if (count >= 2 && count <= 3) {
+
+        //calculates points
+        if (count == 2 || count == 3)
             player.addPoints(3);
-        }
-        if (count >= 4) {
+        if (count >= 4) 
             player.addPoints(8);
-        }
     }),
 
 
-    FOOD_WEB_EXPERT("temp.jpg", (player) -> {
-       int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    FOOD_WEB_EXPERT("food_web_expert.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            String food = bird.geFoodRequired();
-                if (food.contains("worm")) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getFoodRequired().contains("worm"))
+                count++;
         }
+
+        //calculates points
         player.addPoints(count*2);
     }),
 
 
-    FORESTER("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    FORESTER("forester.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            String[] habitat = bird.getHabitat();
-                for (int i = 0; i < habitat.length; i++) {
-                    if habitat[i].equals("forest")  {
-                        count++;
-                    }
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getHabitat().length == 1 && birdCard.getHabitat()[0].equalsIgnoreCase("forest"))
+                count++;
         }
-        if (count >= 3 && count <= 4) {
+
+        //calculates points
+        if (count == 3 || count == 4) 
             player.addPoints(4);
-        }
-        if (count >= 5) {
+        if (count >= 5) 
             player.addPoints(5);
-        }
     }),
 
 
-    HISTORIAN("temp.jpg", (player) -> {
-       int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    HISTORIAN("historian.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            String name = bird.getName();
-                if (food.contains("'s")) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getName().contains("'S"))
+                count++;
         }
+
+        //calculates points
         player.addPoints(count*2);
     }),
 
 
-    LARGE_BIRD_SPECIALIST("temp.jpg", (player) -> {
-       int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    LARGE_BIRD_SPECIALIST("large_bird_specialist.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            int Wingspan = bird.getWingspan();
-                if (Wingspan > 65) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getWingspan() > 65)
+                count++;
         }
-        if (count >= 4 && count <= 5) {
+
+        //calculates points
+        if (count == 4 || count == 5)
             player.addPoints(3);
-        }
-        if (count >= 6) {
+        if (count >= 6)
             player.addPoints(6);
-        }
     }),
 
 
-    NEST_BOX_BUILDER("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    NEST_BOX_BUILDER("best_box_builder.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            String nest = bird.getNest();
-                if (nest.equals("Cavity") || nest.equals("Wild")) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getNest().equalsIgnoreCase("Cavity") || birdCard.getNest().equalsIgnoreCase("Wild"))
+                count++;
         }
-        if (count >= 4 && count <= 5) {
+
+        //calculates points
+        if (count == 4 || count == 5) 
             player.addPoints(4);
-        }
-        if (count >= 6) {
+        if (count >= 6)
             player.addPoints(7);
-        }
     }),
 
 
-    OMNIVORE_SPECIALIST("temp.jpg", (player) -> {
-       int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    OMNIVORE_SPECIALIST("omnivore_specialist.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            String food = bird.getFoodRequired();
-                if (food.contains("any")) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getFoodRequired().contains("any"))
+                count++;
         }
+
+        //calculates points
         player.addPoints(count*2);
     }),
 
 
-    OOLOGIST("temp.jpg", (player) -> {
-       int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    OOLOGIST("oologist.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            int numeggs = bird.getEggStored();
-                if (numeggs >= 1) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getEggStored() >= 1)
+                count++;
         }
-        if (count >= 7 && count <= 8) {
+
+        //calculates points
+        if (count == 7 || count == 8) 
             player.addPoints(3);
-        }
-        if (count >= 9) {
+        if (count >= 9) 
             player.addPoints(6);
-        }
     }),
 
 
-    PASSERINE_SPECIALIST("temp.jpg", (player) -> {
-       int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
+    PASSERINE_SPECIALIST("passerine_specialist.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-            for (BirdInstance bird : birdList) {
-            int Wginspan = bird.getWingspan();
-                if (Wingspan <= 30) {
-                    count++;
-                }
-            }
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getWingspan() <= 30)
+                count++;
         }
-        if (count >= 4 && count <= 5) {
+
+        //calculates points
+        if (count == 4 || count == 5) 
             player.addPoints(3);
-        }
-        if (count >= 6) {
+        if (count >= 6) 
             player.addPoints(6);
-        }
     }),
 
-
-    PLATFORM_BUILDER("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
-
-            for (BirdInstance bird : birdList) {
-            String nest = bird.getNest();
-                if (nest.equals("Platform") || nest.equals("Wild")) {
-                    count++;
-                }
-            }
-        }
-        if (count >= 4 && count <= 5) {
-            player.addPoints(4);
-        }
-        if (count >= 6) {
-            player.addPoints(7);
-        }
-    }),
-
-
-    PRAIRIE_MANAGER("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
-
-            for (BirdInstance bird : birdList) {
-            String[] habitat = bird.getHabitat();
-                for (int i = 0; i < habitat.length; i++) {
-                    if habitat[i].equals("grassland")  {
-                        count++;
-                    }
-                }
-            }
-        }
-        if (count >= 2 && count <= 3) {
-            player.addPoints(3);
-        }
-        if (count >= 4) {
-            player.addPoints(8);
-        }
-    }),
-
-
-    RODENTOLOGIST("temp.jpg", (player) -> {
-       int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
-
-            for (BirdInstance bird : birdList) {
-            String food = bird.getFoodRequired();
-                if (food.contains("rat")) {
-                    count++;
-                }
-            }
-        }
-        player.addPoints(count*2);
-    }),
-
-    //if player's hand has more than 8 birds, adds 7 points, else if more than 5 birds, adds 4 points 
-    VISIONARYLEADER("temp.jpg", (player) -> {
-        int size = player.getBirdHand().size();
-        if(size >= 8) player.addPoints(7);
-        else if (size >= 5) player.addPoints(4);
-    }),
-
-
-    VITACULTURALIST("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
-
-            for (BirdInstance bird : birdList) {
-            String food = bird.getFoodRequired();
-                if (food.contains("berry")) {
-                    count++;
-                }
-            }
-        }
-        if (count >= 2 && count <= 3) {
-            player.addPoints(3);
-        }
-        if (count >= 4) {
-            player.addPoints(7);
-        }
-    }),
-
-
-    WETLAND_SCIENTIST("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
-
-            for (BirdInstance bird : birdList) {
-            String[] habitat = bird.getHabitat();
-                if (habitat[0].equals("wetland") && habitat.length == 1) {
-                    count++;
-                }
-            }
-        }
-        if (count >= 3 && count <= 4) {
-            player.addPoints(3);
-        }
-        if (count >= 5) {
-            player.addPoints(7);
-        }
-    }),
-
-
-    WILFLIFE_GARDENER("temp.jpg", (player) -> {
-        int count = 0;
-        for (Map.Entry<String, ArrayList<BirdInstance>> entry : player.getBoard().entrySet()) {
-            ArrayList<BirdInstance> birdList = entry.getValue();
-
-            for (BirdInstance bird : birdList) {
-            String nest = bird.getNest();
-                if (nest.equals("Bowl") || nest.equals("Wild")) {
-                    count++;
-                }
-            }
-        }
-        if (count >= 4 && count <= 5) {
-            player.addPoints(4);
-        }
-        if (count >= 6) {
-            player.addPoints(7);
-        }
-    }),
-
-    //PHOTOGRAPHER:
-
-    //  AMERICAN GOLDFINCH AMERICAN REDSTART AMERICAN WHITE PELICAN ASH-THROATED FLYCATCHER BARROW’S GOLDENEYE3 BLACK REDSTART BLACK SKIMMER BLACK TERN BLACK VULTURE 
-    //  BLACK WOODPECKER BLACK-BELLIED WHISTLING DUCK BLACK-BILLED MAGPIE BLACK-CHINNED HUMMINGBIRD BLACK-CROWNED NIGHT-HERON BLACK-HEADED GULL BLACK-NECKED STILT 
-    //  BLACK-TAILED GODWIT BLACK-THROATED DIVER BLUE GROSBEAK BLUE JAY BLUE-GRAY GNATCATCHER BLUE-WINGED WARBLER BLUETHROAT BREWER’S BLACKBIRD BRONZED COWBIRD 
-    //  BROWN PELICAN BROWN-HEADED COWBIRD CERULEAN WARBLER CHESTNUT-COLLARED LONGSPUR COAL TIT COMMON BLACKBIRD COMMON GOLDENEYE COMMON YELLOWTHROAT EASTERN BLUEBIRD 
-    //  EURASIAN GOLDEN ORIOLE EUROPEAN GOLDFINCH EUROPEAN GREEN WOODPECKER EUROPEAN HONEY BUZZARD FERRUGINOUS HAWK GOLDCREST GOLDEN EAGLE3 GRAY CATBIRD GREAT BLUE HERON 
-    //  GREEN HERON GREY HERON GREYLAG GOOSE INDIGO BUNTING LAZULI BUNTING LESSER WHITETHROAT MOUNTAIN BLUEBIRD NORTHERN BOBWHITE PAINTED WHITESTART PURPLE GALLINULE 
-    //  PURPLE MARTIN RED CROSSBILL RED KITE RED KNOT RED-BACKED SHRIKE RED-BELLIED WOODPECKER RED-BREASTED MERGANSER RED-BREASTED NUTHATCH RED-COCKADED WOODPECKER 
-    //  RED-EYED VIREO RED-HEADED WOODPECKER RED-LEGGED PARTRIDGE RED-SHOULDERED HAWK RED-TAILED HAWK RED-WINGED BLACKBIRD ROSE-BREASTED GROSBEAK ROSEATE SPOONBILL 
-    //  RUBY-CROWNED KINGLET RUBY-THROATED HUMMINGBIRD RUDDY DUCK SNOWY EGRET SNOWY OWL VIOLET-GREEN SWALLOW4 WHITE STORK WHITE WAGTAIL WHITE-BACKED WOODPECKER 
-    //  WHITE-BREASTED NUTHATCH WHITE-CROWNED SPARROW WHITE-FACED IBIS WHITE-THROATED DIPPER WHITE-THROATED SWIFT YELLOW-BELLIED SAPSUCKER YELLOW-BILLED CUCKOO 
-    //  YELLOW-BREASTED CHAT YELLOW-HEADED BLACKBIRD YELLOW-RUMPED WARBLER YELLOWHAMMER
-    
-    PHOTOGRAPHER("temp.jpg", (player) -> {
+    PHOTOGRAPHER("photographer.jpg", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
         //HashSet of bird ENUMs with color in their names
@@ -505,51 +443,175 @@ public enum BonusCard implements BonusCardInterface
                 count++;
         }
 
-	    // for(Map.Entry<String, ArrayList<BirdInstance>> entry: player.getBoard().entrySet()) {
-    	// 	String h = entry.getKey();
-    	// 	ArrayList<BirdInstance> n = entry.getValue();
-    	// 	for(int i = 0; i < n.size; i++) {
-    	// 		BirdInstance current = n.get(i);
-    	// 		String c = current.getName();
-    	// 		if(c.toLowerCase.contains("ash") || c.toLowerCase.contains("black") || c.toLowerCase.contains("blue") ||
-    	// 				c.toLowerCase.contains("bronze") || c.toLowerCase.contains("brown") || c.toLowerCase.contains("cerulean")
-    	// 				|| c.toLowerCase.contains("chestnut") || c.toLowerCase.contains("ferruginous") || 
-    	// 				c.toLowerCase.contains("gold") || c.toLowerCase.contains("gray") || c.toLowerCase.contains("green") || 
-    	// 				c.toLowerCase.contains("indigo") || c.toLowerCase.contains("lazuli") || c.toLowerCase.contains("purple")
-    	// 				|| c.toLowerCase.contains("red") || c.toLowerCase.contains("rose") || c.toLowerCase.contains("roseate") 
-    	// 				|| c.toLowerCase.contains("ruby") || c.toLowerCase.contains("ruddy") || c.toLowerCase.contains("rufous") || 
-    	// 				c.toLowerCase.contains("snowy") || c.toLowerCase.contains("violet") || c.toLowerCase.contains("white") ||
-    	// 				c.toLowerCase.contains("yellow"))
-    	// 			c++;
-    	// 	}
-    	// }
     	if(count == 4 || count == 5)
     		player.addPoints(3);
     	if(count >= 6)
-    		player.addPoints(6);
-    });     
-    
-    //CARTOGRAPHER:
+    		player.addPoints(7);
+    }),
 
-    // AMERICAN AVOCET AMERICAN BITTERN AMERICAN COOT AMERICAN CROW AMERICAN GOLDFINCH AMERICAN KESTREL AMERICAN OYSTERCATCHER AMERICAN REDSTART AMERICAN ROBIN 
-    // AMERICAN WHITE PELICAN AMERICAN WOODCOCK ATLANTIC PUFFIN BALTIMORE ORIOLE CALIFORNIA CONDOR CALIFORNIA QUAIL CANADA GOOSE CAROLINA CHICKADEE 
-    // CAROLINA WREN CHIHUAHUAN RAVEN COMMON MOORHEN CORSICAN NUTHATCH EASTERN BLUEBIRD EASTERN IMPERIAL EAGLE EASTERN KINGBIRD EASTERN PHOEBE EASTERN SCREECH OWL 
-    // EURASIAN COLLARED DOVE EURASIAN GOLDEN ORIOLE EURASIAN HOBBY EURASIAN JAY EURASIAN MAGPIE EURASIAN NUTCRACKER EURASIAN NUTHATCH EURASIAN SPARROWHAWK 
-    // EURASIAN TREE SPARROW EUROPEAN BEE-EATER EUROPEAN GOLDFINCH EUROPEAN GREEN WOODPECKER EUROPEAN HONEY BUZZARD EUROPEAN ROBIN EUROPEAN ROLLER EUROPEAN 
-    // TURTLE DOVE GREATER PRAIRIE CHICKEN INCA DOVE MISSISSIPPI KITE MOUNTAIN BLUEBIRD MOUNTAIN CHICKADEE NORTHERN BOBWHITE NORTHERN CARDINAL NORTHERN FLICKER 
-    // NORTHERN GANNET NORTHERN GOSHAWK NORTHERN HARRIER NORTHERN MOCKINGBIRD NORTHERN SHOVELER SANDHILL CRANE SAVANNAH SPARROW WESTERN MEADOWLARK WESTERN TANAGER     
-    
-    //ANATOMIST:
+    PLATFORM_BUILDER("platform_builder.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
 
-    // ASH-THROATED FLYCATCHER BARROW’S GOLDENEYE BLACK-BELLIED WHISTLING DUCK BLACK-BILLED MAGPIE BLACK-CHINNED HUMMINGBIRD BLACK-CROWNED NIGHT-HERON 
-    // BLACK-HEADED GULL BLACK-NECKED STILT BLACK-TAILED GODWIT BLACK-THROATED DIVER BLUE GROSBEAK BLUE-WINGED WARBLER BLUETHROAT BROAD-WINGED HAWK 
-    // BROWN-HEADED COWBIRD CANVASBACK CEDAR WAXWING CHESTNUT-COLLARED LONGSPUR COMMON GOLDENEYE COMMON YELLOWTHROAT DARK-EYED JUNCO DOUBLE-CRESTED CORMORANT 
-    // EURASIAN COLLARED DOVE GOLDCREST GREAT CRESTED FLYCATCHER GREAT CRESTED GREBE LESSER WHITETHROAT LOGGERHEAD SHRIKE LONG-TAILED TIT PARROT CROSSBILL 
-    // PIED-BILLED GREBE RED CROSSBILL RED-BACKED SHRIKE RED-BELLIED WOODPECKER RED-BREASTED MERGANSER RED-BREASTED NUTHATCH RED-EYED VIREO RED-HEADED WOODPECKER 
-    // RED-LEGGED PARTRIDGE RED-SHOULDERED HAWK RED-TAILED HAWK RED-WINGED BLACKBIRD RING-BILLED GULL ROSE-BREASTED GROSBEAK ROSEATE SPOONBILL RUBY-CROWNED KINGLET 
-    // RUBY-THROATED HUMMINGBIRD SCISSOR-TAILED FLYCATCHER SHORT-TOED TREECREEPER WHITE WAGTAIL WHITE-BACKED WOODPECKER WHITE-BREASTED NUTHATCH WHITE-CROWNED SPARROW 
-    // WHITE-FACED IBIS WHITE-THROATED DIPPER WHITE-THROATED SWIFT YELLOW-BELLIED SAPSUCKER YELLOW-BILLED CUCKOO YELLOW-BREASTED CHAT YELLOW-HEADED BLACKBIRD YELLOW-RUMPED WARBLER
-	
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getNest().equalsIgnoreCase("Platform") || birdCard.getNest().equalsIgnoreCase("Wild"))
+                count++;
+        }
+
+        //calculates points
+        if (count == 4 || count == 5) 
+            player.addPoints(4);
+        if (count >= 6)
+            player.addPoints(7);
+    }),
+
+
+    PRAIRIE_MANAGER("prairie_manager.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
+
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getHabitat().length == 1 && birdCard.getHabitat()[0].equalsIgnoreCase("grassland"))
+                count++;
+        }
+
+        //calculates points
+        if (count == 2 || count == 3) 
+            player.addPoints(3);
+        if (count >= 4) 
+            player.addPoints(8);
+    }),
+
+
+    RODENTOLOGIST("rodentologist.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
+
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getFoodRequired().contains("rat"))
+                count++;
+        }
+
+        //calculates points
+        player.addPoints(count*2);
+    }),
+
+    //if player's hand has more than 8 birds, adds 7 points, else if more than 5 birds, adds 4 points 
+    VISIONARY_LEADER("visionary_leader.jpg", (player) -> {
+        //gets size of player hand
+        int count = player.getBirdHand().size();
+        
+        //calculates points
+        if (count >= 5 && count <= 7)
+            player.addPoints(4);
+        if(count >= 8) 
+            player.addPoints(7);
+    }),
+
+
+    VITACULTURALIST("vitaculturalist.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
+
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getFoodRequired().contains("berry"))
+                count++;
+        }
+
+        //calculates points
+        if (count == 2 || count == 3) 
+            player.addPoints(3);
+        if (count >= 4)
+            player.addPoints(7);
+    }),
+
+
+    WETLAND_SCIENTIST("wetland_scientist.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
+
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getHabitat().length == 1 && birdCard.getHabitat()[0].equalsIgnoreCase("wetland"))
+                count++;
+        }
+
+        //calculates points
+        if (count == 3 || count == 4) 
+            player.addPoints(3);
+        if (count >= 5)
+            player.addPoints(7);
+    }),
+
+
+    WILDLIFE_GARDENER("wildlife_gardener.jpg", (player) -> {
+        //how many cards are counted towards the bonus card
+	    int count = 0; 
+
+        //ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+        
+        //counts cards whose Bird fits bonus
+        for (BirdInstance birdCard: birdSuperList)
+        {
+            if(birdCard.getNest().equalsIgnoreCase("Bowl") || birdCard.getNest().equalsIgnoreCase("Wild"))
+                count++;
+        }
+
+        //calculates points
+        if (count == 4 || count == 5) 
+            player.addPoints(4);
+        if (count >= 6)
+            player.addPoints(7);
+    });
 
     //VARIABLES:
 
