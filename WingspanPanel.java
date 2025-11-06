@@ -152,22 +152,43 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                     Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
                     if (ready != null && (boolean)ready) {
                         playTransition((Runnable)() -> {
-                            currentGame.continueSelection();
-                            System.out.println("bout to get some");
-                            ArrayList<BonusCard> cards = currentGame.pullRandomBonusCards(2);
-                            System.out.println("ok got them " + cards);
-                            BonusCard firstBonus = cards.get(0);
-                            BonusCard secondBonus = cards.get(1);
-                            ImageHandler.setGroup("bonus/back_of_bonus.png", "Bonus");
-                            ImageHandler.loadGroup("Bonus");
-                            for (int i = 0; i < 2; i++) {
-                                UIImage bonusImage = (UIImage)(UIElement.getByName("Bonus" + i));
-                                bonusImage.setAttribute("selectionValue", cards.get(i));
-                                bonusImage.setImagePath("bonus/back_of_bonus.png");
+                            boolean continued = currentGame.continueSelection();
+                            if (continued) {
+                                int screenToShow = currentGame.getSelectionPhase();
+                                if (screenToShow == 2) {
+                                    ArrayList<BonusCard> cards = currentGame.pullRandomBonusCards(2);
+                                    BonusCard firstBonus = cards.get(0);
+                                    BonusCard secondBonus = cards.get(1);
+                                    ImageHandler.setGroup("bonus/back_of_bonus.png", "Bonus");
+                                    ImageHandler.loadGroup("Bonus");
+                                    for (int i = 0; i < 2; i++) {
+                                        UIImage bonusImage = (UIImage)(UIElement.getByName("Bonus" + i));
+                                        bonusImage.setAttribute("selectionValue", cards.get(i));
+                                        bonusImage.setImagePath("bonus/back_of_bonus.png");
+                                    }
+                                    UIElement.getByName("ChoosableBirdsContainer").visible = false;
+                                    UIElement.getByName("ChoosableFoodsContainer").visible = false;
+                                    UIElement.getByName("ChoosableBonusesContainer").visible = true;
+                                } else if (screenToShow == 1) {
+                                    int currentTurn = currentGame.getPlayerTurn();
+                                    ArrayList<Bird> randomBirds = currentGame.pullRandomBirds(5);
+                                    UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
+                                    playerChoosingTitle.text = "Player " + currentTurn;
+                                    for (int i = 0; i < randomBirds.size(); i++) {
+                                        String imageFileString = randomBirds.get(i).getImage();
+                                        ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
+                                        UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i));
+                                        birdImage.setAttribute("selectionValue", randomBirds.get(i));
+                                        birdImage.setImagePath(imageFileString);
+                                    }
+                                    UIElement.getByName("ChoosableBirdsContainer").visible = true;
+                                    UIElement.getByName("ChoosableFoodsContainer").visible = true;
+                                    UIElement.getByName("ChoosableBonusesContainer").visible = false;
+                                }
                             }
-                            UIElement.getByName("ChoosableBirdsContainer").visible = false;
-                            UIElement.getByName("ChoosableFoodsContainer").visible = false;
-                            UIElement.getByName("ChoosableBonusesContainer").visible = true;
+                            UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+                            continueButton.setAttribute("Clickable", false);
+                            continueButton.backgroundColor = Color.lightGray;
                         });
                     }
                 }

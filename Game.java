@@ -166,6 +166,7 @@ public class Game {
 	}
 
 	private void deselect(Selectable element) { // deselects a specific selectable item
+		System.out.println(element);
 		if (element != null) {
 			element.getElement().setAttribute("Selected", false);
 			selected.remove(element);
@@ -204,16 +205,18 @@ public class Game {
 		return selectionPhase == 1 ? selected.size() == 5 : selected.size() == 1;
 	}
 
-	public void continueSelection() {
-		if (!canContinueResources()) return;
+	public int getSelectionPhase() { return selectionPhase; }
+
+	public void incrementPlayerTurn() { playerTurn = playerTurn % 5 + 1; }
+
+	public boolean continueSelection() {
+		if (!canContinueResources()) return false;
 		selectionPhase = (selectionPhase % 2) + 1;
 		Player current = playerList.get(playerTurn - 1);
 		if (selectionPhase == 1) {
-			playerTurn++;
+			incrementPlayerTurn();
 			current.addBonusHand((BonusCard)selected.first().getValue());
-			System.out.println(current.getFood());
-			System.out.println(current.getBirdHand());
-			System.out.println(current.getBonusHand());
+			deselect(selected.last());
 			if (playerTurn > playerList.size()) {
 				// here we move onto actual board 
 			}
@@ -226,9 +229,15 @@ public class Game {
 					current.addFood((String)selection.getValue(), 1);
 				}
 			}
+			for (int i = 0; i < 5; i++)
+				deselect(selected.last());
 		}
+
 		selected.clear();
+		return true;
 	}
+
+	public int getPlayerTurn() { return playerTurn; }
 }
 
 class Selectable implements Comparable<Selectable> {
