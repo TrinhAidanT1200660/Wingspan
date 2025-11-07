@@ -14,6 +14,7 @@ public interface ImageHandler {
     }
 
     public static BufferedImage get(String imagePath, String group) {
+        String originalImage = imagePath;
         if (imagePath.contains("temp")) imagePath = "birds/back_of_bird.png";
         ImageObject imgObj = cache.get(imagePath);
         if (imgObj != null && imgObj.image != null) return imgObj.image;
@@ -21,9 +22,9 @@ public interface ImageHandler {
         try {
             BufferedImage image = ImageIO.read(ImageHandler.class.getResource("/resources/" + imagePath));
             if (image != null) {
-                imgObj = new ImageObject(image, "Global");
+                imgObj = new ImageObject(image, group);
                 cache.put(imagePath, imgObj);
-                getGroup(group).add(imagePath);
+                getGroup(group).add(originalImage);
             }
             return image;
         } catch (IOException e) {
@@ -52,6 +53,7 @@ public interface ImageHandler {
 
     public static void loadGroup(String group) {
         HashSet<String> items = getGroup(group);
+        System.out.println(items);
         for (String path : items) {
             get(path, group);
         }

@@ -121,6 +121,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                         for (int i = 0; i < randomBirds.size(); i++) { // loop through the birds
                             String imageFileString = randomBirds.get(i).getImage(); // get its image
                             ImageHandler.setGroup(imageFileString, "BirdChoiceCards"); // add it to the bird choice cards group for ImageHandler, then we can just load the entire group and remove it from cache later on
+                            System.out.println("setting " + imageFileString + " to group bird choice cards");
                             UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i)); // get the UIImage element for the bird choice card
                             birdImage.setAttribute("selectionValue", randomBirds.get(i)); // set its selection value attribute to the bird enum it represents
                             birdImage.setImagePath(imageFileString); // set its image to the bird image
@@ -478,6 +479,16 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         transition.position.center();
         transition.anchorPoint.center();
         transition.backgroundColor = Color.BLACK;
+
+        UIImage birdSprite = new UIImage("BirdSprite", this);
+        birdSprite.backgroundTransparency = 0f;
+        birdSprite.position.bottomRight();
+        birdSprite.anchorPoint = new Vector2(1, 1);
+        birdSprite.setSpriteSheet(167, 181);
+        birdSprite.setParent(transition);
+        birdSprite.playSpriteAnimation(0.08, true);
+        birdSprite.setImagePath("images/bird_anim.png");
+        birdSprite.setImageFillType(UIImage.SPRITE_ANIMATION);
 
         loadingTitle = new UIText("LoadingTitle", this);
         loadingTitle.backgroundTransparency = 0f;
