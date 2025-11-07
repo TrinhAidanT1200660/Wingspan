@@ -111,37 +111,39 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         // click)
         if (released != null && released.containsPoint(e.getX(), e.getY())) { // if we actually pressed and released something
             // we can do whatever with the button that was fully clicked here...
-            
-            if (released.getAttribute("startButton") != null) { // if its a start button, we can start game here
-                startMenu.tweenSize(new Dim2(1.5, 0, 1.8, 0), 0.5, Tween.QUAD_IN_OUT); // zoom in the main menu stuff by 3x
-                currentGame.setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
-                
-                playTransition(() -> {
-                    currentGame.giveUIBirds();
-                    ImageHandler.setGroup("foods/berries.png", "Foods");
-                    ImageHandler.setGroup("foods/fish.png", "Foods");
-                    ImageHandler.setGroup("foods/rat.png", "Foods");
-                    ImageHandler.setGroup("foods/seed.png", "Foods");
-                    ImageHandler.setGroup("foods/worm.png", "Foods");
-                    ImageHandler.loadGroup("BirdChoiceCards");
-                    ImageHandler.loadGroup("Foods");
-                    startMenu.visible = false;
-                    ImageHandler.clearGroupCache("StartMenu");
-                    resourceChoosingScreen.visible = true;
-                    resourceChoosingScreen.size = new Dim2().full().dilate(3);
-                    startMenu.size = new Dim2(0.5, 0, 0.6, 0);
-                    resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
-                });
+            currentGame.UIMouseReleased(event, released);
+//            if (released.getAttribute("startButton") != null) { // if its a start button, we can start game here
+//                startMenu.tweenSize(new Dim2(1.5, 0, 1.8, 0), 0.5, Tween.QUAD_IN_OUT); // zoom in the main menu stuff by 3x
+//                currentGame.setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
+//                
+//                playTransition(() -> {
+//                    currentGame.giveUIBirds(5);
+//                    ImageHandler.setGroup("foods/berries.png", "Foods");
+//                    ImageHandler.setGroup("foods/fish.png", "Foods");
+//                    ImageHandler.setGroup("foods/rat.png", "Foods");
+//                    ImageHandler.setGroup("foods/seed.png", "Foods");
+//                    ImageHandler.setGroup("foods/worm.png", "Foods");
+//                    ImageHandler.loadGroup("BirdChoiceCards");
+//                    ImageHandler.loadGroup("Foods");
+//                    startMenu.visible = false;
+//                    ImageHandler.clearGroupCache("StartMenu");
+//                    resourceChoosingScreen.visible = true;
+//                    resourceChoosingScreen.size = new Dim2().full().dilate(3);
+//                    startMenu.size = new Dim2(0.5, 0, 0.6, 0);
+//                    resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
+//                });
             } 
-            else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null) {
-                currentGame.toggleSelect(released);
-                boolean canContinue = currentGame.canContinueResources();
-                UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
-                continueButton.setAttribute("Clickable", canContinue);
-                continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray;
-            }
+        
+//            else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null) {
+//                currentGame.toggleSelect(released);
+//                boolean canContinue = currentGame.canContinueResources();
+//                UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+//                continueButton.setAttribute("Clickable", canContinue);
+//                continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray;
+//            }
             
             // resources screen
+        
             if (released == UIElement.getByName("ContinueResourcesButtonBg")) {
 
                 Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
@@ -151,8 +153,6 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                         if (currentGame.continueSelection()) {
                             int screenToShow = currentGame.getSelectionPhase();
                             if (screenToShow == 2) {
-                                
-
                                 UIElement.getByName("ChoosableBirdsContainer").visible = false;
                                 UIElement.getByName("ChoosableFoodsContainer").visible = false;
                                 UIElement.getByName("ChoosableBonusesContainer").visible = true;
@@ -162,7 +162,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                                 UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
                                 playerChoosingTitle.text = "Player " + currentGame.getPlayerTurn();
                                 
-                                currentGame.giveUIBirds();
+                                currentGame.giveUIBirds(5);
                                 UIElement.getByName("ChoosableBirdsContainer").visible = true;
                                 UIElement.getByName("ChoosableFoodsContainer").visible = true;
                                 UIElement.getByName("ChoosableBonusesContainer").visible = false;
@@ -174,6 +174,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                     });
                 }
             }
+            
             Object hasAnimOnPress = released.getAttribute("animOnPress"); // check if the element wants to be animated when pressed
             if (hasAnimOnPress != null) { // if so
                 UIElement drop = (UIElement) hasAnimOnPress;
@@ -185,7 +186,6 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                 UIFrame pressCover = (UIFrame) hasPressCover;
                 pressCover.tweenBackgroundTransparency(0f, 0.075, Tween.QUAD_IN_OUT); // fade it out so u cant see it anymore
             }
-        }
 
         mouseMoved(e);
     }
@@ -265,7 +265,8 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     public void mouseDragged(MouseEvent e) {
     }
 
-    public void clickedResourceContinue()
+    //to be called from back end
+    public void clickedResourceContinue(RootMouseEvent event, UIElement released)
     {
         playTransition((Runnable)() -> {
             if (currentGame.continueSelection()) 
@@ -281,6 +282,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         });
     }
 
+    //to be called from back end
     public void clickedStart(RootMouseEvent event, UIElement released)
     {
         playTransition(() -> {
@@ -290,6 +292,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
             ImageHandler.setGroup("foods/seed.png", "Foods");
             ImageHandler.setGroup("foods/worm.png", "Foods");
             ImageHandler.loadGroup("BirdChoiceCards");
+            ImageHandler.loadGroup("Bonus");
             ImageHandler.loadGroup("Foods");
             startMenu.visible = false;
             ImageHandler.clearGroupCache("StartMenu");
@@ -299,7 +302,8 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
             resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
         });
     }
-
+    
+    //to be called from back end
     public void clickedResource(RootMouseEvent event, UIElement released, boolean canContinue)
     {
         UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
