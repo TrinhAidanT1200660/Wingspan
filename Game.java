@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
@@ -162,7 +163,7 @@ public class Game {
         if (released.getAttribute("startButton") != null)
 		{
         	setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
-            giveUIBirds();
+            giveUIBirds(5);
 			panel.clickedStart(event, released);
     	} 
 
@@ -176,36 +177,66 @@ public class Game {
 		if (released == UIElement.getByName("ContinueResourcesButtonBg")) 
 		{
             Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
-            if (ready != null && (boolean)ready) {
-                
+            if (ready != null && (boolean)ready) 
+            {
+            	if (getSelectionPhase() == 1)
+            	{
+            		UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
+                    playerChoosingTitle.text = "Player " + getPlayerTurn();
+            		giveUIBirds(5);
+            	}
+            	panel.clickedResource(event, released);
+            	
+            	playTransition((Runnable)() -> {
+                    if (continueSelection()) {
+                        int screenToShow = getSelectionPhase();
+                        if (screenToShow == 2) {
+                            UIElement.getByName("ChoosableBirdsContainer").visible = false;
+                            UIElement.getByName("ChoosableFoodsContainer").visible = false;
+                            UIElement.getByName("ChoosableBonusesContainer").visible = true;
+                        } 
+                        
+                        else if (screenToShow == 1) {
+                            UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
+                            playerChoosingTitle.text = "Player " + getPlayerTurn();
+                            
+                            giveUIBirds(5);
+                            UIElement.getByName("ChoosableBirdsContainer").visible = true;
+                            UIElement.getByName("ChoosableFoodsContainer").visible = true;
+                            UIElement.getByName("ChoosableBonusesContainer").visible = false;
+                        }
+                    }
+                    UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+                    continueButton.setAttribute("Clickable", false);
+                    continueButton.backgroundColor = Color.lightGray;
+                });
+            	
                 if (getSelectionPhase() == 1) 
                 {
                     UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
                     playerChoosingTitle.text = "Player " + getPlayerTurn();
-                    giveUIBirds();
+                    giveUIBirds(5);
                 }
             }
         }
     }
 
-	public void giveUIBonus()
+	public void giveUIBonus(int num)
 	{
-		ArrayList<BonusCard> cards = this.pullRandomBonusCards(2); 
-        // BonusCard firstBonus = cards.get(0);
-        // BonusCard secondBonus = cards.get(1);
-        ImageHandler.setGroup("bonus/back_of_bonus.png", "Bonus");
-        ImageHandler.loadGroup("Bonus");
-        
-        for (int i = 0; i < 2; i++) {
-            UIImage bonusImage = (UIImage)(UIElement.getByName("Bonus" + i));
-            bonusImage.setAttribute("selectionValue", cards.get(i));
-            bonusImage.setImagePath("bonus/back_of_bonus.png");
+		ArrayList<BonusCard> randomBonus = this.pullRandomBonusCards(num);
+        for (int i = 0; i < randomBonus.size(); i++) 
+		{
+            String imageFileString = randomBonus.get(i).getImage();
+            ImageHandler.setGroup(imageFileString, "Bonus");
+            UIImage bonusImage = (UIImage)(UIElement.getByName("Bird" + i));
+            bonusImage.setAttribute("selectionValue", randomBonus.get(i));
+            bonusImage.setImagePath(imageFileString);
         }
 	}
 
-	public void giveUIBirds()
+	public void giveUIBirds(int num)
 	{
-		ArrayList<Bird> randomBirds = this.pullRandomBirds(5);
+		ArrayList<Bird> randomBirds = this.pullRandomBirds(num);
         for (int i = 0; i < randomBirds.size(); i++) 
 		{
             String imageFileString = randomBirds.get(i).getImage();
