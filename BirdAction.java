@@ -322,7 +322,7 @@ public enum BirdAction implements BirdActionInterface
 		bird.addEggs(1);
 	}),
 	// Lay 1 egg on this bird
-	// CALIFORNIA_QUAIL | MOURNING_DOVE | NORTHERN_BOBWHITE | SCALED_QUAL
+	// CALIFORNIA_QUAIL | MOURNING_DOVE | NORTHERN_BOBWHITE | SCALED_QUAIL
 	LAYEGGONTHISBIRD((gameContext, player, birdInstance) -> {
 		birdInstance.addEggs(1);
 	}),
