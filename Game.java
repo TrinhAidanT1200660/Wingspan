@@ -1,8 +1,9 @@
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.TreeSet;
 
 public class Game {
 
+	private WingspanPanel panel;
     private int startingActionCubes; // holds the beginning of the rounds starting action cubes; starts at 8 beginning of game
     private int playerTurn; // holds which player's turn it current is; starts at 1 beginning of game
     private int startingPlayerTurn; // holds the player who had their turn first; starts at 1 beginning of game
@@ -16,7 +17,9 @@ public class Game {
 	private ArrayList<Bird> faceUpBirds; // replicates the 3 face up bird cards in the bird tray ; not sure when we want to create this, before or after player select resources
 
     // CONSTRUCTOR
-    public Game(boolean isCompetitive) {
+    public Game(WingspanPanel panel) 
+	{
+		this.panel = panel;
         this.startingActionCubes = 8;
         this.playerTurn = 1;
         this.startingPlayerTurn = 1;
@@ -25,10 +28,8 @@ public class Game {
 		this.gamePhase = 0;
 		this.selected = new TreeSet<>();
 		this.selectionPhase = 1;
-		this.isCompetitive = isCompetitive;
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 5; ++i)
             playerList.add(new Player());
-        }
 		this.rollBirdFeeder();
 		this.faceUpBirds = new ArrayList<>();
     }
@@ -155,6 +156,67 @@ public class Game {
 	{
 		return birdFeeder;
 	}
+
+	public void UIMouseReleased(RootMouseEvent event, UIElement released)
+	{
+        if (released.getAttribute("startButton") != null)
+		{
+        	setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
+            giveUIBirds();
+			panel.clickedStart(event, released);
+    	} 
+
+        else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null)
+		{
+        	toggleSelect(released);
+			panel.clickedResource(event, released, canContinueResources());
+            
+        }
+
+		if (released == UIElement.getByName("ContinueResourcesButtonBg")) 
+		{
+            Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
+            if (ready != null && (boolean)ready) {
+                
+                if (getSelectionPhase() == 1) 
+                {
+                    UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
+                    playerChoosingTitle.text = "Player " + getPlayerTurn();
+                    giveUIBirds();
+                }
+            }
+        }
+    }
+
+	public void giveUIBonus()
+	{
+		ArrayList<BonusCard> cards = this.pullRandomBonusCards(2); 
+        // BonusCard firstBonus = cards.get(0);
+        // BonusCard secondBonus = cards.get(1);
+        ImageHandler.setGroup("bonus/back_of_bonus.png", "Bonus");
+        ImageHandler.loadGroup("Bonus");
+        
+        for (int i = 0; i < 2; i++) {
+            UIImage bonusImage = (UIImage)(UIElement.getByName("Bonus" + i));
+            bonusImage.setAttribute("selectionValue", cards.get(i));
+            bonusImage.setImagePath("bonus/back_of_bonus.png");
+        }
+	}
+
+	public void giveUIBirds()
+	{
+		ArrayList<Bird> randomBirds = this.pullRandomBirds(5);
+        for (int i = 0; i < randomBirds.size(); i++) 
+		{
+            String imageFileString = randomBirds.get(i).getImage();
+            ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
+            UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i));
+            birdImage.setAttribute("selectionValue", randomBirds.get(i));
+            birdImage.setImagePath(imageFileString);
+        }
+	}
+
+	public void setCompetitiveType(boolean isCompetitive) {this.isCompetitive = isCompetitive;}
 
 	private void handleSelected() { // if the user selected more than 5 things deselect the least recent thing selected (could be bird or food token)
 		if (selectionPhase == 1 ? selected.size() > 5 : selected.size() > 1) {
