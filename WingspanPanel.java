@@ -115,16 +115,17 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
             if (released.containsPoint(e.getX(), e.getY())) {
                 if (released.getAttribute("startButton") != null) { // if its a start button, we can start game here
                     startMenu.tweenSize(new Dim2(1.5, 0, 1.8, 0), 0.5, Tween.QUAD_IN_OUT); // zoom in the main menu stuff by 3x
-                    currentGame = new Game(released == UIElement.getByName("CompetitiveButtonBg"));
-                    playTransition(() -> {
-                        ArrayList<Bird> randomBirds = currentGame.pullRandomBirds(5);
-                        for (int i = 0; i < randomBirds.size(); i++) {
-                            String imageFileString = randomBirds.get(i).getImage();
-                            ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
-                            UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i));
-                            birdImage.setAttribute("selectionValue", randomBirds.get(i));
-                            birdImage.setImagePath(imageFileString);
+                    currentGame = new Game(released == UIElement.getByName("CompetitiveButtonBg")); // ok so here we make new game object. the parameter it takes in is "isCompetitive", which is true if the competitive button was pressed, false if peaceful button was pressed
+                    playTransition(() -> { // play transition animation and load images and stuff in between
+                        ArrayList<Bird> randomBirds = currentGame.pullRandomBirds(5); // pull 5 random birds for first player to choose
+                        for (int i = 0; i < randomBirds.size(); i++) { // loop through the birds
+                            String imageFileString = randomBirds.get(i).getImage(); // get its image
+                            ImageHandler.setGroup(imageFileString, "BirdChoiceCards"); // add it to the bird choice cards group for ImageHandler, then we can just load the entire group and remove it from cache later on
+                            UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i)); // get the UIImage element for the bird choice card
+                            birdImage.setAttribute("selectionValue", randomBirds.get(i)); // set its selection value attribute to the bird enum it represents
+                            birdImage.setImagePath(imageFileString); // set its image to the bird image
                         }
+                        // loading food images and then loading bird group
                         ImageHandler.setGroup("foods/berries.png", "Foods");
                         ImageHandler.setGroup("foods/fish.png", "Foods");
                         ImageHandler.setGroup("foods/rat.png", "Foods");
@@ -132,61 +133,65 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
                         ImageHandler.setGroup("foods/worm.png", "Foods");
                         ImageHandler.loadGroup("BirdChoiceCards");
                         ImageHandler.loadGroup("Foods");
+                        // make start menu invisible and resource choosing screen visible
                         startMenu.visible = false;
                         ImageHandler.clearGroupCache("StartMenu");
                         resourceChoosingScreen.visible = true;
-                        resourceChoosingScreen.size = new Dim2().full().dilate(3);
-                        startMenu.size = new Dim2(0.5, 0, 0.6, 0);
-                        resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
+                        resourceChoosingScreen.size = new Dim2().full().dilate(3); // start it 3x size
+                        startMenu.size = new Dim2(0.5, 0, 0.6, 0); // reset start menu size 
+                        resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT); // tween resource screen to regular size
                     });
-                } else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null) {
-                    currentGame.toggleSelect(released);
-                    boolean canContinue = currentGame.canContinueResources();
-                    UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
-                    continueButton.setAttribute("Clickable", canContinue);
-                    continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray;
+                } else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null) { // if the button pressed is a bird choice or food choice or bonus card choice
+                    currentGame.toggleSelect(released); // tell the game we just selected or deselected this choice, the game handles selection/deselection
+                    boolean canContinue = currentGame.canContinueResources(); // ask the game if we can continue now (have selected enough resources. depending on phase, its either 5 for birds + foods or 1 for bonus cards)
+                    UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg"); // get continue button
+                    continueButton.setAttribute("Clickable", canContinue); // set continue button clickable attribute to whether we can continue or not
+                    continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray; // change continue button color based on whether we can continue or not
                 }
 
                 // resources screen
-                if (released == UIElement.getByName("ContinueResourcesButtonBg")) {
-                    Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
-                    if (ready != null && (boolean)ready) {
-                        playTransition((Runnable)() -> {
-                            boolean continued = currentGame.continueSelection();
-                            if (continued) {
-                                int screenToShow = currentGame.getSelectionPhase();
-                                if (screenToShow == 2) {
-                                    ArrayList<BonusCard> cards = currentGame.pullRandomBonusCards(2);
-                                    BonusCard firstBonus = cards.get(0);
-                                    BonusCard secondBonus = cards.get(1);
-                                    ImageHandler.setGroup("bonus/back_of_bonus.png", "Bonus");
-                                    ImageHandler.loadGroup("Bonus");
+                if (released == UIElement.getByName("ContinueResourcesButtonBg")) { // if continue button pressed
+                    Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable"); // if we can click it and continue to next phase
+                    if (ready != null && (boolean)ready) { // if ready
+                        playTransition((Runnable)() -> { // play transition and in between do this
+                            boolean continued = currentGame.continueSelection(); // tell game to continue selection phase, it returns whether there is still more selection to be done or not
+                            if (continued) { // if they continued to next phase, we have to update the ui to reflect new phase
+                                int screenToShow = currentGame.getSelectionPhase(); // get what phase of selection we're in now; 2 == bonus cards, 1 == birds + foods
+                                if (screenToShow == 2) { // if bonus card selection phase
+                                    ArrayList<BonusCard> cards = currentGame.pullRandomBonusCards(2); // pull 2 random bonus cards
+                                    BonusCard firstBonus = cards.get(0); // get first bonus card
+                                    BonusCard secondBonus = cards.get(1); // get second bonus card
+                                    ImageHandler.setGroup("bonus/back_of_bonus.png", "Bonus"); // here temporarily, but we would load the bonus card image here
+                                    ImageHandler.loadGroup("Bonus"); // load bonus card group
                                     for (int i = 0; i < 2; i++) {
-                                        UIImage bonusImage = (UIImage)(UIElement.getByName("Bonus" + i));
-                                        bonusImage.setAttribute("selectionValue", cards.get(i));
-                                        bonusImage.setImagePath("bonus/back_of_bonus.png");
+                                        UIImage bonusImage = (UIImage)(UIElement.getByName("Bonus" + i)); // get the bonus card image ui element
+                                        bonusImage.setAttribute("selectionValue", cards.get(i)); // set its selection value attribute to the bonus card enum it represents
+                                        bonusImage.setImagePath("bonus/back_of_bonus.png"); // set its image to the bonus card image
                                     }
-                                    UIElement.getByName("ChoosableBirdsContainer").visible = false;
+                                    // hide bird + food choosing container and show bonus card choosing container
+                                    UIElement.getByName("ChoosableBirdsContainer").visible = false; 
                                     UIElement.getByName("ChoosableFoodsContainer").visible = false;
                                     UIElement.getByName("ChoosableBonusesContainer").visible = true;
-                                } else if (screenToShow == 1) {
-                                    int currentTurn = currentGame.getPlayerTurn();
-                                    ArrayList<Bird> randomBirds = currentGame.pullRandomBirds(5);
-                                    UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
-                                    playerChoosingTitle.text = "Player " + currentTurn;
-                                    for (int i = 0; i < randomBirds.size(); i++) {
-                                        String imageFileString = randomBirds.get(i).getImage();
-                                        ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
-                                        UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i));
-                                        birdImage.setAttribute("selectionValue", randomBirds.get(i));
-                                        birdImage.setImagePath(imageFileString);
+                                } else if (screenToShow == 1) { // if bird + food selection phase
+                                    int currentTurn = currentGame.getPlayerTurn(); // get current player turn
+                                    ArrayList<Bird> randomBirds = currentGame.pullRandomBirds(5); // pull 5 random birds for the player to choose from
+                                    UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle")); // get the title text ui element
+                                    playerChoosingTitle.text = "Player " + currentTurn; // set the title to the current player's turn
+                                    for (int i = 0; i < randomBirds.size(); i++) { // loop through the birds
+                                        String imageFileString = randomBirds.get(i).getImage(); // get its image
+                                        ImageHandler.setGroup(imageFileString, "BirdChoiceCards"); // add it to the bird choice cards group for ImageHandler, then we can just load the entire group and remove it from cache later on
+                                        UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i)); // get the UIImage element for the bird choice card
+                                        birdImage.setAttribute("selectionValue", randomBirds.get(i)); // set its selection value attribute to the bird enum it represents
+                                        birdImage.setImagePath(imageFileString); // setting image yada yada yada
                                     }
+                                    // show bird + food choosing container and hide bonus card choosing container
                                     UIElement.getByName("ChoosableBirdsContainer").visible = true;
                                     UIElement.getByName("ChoosableFoodsContainer").visible = true;
                                     UIElement.getByName("ChoosableBonusesContainer").visible = false;
                                 }
                             }
-                            UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+                            // reset continue button
+                            UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg"); 
                             continueButton.setAttribute("Clickable", false);
                             continueButton.backgroundColor = Color.lightGray;
                         });
