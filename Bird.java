@@ -19,52 +19,52 @@ public enum Bird
 	// nestTypes: Platform (logs on top each other), Bowl (a bowl), Cavity (tree with hole in it), Ground (bunch of circles), Wild (a star)
 	// action: directly type in from birdAction
 	// ACTUAL BIRD ENUMS, NO IMAGES IMPORTED YET
-	ACORN_WOODPECKER("ACORN WOODPECKER", "temp", 4, 46, 5, new String[] {"forest"}, "BROWN", "Other", "and 3seed", "Cavity", BirdAction.GAIN1SEEDANDCACHE),
-	// AMERICAN_AVOCET
-	AMERICAN_BITTERN("AMERICAN BITTERN", "temp", 2, 107, 7, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1fish 1rat 1worm", "Platform", BirdAction.DRAW1BIRDIFLEASTWETLAND),
-	AMERICAN_COOT("AMERICAN COOT", "temp", 5, 61, 3, new String[] {"wetland"}, "BROWN", "Flocking", "and 1any 1seed", "Platform", BirdAction.TUCK1BIRDANDDRAW1BIRD),
-	AMERICAN_CROW("AMERICAN CROW", "temp", 2, 99, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1any", "Platform", BirdAction.DISCARDEGGANDGAIN1FOOD),
-	AMERICAN_GOLDFINCH("AMERICAN GOLDFINCH", "temp", 3, 23, 3, new String[] {"grassland"}, "WHITE", "Other", "and 2seed", "Bowl", BirdAction.GET3SEED),
-	AMERICAN_KESTREL("AMERICAN KESTREL", "temp", 3, 56, 5, new String[] {"grassland"}, "BROWN", "Predator", "and 1rat 1worm", "Cavity", BirdAction.ROLLDICEANDFINDRAT),
-	AMERICAN_OYSTERCATCHER("AMERICAN OYSTERCATCHER", "temp", 2, 81, 5, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 2worm", "Ground", BirdAction.DRAWBIRDEQUALTOPLAYERANDCLOCKWISEDISTRIBUTE),
-	AMERICAN_REDSTART("AMERICAN REDSTART", "temp", 2, 20, 4, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1worm", "Bowl", BirdAction.GET1FOODBIRDFEEDER),
-	AMERICAN_ROBIN("AMERICAN ROBIN", "temp", 4, 43, 1, new String[] {"grassland", "forest"}, "BROWN", "Flocking", "or 1berry 1worm", "Bowl", BirdAction.TUCK1BIRDANDDRAW1BIRD),
-	AMERICAN_WHITE_PELICAN("AMERICAN WHITE PELICAN", "temp", 1, 274, 5, new String[] {"wetland"}, "BROWN", "Flocking", "and 2fish", "Ground", BirdAction.DISCARDFISHANDTUCK2BIRDS),
-	AMERICAN_WOODCOCK("AMERICAN WOODCOCK", "temp", 2, 46, 9, new String[] {"forest", "grassland"}, "NONE", "Other", "and 1seed 2worm", "Ground", BirdAction.NONE),
-	ANHINGA("ANHINGA", "temp", 2, 114, 6, new String[] {"wetland"}, "BROWN", "Predator", "and 2fish", "Platform", BirdAction.ROLLDICEANDFINDFISH),
-	// ANNAS_HUMMINGBIRD
-	ASH_THROATED_FLYCATCHER("ASH THROATED FLYCATCHER", "temp", 4, 30, 4, new String[] {"grassland"}, "WHITE", "EggLaying", "and 1berry 2worm", "Cavity", BirdAction.LAYEGGONALLCAVITY),
-	ATLANTIC_PUFFIN("ATLANTIC PUFFIN", "temp", 1, 53, 8, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 3fish", "Wild", BirdAction.DRAW2BONUSKEEP1),
+	ACORN_WOODPECKER("ACORN WOODPECKER", "birds/acorn_woodpecker.png", 4, 46, 5, new String[] {"forest"}, "BROWN", "Other", "and 3seed", "Cavity", BirdAction.GAIN1SEEDANDCACHE),
+	// AMERICAN_AVOCET "birds/american_avocet"
+	AMERICAN_BITTERN("AMERICAN BITTERN", "birds/american_bittern.png", 2, 107, 7, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1fish 1rat 1worm", "Platform", BirdAction.DRAW1BIRDIFLEASTWETLAND),
+	AMERICAN_COOT("AMERICAN COOT", "birds/american_coot.png", 5, 61, 3, new String[] {"wetland"}, "BROWN", "Flocking", "and 1any 1seed", "Platform", BirdAction.TUCK1BIRDANDDRAW1BIRD),
+	AMERICAN_CROW("AMERICAN CROW", "birds/american_crow.png", 2, 99, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1any", "Platform", BirdAction.DISCARDEGGANDGAIN1FOOD),
+	AMERICAN_GOLDFINCH("AMERICAN GOLDFINCH", "birds/american_goldfinch.png", 3, 23, 3, new String[] {"grassland"}, "WHITE", "Other", "and 2seed", "Bowl", BirdAction.GET3SEED),
+	AMERICAN_KESTREL("AMERICAN KESTREL", "birds/american_kestrel.png", 3, 56, 5, new String[] {"grassland"}, "BROWN", "Predator", "and 1rat 1worm", "Cavity", BirdAction.ROLLDICEANDFINDRAT),
+	AMERICAN_OYSTERCATCHER("AMERICAN OYSTERCATCHER", "birds/american_oystercatcher.png", 2, 81, 5, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 2worm", "Ground", BirdAction.DRAWBIRDEQUALTOPLAYERANDCLOCKWISEDISTRIBUTE),
+	AMERICAN_REDSTART("AMERICAN REDSTART", "birds/american_redstart.png", 2, 20, 4, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1worm", "Bowl", BirdAction.GET1FOODBIRDFEEDER),
+	AMERICAN_ROBIN("AMERICAN ROBIN", "birds/american_robin.png", 4, 43, 1, new String[] {"grassland", "forest"}, "BROWN", "Flocking", "or 1berry 1worm", "Bowl", BirdAction.TUCK1BIRDANDDRAW1BIRD),
+	AMERICAN_WHITE_PELICAN("AMERICAN WHITE PELICAN", "birds/american_white_pelican.png", 1, 274, 5, new String[] {"wetland"}, "BROWN", "Flocking", "and 2fish", "Ground", BirdAction.DISCARDFISHANDTUCK2BIRDS),
+	AMERICAN_WOODCOCK("AMERICAN WOODCOCK", "american_woodcock.png", 2, 46, 9, new String[] {"forest", "grassland"}, "NONE", "Other", "and 1seed 2worm", "Ground", BirdAction.NONE),
+	ANHINGA("ANHINGA", "birds/anhinga/png", 2, 114, 6, new String[] {"wetland"}, "BROWN", "Predator", "and 2fish", "Platform", BirdAction.ROLLDICEANDFINDFISH),
+	// ANNAS_HUMMINGBIRD "birds/anna's_hummingbird.png"
+	ASH_THROATED_FLYCATCHER("ASH THROATED FLYCATCHER", "birds/ash-throated_flycatcher.png", 4, 30, 4, new String[] {"grassland"}, "WHITE", "EggLaying", "and 1berry 2worm", "Cavity", BirdAction.LAYEGGONALLCAVITY),
+	ATLANTIC_PUFFIN("ATLANTIC PUFFIN", "birds/atlantic_puffin.png", 1, 53, 8, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 3fish", "Wild", BirdAction.DRAW2BONUSKEEP1),
 	BAIRDS_SPARROW("BAIRD'S SPARROW", "temp", 2, 23, 3, new String[] {"grassland"}, "BROWN", "EggLaying", "and 1seed 1worm", "Ground", BirdAction.LAYEGGONANYBIRD),
 	BALD_EAGLE("BALD EAGLE", "temp", 1, 203, 9, new String[] {"wetland"}, "WHITE", "Other", "and 2fish 1rat", "Platform", BirdAction.ROLLDICEANDFINDFISH),
 	BALTIMORE_ORIOLE("BALTIMORE ORIOLE", "temp", 2, 30, 9, new String[] {"forest"}, "BROWN", "Other", "and 2berry 1worm", "Wild", BirdAction.GET1BERRY),
-	BARN_OWL("BARN OWL", "temp", 4, 107, 5, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Predator", "and 2rat", "Cavity",BirdAction.ROLLDICEANDFINDRAT),
-	BARN_SWALLOW("BARN SWALLOW", "temp", 2, 107, 3, new String[] {"grassland", "wetland"}, "BROWN", "Flocking", "and 1worm", "Wild", BirdAction.TUCK1BIRDANDDRAW1BIRD),
-	BARRED_OWL("BARRED OWL", "temp", 2, 107, 3, new String[] {"forest"}, "BROWN", "Predator", "and 1rat", "Cavity", BirdAction.DRAW1BIRDANDTUCKIF75CM),
-	// BARROWS_GOLDENEYE
+	BARN_OWL("BARN OWL", "birds/barn_owl.png", 4, 107, 5, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Predator", "and 2rat", "Cavity",BirdAction.ROLLDICEANDFINDRAT),
+	BARN_SWALLOW("BARN SWALLOW", "birds/barn_swallow.png", 2, 107, 3, new String[] {"grassland", "wetland"}, "BROWN", "Flocking", "and 1worm", "Wild", BirdAction.TUCK1BIRDANDDRAW1BIRD),
+	BARRED_OWL("BARRED OWL", "birds/barred_owl.png", 2, 107, 3, new String[] {"forest"}, "BROWN", "Predator", "and 1rat", "Cavity", BirdAction.DRAW1BIRDANDTUCKIF75CM),
+	// BARROWS_GOLDENEYE "birds/barrow's_goldeneye.png"
 	BELLS_VIREO("BELL'S VIREO", "temp", 2, 18, 4, new String[] {"forest", "grassland"}, "WHITE", "CardDrawing", "and 2worm", "Wild", BirdAction.DRAW2BONUSKEEP1),
 	// BELTED_KINGFISHER
 	BEWICKS_WREN("BEWICK'S WREN", "temp", 3, 18, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1seed 2worm", "Cavity", BirdAction.MOVEIFATVERYRIGHT),
 	// BLACK_TERN
 	// BLACK_VULTURE
-	BLACK_BELLIED_WHISTLING_DUCK("BLACK BELLIED WHISTLING DUCK", "temp", 5, 76, 2, new String[] {"wetland"}, "BROWN", "Flocking", "and 2seed", "Cavity", BirdAction.DISCARDSEEDANDTUCK2BIRDS),
-	// BLACK_BILLED_MAGPIE
-	BLACK_CHINNED_HUMMINGBIRD("BLACK CHINNED HUMMINGBIRD", "temp", 2, 8, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1any", "Bowl", BirdAction.ALLGET1BERRY),
+	BLACK_BELLIED_WHISTLING_DUCK("BLACK BELLIED WHISTLING DUCK", "birds/black-bellied_whistling_duck.png", 5, 76, 2, new String[] {"wetland"}, "BROWN", "Flocking", "and 2seed", "Cavity", BirdAction.DISCARDSEEDANDTUCK2BIRDS),
+	// BLACK_BILLED_MAGPIE "birds/black_billed_magpie.png"
+	BLACK_CHINNED_HUMMINGBIRD("BLACK CHINNED HUMMINGBIRD", "birds/black_chinned_hummingbird.png", 2, 8, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1any", "Bowl", BirdAction.ALLGET1BERRY),
 	BLACK_CROWNED_NIGHT_HERON("BLACK CROWNED NIGHT HERON", "temp", 2, 112, 9, new String[] {"wetland"}, "BROWN", "Other", "and 1fish 1rat 1worm", "Platform", BirdAction.DISCARDEGGANDGAIN1FOOD),
-	BLACK_NECKED_STILT("BLACK NECKED STILT", "temp", 2, 74, 4, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 2worm", "Ground", BirdAction.DRAW2BIRDCARDS),
+	BLACK_NECKED_STILT("BLACK NECKED STILT", "birds/black-necked_stilt.png", 2, 74, 4, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 2worm", "Ground", BirdAction.DRAW2BIRDCARDS),
 	BLACK_SKIMMER("BLACK SKIMMER", "temp", 2, 112, 6, new String[] {"wetland"}, "BROWN", "Predator", "and 2fish", "Ground", BirdAction.ROLLDICEANDFINDFISH),
 	BLUE_GROSBEAK("BLUE GROSBEAK", "temp", 3, 28, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 2seed 1worm", "Bowl", BirdAction.MOVEIFATVERYRIGHT),
-	BLUE_JAY("BLUE JAY", "temp", 2, 41, 3, new String[] {"forest"}, "BROWN", "Other", "and 1any 1seed", "Bowl", BirdAction.GAIN1SEEDANDCACHE),
-	BLUE_GRAY_GNATCATCHER("BLUE GRAY GNATCATCHER", "temp", 3, 15, 1, new String[] {"forest"}, "BROWN", "Other", "and 1worm", "Bowl", BirdAction.GET1WORM),
-	BLUE_WINGED_WARBLER("BLUE WINGED WARBLER", "temp", 2, 20, 8, new String[] {"forest", "grassland"}, "NONE", "Other", "and 2worm", "Bowl", BirdAction.NONE),
-	BOBOLINK("BOBOLINK", "temp", 3, 30, 4, new String[] {"grassland"}, "WHITE", "EggLaying", "and 2seed 1worm", "Ground", BirdAction.LAYEGGONALLGROUND),
+	BLUE_JAY("BLUE JAY", "birds/blue_jay.png", 2, 41, 3, new String[] {"forest"}, "BROWN", "Other", "and 1any 1seed", "Bowl", BirdAction.GAIN1SEEDANDCACHE),
+	BLUE_GRAY_GNATCATCHER("BLUE GRAY GNATCATCHER", "birds/blue-gray_gnatcatcher.png", 3, 15, 1, new String[] {"forest"}, "BROWN", "Other", "and 1worm", "Bowl", BirdAction.GET1WORM),
+	BLUE_WINGED_WARBLER("BLUE WINGED WARBLER", "blue-winged_warbler.png", 2, 20, 8, new String[] {"forest", "grassland"}, "NONE", "Other", "and 2worm", "Bowl", BirdAction.NONE),
+	BOBOLINK("BOBOLINK", "birds/bobolink.png", 3, 30, 4, new String[] {"grassland"}, "WHITE", "EggLaying", "and 2seed 1worm", "Ground", BirdAction.LAYEGGONALLGROUND),
 	BRANT("BRANT", "temp", 2, 114, 3, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 1any 1seed", "Ground", BirdAction.DRAW3FACEUPBIRD),
-	BREWERS_BLACKBIRD("BREWER'S BLACKBIRD", "temp", 3, 41, 3, new String[] {"grassland"}, "BROWN", "Flocking", "and 1any 1seed", "Bowl", BirdAction.TUCK1BIRDANDLAY1EGG),
-	BROAD_WINGED_HAWK("BROAD WINGED HAWK", "temp", 2, 85, 4, new String[] {"forest"}, "BROWN", "Predator", "and 1rat", "Platform", BirdAction.ROLLDICEANDFINDRAT),
+	BREWERS_BLACKBIRD("BREWER'S BLACKBIRD", "birds/brewer's_blackbird.png", 3, 41, 3, new String[] {"grassland"}, "BROWN", "Flocking", "and 1any 1seed", "Bowl", BirdAction.TUCK1BIRDANDLAY1EGG),
+	BROAD_WINGED_HAWK("BROAD WINGED HAWK", "birds/broad_winged_hawk.png", 2, 85, 4, new String[] {"forest"}, "BROWN", "Predator", "and 1rat", "Platform", BirdAction.ROLLDICEANDFINDRAT),
 	// BRONZED_COWBIRD
 	BROWN_PELICAN("BROWN PELICAN", "birds/brown_pelican.png", 2, 201, 4, new String[] {"wetland"}, "WHITE", "Other", "and 2fish", "Platform", BirdAction.GET3FISH),
 	// BROWN_HEADED_COWBIRD
-	BURROWING_OWL("BURROWING OWL", "temp", 4, 53, 5, new String[] {"grassland"}, "BROWN", "Predator", "and 1rat 1worm", "Wild", BirdAction.ROLLDICEANDFINDRAT),
+	BURROWING_OWL("BURROWING OWL", "birds/burrowing_owl.png", 4, 53, 5, new String[] {"grassland"}, "BROWN", "Predator", "and 1rat 1worm", "Wild", BirdAction.ROLLDICEANDFINDRAT),
 	BUSHTIT("BUSHTIT", "temp", 5, 15, 2, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Flocking", "and 1seed 1worm", "Wild", BirdAction.TUCK1BIRDANDLAY1EGG),
 	CALIFORNIA_CONDOR("CALIFORNIA CONDOR", "temp", 1, 277, 1, new String[] {"forest", "grassland", "wetland"}, "WHITE", "CardDrawing", "and 0any", "Ground", BirdAction.DRAW2BONUSKEEP1),
 	CALIFORNIA_QUAIL("CALIFORNIA QUAIL", "temp", 6, 36, 3, new String[] {"forest", "grassland"}, "BROWN", "EggLaying", "and 2seed 1worm", "Ground", BirdAction.LAYEGGONTHISBIRD),
