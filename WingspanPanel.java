@@ -9,8 +9,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -217,37 +215,32 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     //to be called from back end
     public void clickedStart(RootMouseEvent event, UIElement released)
     {
-        playTransition(() -> {
-            ImageHandler.setGroup("foods/berries.png", "Foods");
-            ImageHandler.setGroup("foods/fish.png", "Foods");
-            ImageHandler.setGroup("foods/rat.png", "Foods");
-            ImageHandler.setGroup("foods/seed.png", "Foods");
-            ImageHandler.setGroup("foods/worm.png", "Foods");
-            ImageHandler.loadGroup("BirdChoiceCards");
-            ImageHandler.loadGroup("Bonus");
-            ImageHandler.loadGroup("Foods");
-            startMenu.visible = false;
-            ImageHandler.clearGroupCache("StartMenu");
-            resourceChoosingScreen.visible = true;
-            resourceChoosingScreen.size = new Dim2().full().dilate(3);
-            startMenu.size = new Dim2(0.5, 0, 0.6, 0);
-            resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
-        });
+        ImageHandler.setGroup("foods/berries.png", "Foods");
+        ImageHandler.setGroup("foods/fish.png", "Foods");
+        ImageHandler.setGroup("foods/rat.png", "Foods");
+        ImageHandler.setGroup("foods/seed.png", "Foods");
+        ImageHandler.setGroup("foods/worm.png", "Foods");
+        ImageHandler.loadGroup("BirdChoiceCards");
+        ImageHandler.loadGroup("Bonus");
+        ImageHandler.loadGroup("Foods");
+        startMenu.visible = false;
+        ImageHandler.clearGroupCache("StartMenu");
+        resourceChoosingScreen.visible = true;
+        resourceChoosingScreen.size = new Dim2().full().dilate(3);
+        startMenu.size = new Dim2(0.5, 0, 0.6, 0);
+        resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
     }
     
     //to be called from back end
     public void clickedResourceContinue(RootMouseEvent event, UIElement released, boolean screenToShow)
     {
-        playTransition((Runnable)() -> 
-        {
-            UIElement.getByName("ChoosableBirdsContainer").visible = screenToShow;
-            UIElement.getByName("ChoosableFoodsContainer").visible = screenToShow;
-            UIElement.getByName("ChoosableBonusesContainer").visible = !screenToShow;
-            
-            UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
-            continueButton.setAttribute("Clickable", false);
-            continueButton.backgroundColor = Color.lightGray;
-        });
+        UIElement.getByName("ChoosableBirdsContainer").visible = screenToShow;
+        UIElement.getByName("ChoosableFoodsContainer").visible = screenToShow;
+        UIElement.getByName("ChoosableBonusesContainer").visible = !screenToShow;
+        
+        UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+        continueButton.setAttribute("Clickable", false);
+        continueButton.backgroundColor = Color.lightGray;
     }
 
     public void animateBird() {

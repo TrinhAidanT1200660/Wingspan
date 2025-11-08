@@ -5,7 +5,7 @@ import java.util.HashSet;
 public enum BonusCard implements BonusCardInterface
 {
 
-    ANATOMIST("anatomist.jpg", (player) -> {
+    ANATOMIST("anatomist.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
         //HashSet of bird ENUMs with body parts in their names
@@ -30,7 +30,7 @@ public enum BonusCard implements BonusCardInterface
     		player.addPoints(7);
     }),
 
-    BACKYARD_BIRDER("backyard_birder.jpg", (player) -> {
+    BACKYARD_BIRDER("backyard_birder.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -55,7 +55,7 @@ public enum BonusCard implements BonusCardInterface
     		player.addPoints(6);
     }),
 
-    BIRD_COUNTER("bird_counter.jpg", (player) -> {
+    BIRD_COUNTER("bird_counter.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -77,7 +77,7 @@ public enum BonusCard implements BonusCardInterface
         player.addPoints(count*2);
     }),
 
-    BIRD_FEEDER("bird_feeder.jpg", (player) -> {
+    BIRD_FEEDER("bird_feeder.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -102,7 +102,7 @@ public enum BonusCard implements BonusCardInterface
             player.addPoints(7);
     }),
 
-    BREEDING_MANAGER("breeding_manager.jpg", (player) -> {
+    BREEDING_MANAGER("breeding_manager.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -124,7 +124,7 @@ public enum BonusCard implements BonusCardInterface
         player.addPoints(count*2);
     }),
 
-    CARTOGRAPHER("cartographer.jpg", (player) -> {
+    CARTOGRAPHER("cartographer.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
         //HashSet of bird ENUMs with places in their names
@@ -151,7 +151,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
     //checks for all birds on board with Ground or Wild nest type, adds 4 points if 4-5 birds or adds 7 points if 6+ birds 
-    ENCLOSURE_BUILDER("enclosure_builder.jpg", (player) -> {
+    ENCLOSURE_BUILDER("enclosure_builder.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -177,7 +177,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    FALCONER("falconer.jpg", (player) -> {
+    FALCONER("falconer.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -200,7 +200,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    FISHERY_MANAGER("fishery_manager.jpg", (player) -> {
+    FISHERY_MANAGER("fishery_manager.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -226,7 +226,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    FOOD_WEB_EXPERT("food_web_expert.jpg", (player) -> {
+    FOOD_WEB_EXPERT("food_web_expert.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -249,7 +249,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    FORESTER("forester.jpg", (player) -> {
+    FORESTER("forester.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -275,7 +275,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    HISTORIAN("historian.jpg", (player) -> {
+    HISTORIAN("historian.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -298,7 +298,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    LARGE_BIRD_SPECIALIST("large_bird_specialist.jpg", (player) -> {
+    LARGE_BIRD_SPECIALIST("large_bird_specialist.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -324,7 +324,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    NEST_BOX_BUILDER("best_box_builder.jpg", (player) -> {
+    NEST_BOX_BUILDER("best_box_builder.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -350,7 +350,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    OMNIVORE_SPECIALIST("omnivore_specialist.jpg", (player) -> {
+    OMNIVORE_SPECIALIST("omnivore_specialist.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -373,7 +373,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    OOLOGIST("oologist.jpg", (player) -> {
+    OOLOGIST("oologist.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -399,7 +399,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    PASSERINE_SPECIALIST("passerine_specialist.jpg", (player) -> {
+    PASSERINE_SPECIALIST("passerine_specialist.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -424,7 +424,7 @@ public enum BonusCard implements BonusCardInterface
             player.addPoints(6);
     }),
 
-    PHOTOGRAPHER("photographer.jpg", (player) -> {
+    PHOTOGRAPHER("photographer.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
         //HashSet of bird ENUMs with color in their names
@@ -449,7 +449,7 @@ public enum BonusCard implements BonusCardInterface
     		player.addPoints(7);
     }),
 
-    PLATFORM_BUILDER("platform_builder.jpg", (player) -> {
+    PLATFORM_BUILDER("platform_builder.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -475,7 +475,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    PRAIRIE_MANAGER("prairie_manager.jpg", (player) -> {
+    PRAIRIE_MANAGER("prairie_manager.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -501,7 +501,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    RODENTOLOGIST("rodentologist.jpg", (player) -> {
+    RODENTOLOGIST("rodentologist.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -524,7 +524,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
     //if player's hand has more than 8 birds, adds 7 points, else if more than 5 birds, adds 4 points 
-    VISIONARY_LEADER("visionary_leader.jpg", (player) -> {
+    VISIONARY_LEADER("visionary_leader.png", (player) -> {
         //gets size of player hand
         int count = player.getBirdHand().size();
         
@@ -536,7 +536,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    VITACULTURALIST("vitaculturalist.jpg", (player) -> {
+    VITACULTURALIST("vitaculturalist.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -562,7 +562,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    WETLAND_SCIENTIST("wetland_scientist.jpg", (player) -> {
+    WETLAND_SCIENTIST("wetland_scientist.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
@@ -588,7 +588,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    WILDLIFE_GARDENER("wildlife_gardener.jpg", (player) -> {
+    WILDLIFE_GARDENER("wildlife_gardener.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
