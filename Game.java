@@ -179,37 +179,32 @@ public class Game {
             Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
             if (ready != null && (boolean)ready) 
             {
-            	if (getSelectionPhase() == 1)
+				boolean screenToShow = getSelectionPhase() == 1;
+            	if (screenToShow)
             	{
             		UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
                     playerChoosingTitle.text = "Player " + getPlayerTurn();
             		giveUIBirds(5);
             	}
-            	panel.clickedResource(event, released);
+
+				UIElement.getByName("ChoosableBirdsContainer").visible = screenToShow;
+                UIElement.getByName("ChoosableFoodsContainer").visible = screenToShow;
+                UIElement.getByName("ChoosableBonusesContainer").visible = !screenToShow;
+			}
+			
+            	panel.clickedResource(event, released, canContinueResources());
             	
-            	playTransition((Runnable)() -> {
-                    if (continueSelection()) {
-                        int screenToShow = getSelectionPhase();
-                        if (screenToShow == 2) {
-                            UIElement.getByName("ChoosableBirdsContainer").visible = false;
-                            UIElement.getByName("ChoosableFoodsContainer").visible = false;
-                            UIElement.getByName("ChoosableBonusesContainer").visible = true;
-                        } 
+            	// panel.playTransition((Runnable)() -> {
+                //     if (continueSelection()) {
+                //         int screenToShow = getSelectionPhase();
+                //    
                         
-                        else if (screenToShow == 1) {
-                            UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
-                            playerChoosingTitle.text = "Player " + getPlayerTurn();
-                            
-                            giveUIBirds(5);
-                            UIElement.getByName("ChoosableBirdsContainer").visible = true;
-                            UIElement.getByName("ChoosableFoodsContainer").visible = true;
-                            UIElement.getByName("ChoosableBonusesContainer").visible = false;
-                        }
-                    }
-                    UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
-                    continueButton.setAttribute("Clickable", false);
-                    continueButton.backgroundColor = Color.lightGray;
-                });
+                //         
+                //     }
+                //     UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+                //     continueButton.setAttribute("Clickable", false);
+                //     continueButton.backgroundColor = Color.lightGray;
+                // });
             	
                 if (getSelectionPhase() == 1) 
                 {
@@ -219,7 +214,6 @@ public class Game {
                 }
             }
         }
-    }
 
 	public void giveUIBonus(int num)
 	{
