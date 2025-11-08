@@ -1,4 +1,3 @@
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
@@ -179,6 +178,7 @@ public class Game {
             Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
             if (ready != null && (boolean)ready) 
             {
+				selectionPhase = (selectionPhase % 2) + 1;
         		panel.clickedResourceContinue(event, released, canContinueResources());
             	
                 if (getSelectionPhase() == 1) 
