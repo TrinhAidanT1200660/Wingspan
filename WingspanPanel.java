@@ -207,7 +207,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     //to be called from back end
-    public void clickedResourceContinue(RootMouseEvent event, UIElement released)
+    public void clickedResource(RootMouseEvent event, UIElement released)
     {
         playTransition((Runnable)() -> {
             if (currentGame.continueSelection()) 
@@ -245,31 +245,29 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     }
     
     //to be called from back end
-    public void clickedResource(RootMouseEvent event, UIElement released, boolean canContinue)
+    public void clickedResourceContinue(RootMouseEvent event, UIElement released, boolean screenToShow)
     {
-        panel.playTransition((Runnable)() -> {
-                    if (continueSelection()) {
-                        int screenToShow = getSelectionPhase();
-                        if (screenToShow == 2) {
-                            UIElement.getByName("ChoosableBirdsContainer").visible = false;
-                            UIElement.getByName("ChoosableFoodsContainer").visible = false;
-                            UIElement.getByName("ChoosableBonusesContainer").visible = true;
-                        } 
-                        
-                        else if (screenToShow == 1) {
-                            UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
-                            playerChoosingTitle.text = "Player " + getPlayerTurn();
-                            
-                            giveUIBirds(5);
-                            UIElement.getByName("ChoosableBirdsContainer").visible = true;
-                            UIElement.getByName("ChoosableFoodsContainer").visible = true;
-                            UIElement.getByName("ChoosableBonusesContainer").visible = false;
-                        }
-                    }
-                    UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
-                    continueButton.setAttribute("Clickable", false);
-                    continueButton.backgroundColor = Color.lightGray;
-                });
+        playTransition((Runnable)() -> 
+        {
+            if (continueSelection()) {
+                    UIElement.getByName("ChoosableBirdsContainer").visible = screenToShow;
+                    UIElement.getByName("ChoosableFoodsContainer").visible = screenToShow;
+                    UIElement.getByName("ChoosableBonusesContainer").visible = !screenToShow;
+                
+                else if (screenToShow == 1) {
+                    UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
+                    playerChoosingTitle.text = "Player " + getPlayerTurn();
+                    
+                    giveUIBirds(5);
+                    UIElement.getByName("ChoosableBirdsContainer").visible = true;
+                    UIElement.getByName("ChoosableFoodsContainer").visible = true;
+                    UIElement.getByName("ChoosableBonusesContainer").visible = false;
+                }
+            }
+            UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+            continueButton.setAttribute("Clickable", false);
+            continueButton.backgroundColor = Color.lightGray;
+        });
                 
         UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
     	continueButton.setAttribute("Clickable", canContinue);
