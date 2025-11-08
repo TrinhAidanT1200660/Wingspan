@@ -207,20 +207,11 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     //to be called from back end
-    public void clickedResource(RootMouseEvent event, UIElement released)
+    public void clickedResource(RootMouseEvent event, UIElement released, boolean canContinue)
     {
-        playTransition((Runnable)() -> {
-            if (currentGame.continueSelection()) 
-			{
-				UIElement.getByName("ChoosableBirdsContainer").visible = true;
-				UIElement.getByName("ChoosableFoodsContainer").visible = true;
-				UIElement.getByName("ChoosableBonusesContainer").visible = false;
-            }
-
-            UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
-            continueButton.setAttribute("Clickable", false);
-            continueButton.backgroundColor = Color.lightGray;
-        });
+        UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+        continueButton.setAttribute("Clickable", canContinue);
+        continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray;
     }
 
     //to be called from back end
@@ -249,29 +240,14 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     {
         playTransition((Runnable)() -> 
         {
-            if (continueSelection()) {
-                    UIElement.getByName("ChoosableBirdsContainer").visible = screenToShow;
-                    UIElement.getByName("ChoosableFoodsContainer").visible = screenToShow;
-                    UIElement.getByName("ChoosableBonusesContainer").visible = !screenToShow;
-                
-                else if (screenToShow == 1) {
-                    UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
-                    playerChoosingTitle.text = "Player " + getPlayerTurn();
-                    
-                    giveUIBirds(5);
-                    UIElement.getByName("ChoosableBirdsContainer").visible = true;
-                    UIElement.getByName("ChoosableFoodsContainer").visible = true;
-                    UIElement.getByName("ChoosableBonusesContainer").visible = false;
-                }
-            }
+            UIElement.getByName("ChoosableBirdsContainer").visible = screenToShow;
+            UIElement.getByName("ChoosableFoodsContainer").visible = screenToShow;
+            UIElement.getByName("ChoosableBonusesContainer").visible = !screenToShow;
+            
             UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
             continueButton.setAttribute("Clickable", false);
             continueButton.backgroundColor = Color.lightGray;
         });
-                
-        UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
-    	continueButton.setAttribute("Clickable", canContinue);
-        continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray;
     }
 
     public void animateBird() {
