@@ -309,8 +309,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         blackBackground.backgroundColor = Color.black;
 
         UIImage backgroundFrame = new UIImage("Background", this); // background image of the sky
-        backgroundFrame.setImagePath("images/wingspan_background.png"); // setting the picture to the BufferedImage of the
-        // sky
+        backgroundFrame.setImagePath("images/wingspan_background.png"); // setting the picture to the BufferedImage of the sky
         backgroundFrame.size.full(); // take 100% of the screen
         backgroundFrame.backgroundTransparency = 0f; // no background color
         backgroundFrame.setImageFillType(UIImage.CROP_IMAGE); // setting it so even if screen is an awkward size the
@@ -484,11 +483,11 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         birdSprite.backgroundTransparency = 0f;
         birdSprite.position.bottomRight();
         birdSprite.anchorPoint = new Vector2(1, 1);
-        birdSprite.setSpriteSheet(167, 181);
         birdSprite.setParent(transition);
-        birdSprite.playSpriteAnimation(0.08, true);
         birdSprite.setImagePath("images/bird_anim.png");
         birdSprite.setImageFillType(UIImage.SPRITE_ANIMATION);
+        birdSprite.setSpriteSheet(167, 181);
+        birdSprite.playSpriteAnimation(0.08, true);
 
         loadingTitle = new UIText("LoadingTitle", this);
         loadingTitle.backgroundTransparency = 0f;

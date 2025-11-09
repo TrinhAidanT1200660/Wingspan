@@ -26,6 +26,7 @@ public class Game {
 		this.selected = new TreeSet<>();
 		this.selectionPhase = 1;
 		this.isCompetitive = isCompetitive;
+		// create 5 players
         for (int i = 0; i < 5; ++i) {
             playerList.add(new Player());
         }

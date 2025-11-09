@@ -1531,13 +1531,18 @@ class UIImage extends UIElement {
         return imagePath;
     }
 
-    protected void drawCustom(Graphics2D g2d) {
-        // draw image if there is one set
+    public BufferedImage handleDirtyPath() {
         if (dirtyImagePath) {
             dirtyImagePath = false;
             image = ImageHandler.get(imagePath);
             toDraw = image;
         }
+        return image;
+    }
+
+    protected void drawCustom(Graphics2D g2d) {
+        // draw image if there is one set
+        handleDirtyPath();
         if (dirtyBrightness) {
             dirtyBrightness = false;
             toDraw = updateBrightness();
@@ -1649,6 +1654,7 @@ class UIImage extends UIElement {
     }
 
     public void setSpriteSheet(int frameWidth, int frameHeight) {
+        image = handleDirtyPath();
         if (image == null) {
             return;
         }
