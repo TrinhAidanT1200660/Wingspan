@@ -32,10 +32,12 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     public void addNotify() {
         super.addNotify();
         loadResources();
+        repaint();
         ImageHandler.loadGroup("StartMenu", () -> {
             Timer t = new Timer(1000, (e) -> {
                 UIElement.getByName("ResourceChoosingScreen").visible = false;
                 loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
+                ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
                     transition.visible = false;
                 });
@@ -52,9 +54,11 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         transition.backgroundTransparency = 0f;
         loadingTitle.textTransparency = 0f;
         loadingTitle.tweenTextTransparency(1f, 0.4, Tween.QUAD_IN_OUT);
+        ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(1f, 0.4, Tween.QUAD_IN_OUT);
         transition.tweenBackgroundTransparency(1f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
             if (between != null) between.run();
             loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
+            ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
             transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> { 
                 transition.visible = false;
             });
@@ -479,25 +483,40 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         transition.anchorPoint.center();
         transition.backgroundColor = Color.BLACK;
 
+        UIFrame transitionContainer = new UIFrame("TransitionContainer", this);
+        transitionContainer.backgroundTransparency = 0f;
+        transitionContainer.size = new Dim2(0.3, 0, 0.1, 0);
+        transitionContainer.anchorPoint.center();
+        transitionContainer.position.center();
+        transitionContainer.keepAspectRatio = true;
+        transitionContainer.setParent(transition);
+
+        UIFrame birdSpriteContainer = new UIFrame("BirdSpriteContainer", this);
+        birdSpriteContainer.size = new Dim2(0.2, 0, 1, 0);
+        birdSpriteContainer.position = new Dim2(0.05, 0, 0, 0);
+        birdSpriteContainer.backgroundTransparency = 0f;
+        birdSpriteContainer.setParent(transitionContainer);
+
         UIImage birdSprite = new UIImage("BirdSprite", this);
+        birdSprite.size.full();
+        birdSprite.anchorPoint.center();
+        birdSprite.position.center();
+        birdSprite.rotation = -30;
         birdSprite.backgroundTransparency = 0f;
-        birdSprite.position.bottomRight();
-        birdSprite.anchorPoint = new Vector2(1, 1);
-        birdSprite.setParent(transition);
-        birdSprite.setImagePath("images/bird_anim.png");
+        birdSprite.setParent(birdSpriteContainer);
+        birdSprite.setImagePath("images/bird_flying.png");
         birdSprite.setImageFillType(UIImage.SPRITE_ANIMATION);
-        birdSprite.setSpriteSheet(167, 181);
-        birdSprite.playSpriteAnimation(0.08, true);
+        birdSprite.setSpriteSheet(640, 640);
+        birdSprite.playSpriteAnimation(0.1, true);
 
         loadingTitle = new UIText("LoadingTitle", this);
         loadingTitle.backgroundTransparency = 0f;
         loadingTitle.textColor = Color.white;
         loadingTitle.textScaled = true;
-        loadingTitle.size = new Dim2(0.2, 0, 0.15, 0);
-        loadingTitle.position.center();
-        loadingTitle.anchorPoint.center();
+        loadingTitle.position = new Dim2(0.27, 0, 0, 0);
+        loadingTitle.size = new Dim2(0.6, 0, 1, 0);
         loadingTitle.text = "WINGSPAN";
-        loadingTitle.setParent(transition);
+        loadingTitle.setParent(transitionContainer);
 
         // next screen
         resourceChoosingScreen = new UIFrame("ResourceChoosingScreen", this); // invisible frame holding player choosing stuff
