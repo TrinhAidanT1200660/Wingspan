@@ -44,7 +44,7 @@ public enum Bird
 	// BARROWS_GOLDENEYE "birds/barrow's_goldeneye.png"
 	BELLS_VIREO("BELL'S VIREO", "temp", 2, 18, 4, new String[] {"forest", "grassland"}, "WHITE", "CardDrawing", "and 2worm", "Wild", BirdAction.DRAW2BONUSKEEP1),
 	// BELTED_KINGFISHER
-	BEWICKS_WREN("BEWICK'S WREN", "temp", 3, 18, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1seed 2worm", "Cavity", BirdAction.MOVEIFATVERYRIGHT),
+	BEWICKS_WREN("BEWICK'S WREN", "birds/bewick's_wren.png", 3, 18, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1seed 2worm", "Cavity", BirdAction.MOVEIFATVERYRIGHT),
 	// BLACK_TERN
 	// BLACK_VULTURE
 	BLACK_BELLIED_WHISTLING_DUCK("BLACK BELLIED WHISTLING DUCK", "birds/black-bellied_whistling_duck.png", 5, 76, 2, new String[] {"wetland"}, "BROWN", "Flocking", "and 2seed", "Cavity", BirdAction.DISCARDSEEDANDTUCK2BIRDS),

@@ -9,7 +9,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -20,6 +19,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     private UIImage loadingBird;
 
     public WingspanPanel() {
+        currentGame = new Game(this);
         initializeUI();
         // necessary for all our GUI, you can just ignore this
         root = UIElement.getRootForPanel(this);
@@ -109,90 +109,10 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         RootMouseEvent event = root.handleRelease(e);
         UIElement released = event.getElement(); // tells us what button was pressed on and then released on (so full
         // click)
-
-        if (released != null) { // if we actually pressed and released something
+        if (released != null && released.containsPoint(e.getX(), e.getY())) { // if we actually pressed and released something
             // we can do whatever with the button that was fully clicked here...
-            if (released.containsPoint(e.getX(), e.getY())) {
-                if (released.getAttribute("startButton") != null) { // if its a start button, we can start game here
-                    startMenu.tweenSize(new Dim2(1.5, 0, 1.8, 0), 0.5, Tween.QUAD_IN_OUT); // zoom in the main menu stuff by 3x
-                    currentGame = new Game(released == UIElement.getByName("CompetitiveButtonBg"));
-                    playTransition(() -> {
-                        ArrayList<Bird> randomBirds = currentGame.pullRandomBirds(5);
-                        for (int i = 0; i < randomBirds.size(); i++) {
-                            String imageFileString = randomBirds.get(i).getImage();
-                            ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
-                            UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i));
-                            birdImage.setAttribute("selectionValue", randomBirds.get(i));
-                            birdImage.setImagePath(imageFileString);
-                        }
-                        ImageHandler.setGroup("foods/berries.png", "Foods");
-                        ImageHandler.setGroup("foods/fish.png", "Foods");
-                        ImageHandler.setGroup("foods/rat.png", "Foods");
-                        ImageHandler.setGroup("foods/seed.png", "Foods");
-                        ImageHandler.setGroup("foods/worm.png", "Foods");
-                        ImageHandler.loadGroup("BirdChoiceCards");
-                        ImageHandler.loadGroup("Foods");
-                        startMenu.visible = false;
-                        ImageHandler.clearGroupCache("StartMenu");
-                        resourceChoosingScreen.visible = true;
-                        resourceChoosingScreen.size = new Dim2().full().dilate(3);
-                        startMenu.size = new Dim2(0.5, 0, 0.6, 0);
-                        resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
-                    });
-                } else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null) {
-                    currentGame.toggleSelect(released);
-                    boolean canContinue = currentGame.canContinueResources();
-                    UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
-                    continueButton.setAttribute("Clickable", canContinue);
-                    continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray;
-                }
-
-                // resources screen
-                if (released == UIElement.getByName("ContinueResourcesButtonBg")) {
-                    Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
-                    if (ready != null && (boolean)ready) {
-                        playTransition((Runnable)() -> {
-                            boolean continued = currentGame.continueSelection();
-                            if (continued) {
-                                int screenToShow = currentGame.getSelectionPhase();
-                                if (screenToShow == 2) {
-                                    ArrayList<BonusCard> cards = currentGame.pullRandomBonusCards(2);
-                                    BonusCard firstBonus = cards.get(0);
-                                    BonusCard secondBonus = cards.get(1);
-                                    ImageHandler.setGroup("bonus/back_of_bonus.png", "Bonus");
-                                    ImageHandler.loadGroup("Bonus");
-                                    for (int i = 0; i < 2; i++) {
-                                        UIImage bonusImage = (UIImage)(UIElement.getByName("Bonus" + i));
-                                        bonusImage.setAttribute("selectionValue", cards.get(i));
-                                        bonusImage.setImagePath("bonus/back_of_bonus.png");
-                                    }
-                                    UIElement.getByName("ChoosableBirdsContainer").visible = false;
-                                    UIElement.getByName("ChoosableFoodsContainer").visible = false;
-                                    UIElement.getByName("ChoosableBonusesContainer").visible = true;
-                                } else if (screenToShow == 1) {
-                                    int currentTurn = currentGame.getPlayerTurn();
-                                    ArrayList<Bird> randomBirds = currentGame.pullRandomBirds(5);
-                                    UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
-                                    playerChoosingTitle.text = "Player " + currentTurn;
-                                    for (int i = 0; i < randomBirds.size(); i++) {
-                                        String imageFileString = randomBirds.get(i).getImage();
-                                        ImageHandler.setGroup(imageFileString, "BirdChoiceCards");
-                                        UIImage birdImage = (UIImage)(UIElement.getByName("Bird" + i));
-                                        birdImage.setAttribute("selectionValue", randomBirds.get(i));
-                                        birdImage.setImagePath(imageFileString);
-                                    }
-                                    UIElement.getByName("ChoosableBirdsContainer").visible = true;
-                                    UIElement.getByName("ChoosableFoodsContainer").visible = true;
-                                    UIElement.getByName("ChoosableBonusesContainer").visible = false;
-                                }
-                            }
-                            UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
-                            continueButton.setAttribute("Clickable", false);
-                            continueButton.backgroundColor = Color.lightGray;
-                        });
-                    }
-                }
-            }
+            currentGame.UIMouseReleased(event, released);
+            
             Object hasAnimOnPress = released.getAttribute("animOnPress"); // check if the element wants to be animated when pressed
             if (hasAnimOnPress != null) { // if so
                 UIElement drop = (UIElement) hasAnimOnPress;
@@ -200,12 +120,12 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
             }
 
             Object hasPressCover = released.getAttribute("pressCover"); // check if element wants to slightly dim when pressed
-            if (hasPressCover != null) { // if so
+            if (released.getAttribute("pressCover") != null) { // if so
                 UIFrame pressCover = (UIFrame) hasPressCover;
                 pressCover.tweenBackgroundTransparency(0f, 0.075, Tween.QUAD_IN_OUT); // fade it out so u cant see it anymore
             }
-        }
 
+        }
         mouseMoved(e);
     }
 
@@ -282,6 +202,45 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mouseDragged(MouseEvent e) {
+    }
+
+    //to be called from back end
+    public void clickedResource(RootMouseEvent event, UIElement released, boolean canContinue)
+    {
+        UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+        continueButton.setAttribute("Clickable", canContinue);
+        continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray;
+    }
+
+    //to be called from back end
+    public void clickedStart(RootMouseEvent event, UIElement released)
+    {
+        ImageHandler.setGroup("foods/berries.png", "Foods");
+        ImageHandler.setGroup("foods/fish.png", "Foods");
+        ImageHandler.setGroup("foods/rat.png", "Foods");
+        ImageHandler.setGroup("foods/seed.png", "Foods");
+        ImageHandler.setGroup("foods/worm.png", "Foods");
+        ImageHandler.loadGroup("BirdChoiceCards");
+        ImageHandler.loadGroup("Bonus");
+        ImageHandler.loadGroup("Foods");
+        startMenu.visible = false;
+        ImageHandler.clearGroupCache("StartMenu");
+        resourceChoosingScreen.visible = true;
+        resourceChoosingScreen.size = new Dim2().full().dilate(3);
+        startMenu.size = new Dim2(0.5, 0, 0.6, 0);
+        resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
+    }
+    
+    //to be called from back end
+    public void clickedResourceContinue(RootMouseEvent event, UIElement released, boolean screenToShow)
+    {
+        UIElement.getByName("ChoosableBirdsContainer").visible = screenToShow;
+        UIElement.getByName("ChoosableFoodsContainer").visible = screenToShow;
+        UIElement.getByName("ChoosableBonusesContainer").visible = !screenToShow;
+        
+        UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
+        continueButton.setAttribute("Clickable", false);
+        continueButton.backgroundColor = Color.lightGray;
     }
 
     public void animateBird() {
