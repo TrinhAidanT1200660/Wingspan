@@ -716,6 +716,25 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         createFoodChoice("Worm");
         createFoodChoice("Seed");
         createFoodChoice("Rat");
+
+        UIFrame popupBackground = new UIFrame("PopupBackground", this);
+        popupBackground.backgroundColor = Color.black;
+        popupBackground.backgroundTransparency = 0.5f;
+        popupBackground.size.full();
+        popupBackground.position.center();
+        popupBackground.anchorPoint.center();
+        popupBackground.setZIndex(100);
+        
+        UIFrame popupContainer = new UIFrame("PopupContainer", this);
+        popupContainer.borderRadius = new Dim(0.07, 0);
+        popupContainer.strokeColor = Color.lightGray;
+        popupContainer.strokeTransparency = 1f;
+        popupContainer.strokeThickness = new Dim(0.005, 0);
+        popupContainer.setParent(popupBackground);
+        popupContainer.position.center();
+        popupContainer.anchorPoint.center();
+        popupContainer.keepAspectRatio = true;
+        popupContainer.size = new Dim2(0.6, 0, 0.4, 0);
     }
 
     public void createFoodChoice(String foodName) {
@@ -779,6 +798,10 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
 
     public void animDropshadow(UIElement element, UIElement toAnimate) {
         element.setAttribute("drop", toAnimate);
+    }
+
+    public void promptPlayer(String question, String option1, String option2, Runnable callback) {
+
     }
 }
 
