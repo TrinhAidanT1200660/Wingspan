@@ -146,7 +146,7 @@ public enum Bird
 	PROTHONOTARY_WARBLER("PROTHONOTARY WARBLER", "birds/prothonotary_warbler.png", 4, 23, 8, new String[] {"forest", "wetland"}, "NONE", "Other", "and 1seed 2worm", "Cavity", BirdAction.NONE),
 	PURPLE_GALLINULE("PURPLE GALLINULE", "birds/purple_gallinule.png", 4, 56, 7, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1any 1berry 1seed", "Platform", BirdAction.ALLDRAW1BIRD),
 	PURPLE_MARTIN("PURPLE MARTIN", "birds/purple_martin.png", 3, 46, 2, new String[] {"grassland", "wetland"}, "BROWN", "Flocking", "and 1worm", "Cavity", BirdAction.TUCK1BIRDANDDRAW1BIRD),
-	PYGMY_NUTHATCH("PYGMY NUTHATCH", "temp", 4, 20, 2, new String[] {"forest"}, "BROWN", "Flocking", "and 1seed 1worm", "Cavity", BirdAction.TUCK1BIRDANDGET1SEEDORWORM),
+	PYGMY_NUTHATCH("PYGMY NUTHATCH", "birds/pygmy_nuthatch.png", 4, 20, 2, new String[] {"forest"}, "BROWN", "Flocking", "and 1seed 1worm", "Cavity", BirdAction.TUCK1BIRDANDGET1SEEDORWORM),
 	RED_CROSSBILL("RED CROSSBILL", "temp", 2, 28, 6, new String[] {"forest"}, "BROWN", "Other", "and 2seed", "Bowl", BirdAction.ALLGET1SEED),
 	RED_BELLIED_WOODPECKER("RED BELLIED WOODPECKER", "temp", 3, 41, 1, new String[] {"forest"}, "BROWN", "Other", "or 1seed 1worm", "Cavity", BirdAction.GAIN1SEEDANDCACHE),
 	// RED_BREASTED_MERGANSER
