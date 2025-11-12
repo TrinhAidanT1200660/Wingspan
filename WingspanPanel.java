@@ -724,6 +724,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         popupBackground.position.center();
         popupBackground.anchorPoint.center();
         popupBackground.setZIndex(100);
+        popupBackground.visible = false;
         
         UIFrame popupContainer = new UIFrame("PopupContainer", this);
         popupContainer.borderRadius = new Dim(0.07, 0);

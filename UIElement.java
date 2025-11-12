@@ -1686,7 +1686,7 @@ class UIText extends UIElement {
 
     public String fontName = defaultFontName;
     public int fontStyle = Font.PLAIN;
-    public int fontSize = 30;
+    public int fontSize = 1;
     public float textTransparency = 1f;
     public Color textColor = Color.black;
     public String text = "Text";
@@ -1695,6 +1695,7 @@ class UIText extends UIElement {
     public Dim textStrokeThickness = new Dim();
     public int absoluteTextStrokeThickness = 0;
     public boolean textScaled = false;
+    public boolean textWrapped = false;
 
     public static int LEFT = 0;
     public static int CENTER = 1;
@@ -1717,59 +1718,94 @@ class UIText extends UIElement {
 
     protected void drawCustom(Graphics2D g2d) {
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        float x = (float) absolutePosition.getX();
-        float y = (float) absolutePosition.getY();
+
+        if (textScaled) textWrapped = true; // you need text wrapped for text scaled so it always fits in the container
+
         Font font = new Font(fontName, fontStyle, fontSize);
+        g2d.setFont(font);
+        FontMetrics fm = g2d.getFontMetrics();
+
+        ArrayList<String> lines = new ArrayList<>();
+        if (textWrapped) {
+            lines = wrapText(g2d);
+        } else {
+            lines.add(text);
+        }
 
         double width = absoluteSize.getX();
         double height = absoluteSize.getY();
 
+        // so we gotta find the maximum possible size it can be to fit in the container
         if (textScaled) {
-            FontMetrics fm = g2d.getFontMetrics(font);
-            int textWidth = fm.stringWidth(text); // calculate how much width the text takes
-            int textHeight = fm.getHeight(); // calcualte how much height the text takes
-            double scaleX = (double) width / textWidth; // ratio between container width and text width
-            double scaleY = (double) height / textHeight; // ratio between container height and text height 
-            double scale = Math.min(scaleX, scaleY); // pick whichever ratio is smaller so we can make that the text size
-            int newSize = Math.max(1, (int) (fontSize * scale));
-            font = new Font(fontName, fontStyle, newSize); // set the text size
+            int newSize = fontSize;
+            double textHeight = lines.size() * fm.getHeight();
+            double maxLineWidth = 0;
+            for (String line : lines) {
+                maxLineWidth = Math.max(maxLineWidth, fm.stringWidth(line)); // get the width of the longest line
+            }
+
+            while ((textHeight > height || maxLineWidth > width) && newSize > 1) { // so basically while the text is too tall or too wide for the container and the font size isnt 0
+                newSize--; // decrease font size
+                font = new Font(fontName, fontStyle, newSize);
+                g2d.setFont(font);
+                fm = g2d.getFontMetrics();
+                lines = wrapText(g2d);
+                textHeight = lines.size() * fm.getHeight();
+            }
         }
 
-        g2d.setFont(font);
+        float totalTextHeight = (float)lines.size() * fm.getHeight();
+        float startY = (float)absolutePosition.getY();
 
+        if (verticialAlignment == MIDDLE) startY += (height - totalTextHeight) / 2 + fm.getAscent(); else if (verticialAlignment == BOTTOM) startY += height - totalTextHeight + fm.getAscent(); else startY += fm.getAscent();
+
+        for (String line : lines) {
+            float textWidth = fm.stringWidth(line);
+            float x = (float) absolutePosition.getX();
+
+            if (horizontalAlignment == CENTER)
+                x += (width - textWidth) / 2;
+            else if (horizontalAlignment == RIGHT)
+                x += width - textWidth;
+
+            if (textStrokeTransparency > 0) {
+                FontRenderContext frc = g2d.getFontRenderContext();
+                GlyphVector gv = g2d.getFont().createGlyphVector(frc, line);
+                Shape outline = gv.getOutline(x, startY);
+                g2d.setColor(textStrokeColor);
+                g2d.setStroke(new BasicStroke((float) absoluteTextStrokeThickness));
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(textStrokeTransparency, 1f))));
+                g2d.draw(outline);
+            }
+
+            if (textTransparency > 0) {
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(textTransparency, 1f))));
+                g2d.setColor(textColor);
+                g2d.drawString(line, x, startY);
+            }
+
+            startY += fm.getHeight();
+        }
+    }
+
+    private ArrayList<String> wrapText(Graphics2D g2d) {
+        ArrayList<String> lines = new ArrayList<>();
         FontMetrics fm = g2d.getFontMetrics();
+        String[] words = text.split(" "); // splits ENTIRE text into words
+        String line = ""; // temporary string thats gonna hold the current line we're building. once we're done with it and its longer than the container width, we add it to lines arraylist and start a new line
 
-        float textAscent = fm.getAscent();
-        float textDescent = fm.getDescent();
-        float textWidth = fm.stringWidth(text);
-
-        y += fm.getAscent();
-
-        if (horizontalAlignment == CENTER) {
-            x += ((int) width - textWidth) / 2;
-        } else if (horizontalAlignment == RIGHT) {
-            x += (int) width - textWidth;
+        for (String word : words) { // looping thru all the words
+            String wholeLine = line.length() == 0 ? word : line + " " + word; // if line is empty, then wholeLine is just the word; else wholeLine is line + space + word
+            int lineWidth = fm.stringWidth(wholeLine); // get the width of the wholeLine if we added this word to it
+            if (lineWidth > absoluteSize.getX() && line.length() > 0) { // if the wholeLine is wider than the container width AND line is not empty
+                lines.add(line); // then we add the current line to lines arraylist (wihtout the new word)
+                line = word; // start the next line with the word that we couldnt add
+            } else {
+                line = wholeLine; // if it still fits then we just update line to wholeLine
+            }
         }
-
-        if (verticialAlignment == MIDDLE) {
-            y += -textAscent + ((float) height / 2) + ((textAscent - textDescent) / 2);
-        } else if (verticialAlignment == BOTTOM) {
-            y += (int) height - textDescent;
-        }
-        if (textStrokeTransparency > 0) {
-            FontRenderContext frc = g2d.getFontRenderContext();
-            GlyphVector gv = font.createGlyphVector(frc, text);
-            Shape outline = gv.getOutline(x, y);
-            g2d.setColor(textStrokeColor);
-            g2d.setStroke(new BasicStroke((float) absoluteTextStrokeThickness)); // set border thickness
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(textStrokeTransparency, 1f))));
-            g2d.draw(outline);
-        }
-        if (textTransparency > 0) {
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(textTransparency, 1f))));
-            g2d.setColor(textColor);
-            g2d.drawString(text, x, y);
-        }
+        if (line.length() > 0) lines.add(line); // if there's any remaining text in line after the loop then add it as well
+        return lines;
     }
 
     public Tween tweenTextTransparency(float endTextTransparency, double time) {
