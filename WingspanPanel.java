@@ -15,9 +15,8 @@ import javax.swing.Timer;
 
 public class WingspanPanel extends JPanel implements MouseListener, MouseMotionListener {
     public Game currentGame;
-    private UIElement root, transition, startMenu, resourceChoosingScreen, birdContainer;
+    private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, birdContainer;
     private UIText loadingTitle;
-    private UIImage loadingBird;
 
     public WingspanPanel() {
         initializeUI();
@@ -35,7 +34,8 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         repaint();
         ImageHandler.loadGroup("StartMenu", () -> {
             Timer t = new Timer(1000, (e) -> {
-                UIElement.getByName("ResourceChoosingScreen").visible = false;
+                resourceChoosingScreen.visible = false;
+                gameScreen.visible = false;
                 loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
@@ -507,7 +507,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         birdSprite.setImagePath("images/bird_flying.png");
         birdSprite.setImageFillType(UIImage.SPRITE_ANIMATION);
         birdSprite.setSpriteSheet(640, 640);
-        birdSprite.playSpriteAnimation(0.1, true);
+        birdSprite.playSpriteAnimation(0.08, true);
 
         loadingTitle = new UIText("LoadingTitle", this);
         loadingTitle.backgroundTransparency = 0f;
@@ -710,6 +710,13 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         foodChoicesLayout.horizontalAlignment = ListLayout.LEFT;
         foodChoicesLayout.spacing = new Dim(0.005, 0);
         choosableFoodsContainer.layout = foodChoicesLayout;
+
+        gameScreen = new UIFrame("GameScreen", this); // invisible frame for the game
+        gameScreen.anchorPoint.center(); // centered anchor point
+        gameScreen.position.center(); // center in middle
+        gameScreen.size.full(); // entire screen
+        gameScreen.keepAspectRatio = true;
+        gameScreen.backgroundTransparency = 0; // invisible
 
         createFoodChoice("Berries");
         createFoodChoice("Fish");

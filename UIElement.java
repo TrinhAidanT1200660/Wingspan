@@ -1686,7 +1686,7 @@ class UIText extends UIElement {
 
     public String fontName = defaultFontName;
     public int fontStyle = Font.PLAIN;
-    public int fontSize = 1;
+    public int fontSize = 200;
     public float textTransparency = 1f;
     public Color textColor = Color.black;
     public String text = "Text";
@@ -1696,6 +1696,8 @@ class UIText extends UIElement {
     public int absoluteTextStrokeThickness = 0;
     public boolean textScaled = false;
     public boolean textWrapped = false;
+    private boolean textDirty = true;
+    private Vector2 oldAbsSize = new Vector2();
 
     public static int LEFT = 0;
     public static int CENTER = 1;
@@ -1735,23 +1737,32 @@ class UIText extends UIElement {
         double width = absoluteSize.getX();
         double height = absoluteSize.getY();
 
+        textDirty = !(oldAbsSize.getX() == absoluteSize.getX() && oldAbsSize.getY() == absoluteSize.getY());
+        oldAbsSize = new Vector2(absoluteSize.getX(), absoluteSize.getY());
+
         // so we gotta find the maximum possible size it can be to fit in the container
-        if (textScaled) {
-            int newSize = fontSize;
+        if (textScaled && !textDirty) {
             double textHeight = lines.size() * fm.getHeight();
             double maxLineWidth = 0;
+            int newSize = 1;
             for (String line : lines) {
                 maxLineWidth = Math.max(maxLineWidth, fm.stringWidth(line)); // get the width of the longest line
+                newSize = (int)(maxLineWidth / line.length());
             }
 
             while ((textHeight > height || maxLineWidth > width) && newSize > 1) { // so basically while the text is too tall or too wide for the container and the font size isnt 0
-                newSize--; // decrease font size
+                newSize--;
                 font = new Font(fontName, fontStyle, newSize);
                 g2d.setFont(font);
                 fm = g2d.getFontMetrics();
                 lines = wrapText(g2d);
                 textHeight = lines.size() * fm.getHeight();
+                maxLineWidth = 0;
+                for (String line : lines) {
+                    maxLineWidth = Math.max(maxLineWidth, fm.stringWidth(line)); // get the width of the longest line
+                }
             }
+            textDirty = false;
         }
 
         float totalTextHeight = (float)lines.size() * fm.getHeight();
