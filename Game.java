@@ -159,6 +159,15 @@ public class Game {
 
 	public void UIMouseReleased(RootMouseEvent event, UIElement released)
 	{
+		if (gamePhase == 0)
+			releasedPhase0(event, released);
+		if (gamePhase == 1)
+			releasedPhase1(event, released);
+	}
+	
+	
+	public void releasedPhase0(RootMouseEvent event, UIElement released)
+	{
         if (released.getAttribute("startButton") != null)
 		{
 			panel.playTransition((Runnable)() -> {
@@ -167,15 +176,18 @@ public class Game {
 				panel.clickedStart(event, released);
 			});
     	} 
-
-        else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null)
+	}
+	
+	public void releasedPhase1(RootMouseEvent event, UIElement released)
+	{
+        if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null)
 		{
         	toggleSelect(released);
 			panel.clickedResource(event, released, canContinueResources());
             
         }
 
-		if (released == UIElement.getByName("ContinueResourcesButtonBg")) 
+        else if (released == UIElement.getByName("ContinueResourcesButtonBg")) 
 		{
             Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
             if (ready != null && (boolean)ready) 
@@ -215,6 +227,14 @@ public class Game {
 				});
             }
         }
+	}
+	
+	public void releasedPhase2(RootMouseEvent event, UIElement released)
+	{
+		if (released == UIElement.getByName(""))
+		{
+			
+		}
 	}
 
 	public void giveUIBonus(int num)
