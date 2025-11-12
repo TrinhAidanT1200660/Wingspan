@@ -38,7 +38,7 @@ public class Game {
 
 	// Simulates rolling the birdFeeder to generate 5 random food dies
 	public void rollBirdFeeder() {
-		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
+		final String[] foods = {"berry", "fish", "rat", "seed", "worm", "seed/worm"};
 		ArrayList<String> rolledFoods = new ArrayList<>();
 		for(int i = 0; i < 5; ++i)
 		{
@@ -147,6 +147,12 @@ public class Game {
 				birdFeeder.remove(food);
 				atLeast1Grabbed = true;
 			}
+			else if((food.equals("seed") || food.equals("worm")) && birdFeeder.contains("seed/worm"))
+			{
+				player.addFood(food, 1);
+				birdFeeder.remove("seed/worm");
+				atLeast1Grabbed = true;
+			}
 		}
 		return atLeast1Grabbed;
 	}
@@ -155,6 +161,16 @@ public class Game {
 	public ArrayList<String> getBirdFeeder()
 	{
 		return birdFeeder;
+	}
+
+	// returns a boolean that says whether or not the birdFeeder is eligible for reroll
+	public boolean birdFeederEligibleForReroll()
+	{
+		for(int i = 0; i < birdFeeder.size() - 1; i++) // auto checks if there's one; no need to manually check
+			if(!birdFeeder.get(i).equals(birdFeeder.get(i+1)))
+				return false;
+
+		return true;
 	}
 
 	public void UIMouseReleased(RootMouseEvent event, UIElement released)
