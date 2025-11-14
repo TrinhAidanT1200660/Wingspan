@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Game {
 
@@ -100,6 +99,46 @@ public class Game {
 			returning.add(allBirds[randCard]); // this has to be in that getDeckCount if statement once actually implemented SUPER IMPORTANT
 		}
 		return returning;
+	}
+
+	// Calculates final scores for all players and returns a hashmap of the different score types
+	public HashMap<String, Integer> calculateFinalScores(Player player) {
+		HashMap<String, Integer> scores = new HashMap<>(); // hashmap of the various scoring types and their values
+		scores.put("bonus", 0);
+
+		//ArrayList of every bird on the board
+        ArrayList<BirdInstance> birdSuperList = new ArrayList<>(); 
+
+        //iterates through the player board, combining the habitats into one ArrayList
+        for (ArrayList<BirdInstance> birdList: player.getBoard().values())
+            birdSuperList.addAll(birdList);
+
+		// checks each bird on the board and adds up their score for that specific type and adds to the hashmap
+		int birdPoints = 0;
+		int eggPoints = 0;
+		int foodPoints = 0;
+		int tuckedPoints = 0;
+		for (BirdInstance bird : birdSuperList) {
+			birdPoints += bird.getPointValue();
+			eggPoints += bird.getEggStored();
+			foodPoints += bird.getCachedFoodAmount();
+			tuckedPoints += bird.getTuckedAmount();
+		}
+
+		int endOfRoundPoints = player.getPoints(); // the points from end of round goals should be added to player points at the end of each round i think
+		scores.put("birds", birdPoints);
+		scores.put("eggs", eggPoints);
+		scores.put("food", foodPoints);
+		scores.put("tucked", tuckedPoints);
+		scores.put("endOfRound", player.getPoints());
+
+		for(BonusCard b: player.getBonusHand())
+			b.bonusScore(player);
+
+		int bonusCardPoints = player.getPoints() - endOfRoundPoints; // bonus cards directly add points so we can just subtract to get their value
+		scores.put("bonus", bonusCardPoints);
+
+		return scores;
 	}
 
 	// Randomly draws bonus cards to simulate the random drawing.
