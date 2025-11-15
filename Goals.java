@@ -55,7 +55,7 @@ public enum Goals {
             // # of eggs in nest types
             case EGGS_IN_BOWL:
             case EGGS_IN_CAVITY:
-            case EGGS_IN_PLATFORM:
+            case EGGS_IN_PLATFORM: // yo, i thought p comes before g but i realized but too late and lazy to change a bunch of different methods :laugh:
             case EGGS_IN_GROUND: eggsNest(goal, playerList, roundsPlayed, isCompetitive); break;
             // misc
             case TOTAL_BIRDS: totalBirds(goal, playerList, roundsPlayed, isCompetitive); break;
@@ -67,38 +67,140 @@ public enum Goals {
     // sorts the players based on the # of eggs in habitat
     public void eggHabitat(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
+        String habitat;
+        if(goal == EGGS_IN_FOREST) habitat = "forest";
+        else if(goal == EGGS_IN_GRASSLAND) habitat = "grassland";
+        else if(goal == EGGS_IN_WETLAND) habitat = "wetland";
+        else { System.out.println("ERROR: the goal couldn't find its habitat in eggs in habitat goals somehow gg we screwed"); return; }
 
+        ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList
+        // some weird sorting lambda method from java; should sort all 5 players
+        sortedPlayers.sort((p1, p2) -> 
+        {
+            // first gets the player board: second gets the arrayList of the habitat: third converts the arrayList to a stream to get more lambda functions without needing to manually iterate
+            // fourth mapToInt converts each bird object to an int with eggCount (idk how C++ wizardry is here, but :: does getEggStored for each bird)
+            // last just sums up birds
+            int eggsP1 = p1.getBoard().get(habitat).stream().mapToInt(BirdInstance::getEggStored).sum();
+            int eggsP2 = p2.getBoard().get(habitat).stream().mapToInt(BirdInstance::getEggStored).sum();
+            // place with p2 first in order to sort from largest to smallest
+            return Integer.compare(eggsP2, eggsP1);
+        }); 
+
+        // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
+        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, habitat);
     }
 
     // sorts the players based on the # of birds in habitat
     public void birdsHabitat(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
+        String habitat;
+        if(goal == BIRDS_IN_FOREST) habitat = "forest";
+        else if(goal == BIRDS_IN_GRASSLAND) habitat = "grassland";
+        else if(goal == BIRDS_IN_WETLAND) habitat = "wetland";
+        else { System.out.println("ERROR: the goal couldn't find its habitat in birds in habitat goals somehow gg we screwed"); return; }
 
+        ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList 
+        // some weird sorting lambda method from java; should sort all 5 players
+        // place with p2 first in order to sort from largest to smallest
+        sortedPlayers.sort((p1, p2) -> Integer.compare(p2.getBoard().get(habitat).size(), p1.getBoard().get(habitat).size()));
+
+        // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
+        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, habitat);
     }
 
-    // sorts the players based on the # of birds with a tain nest type with eggs on it
+    // sorts the players based on the # of birds with a certain nest type with eggs on it
     public void birdsNest(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
+        String nest;
+        if(goal == BOWL_BIRDS_WITH_EGGS) nest = "Bowl";
+        else if(goal == CAVITY_BIRDS_WITH_EGGS) nest = "Cavity";
+        else if(goal == PLATFORM_BIRDS_WITH_EGGS) nest = "Platform";
+        else if(goal == GROUND_BIRDS_WITH_EGGS) nest = "Ground";
+        else { System.out.println("ERROR: the goal couldn't find its nest in birds with eggs in nest goals somehow gg we screwed"); return; }
 
+        ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList 
+        // some weird sorting lambda method from java; should sort all 5 players
+        sortedPlayers.sort((p1, p2) -> {
+            // first gets player board and the values as a collection; second converts the arrayList to stream to get more lambda functions without needing to manually iterate
+            // third flatMap converts each of the lists into a stream and flattens them (merges them) to give a single stream of birds
+            // fourth filters amount of birds has an egg stored on it and has the right nest type; last counts amount of birds that match the criteria and casts to int
+            int countP1 = (int) p1.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(nest) && b.getEggStored() > 0).count();
+            int countP2 = (int) p2.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(nest) && b.getEggStored() > 0).count();
+
+            // place with p2 first in order to sort from largest to smallest
+            return Integer.compare(countP2, countP1);
+        });
+
+        // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
+        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, nest);
     }
 
     // sorts the players based on the # of eggs on a certain nest type
     public void eggsNest(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
+        String nest;
+        if(goal == BOWL_BIRDS_WITH_EGGS) nest = "Bowl";
+        else if(goal == CAVITY_BIRDS_WITH_EGGS) nest = "Cavity";
+        else if(goal == PLATFORM_BIRDS_WITH_EGGS) nest = "Platform";
+        else if(goal == GROUND_BIRDS_WITH_EGGS) nest = "Ground";
+        else { System.out.println("ERROR: the goal couldn't find its nest eggs in nest goals somehow gg we screwed"); return; }
 
+        ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList 
+        // some weird sorting lambda method from java; should sort all 5 players
+        sortedPlayers.sort((p1, p2) -> {
+            // first gets player board and the values as a collection; second converts the arrayList to stream to get more lambda functions without needing to manually iterate
+            // third flatMap converts each of the lists into a stream and flattens them (merges them) to give a single stream of birds
+            // fourth filters amount of birds that has the right nest type; fifth converts each bird object to an int with eggCount
+            int eggsP1 = p1.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(nest)).mapToInt(BirdInstance::getEggStored).sum();
+            int eggsP2 = p2.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(nest)).mapToInt(BirdInstance::getEggStored).sum();
+
+            // place with p2 first in order to sort from largest to smallest
+            return Integer.compare(eggsP2, eggsP1);
+        });
+
+        // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
+        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, nest);
     }
 
     // sorts the players based on the # of birds on the board
     public void totalBirds(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
-        // competitive scoring; should be able to copy certain parts over to others
+        // Need to have players sorted first for competitive mode, it won't matter for the non-competitive as it directly updates the players anyways
+        ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList
+        // some weird sorting lambda method from java; should sort all 5 players
+        // place with p2 first in order to sort from largest to smallest
+        sortedPlayers.sort((p1, p2) -> Integer.compare(p2.getBoard().values().size(), p1.getBoard().values().size()));
+
+        // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
+        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, "NONE");
+    }
+    
+    // sorts the players based on the # of eggs in specific habitat / 3 (integer divison) added with same operation on other habitat
+    public void setOf3(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
+    {
+        // Need to have players sorted first for competitive mode, it won't matter for the non-competitive as it directly updates the players anyways
+        ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList
+        // some weird sorting lambda method from java; should sort all 5 players
+        // place with p2 first in order to sort from largest to smallest
+        sortedPlayers.sort((p1, p2) -> {
+            int totalP1 = java.util.stream.Stream.of("forest", "grassland", "wetland").mapToInt(h -> p1.getBoard().get(h).stream().mapToInt(BirdInstance::getEggStored).sum()/3).sum();
+            int totalP2 = java.util.stream.Stream.of("forest", "grassland", "wetland").mapToInt(h -> p2.getBoard().get(h).stream().mapToInt(BirdInstance::getEggStored).sum()/3).sum();
+
+            // place with p2 first in order to sort from largest to smallest
+            return Integer.compare(totalP2, totalP1);
+        });
+
+        // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
+        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, "NONE");
+    }
+
+    // adds ranks to players and points
+    public void rankSorting(Goals goal, ArrayList<Player> sortedPlayers, boolean isCompetitive, int roundsPlayed, String specificHabitatOrNest)
+    {
+        // competitive scoring based on rankings and an already sorted players list. uses a previous score reference to check ties
         if(isCompetitive)
         {
-            ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList
-            // some weird sorting lambda method from java; should sort all 5 players
-            sortedPlayers.sort((p1, p2) -> Integer.compare(p2.getBoard().values().size(), p1.getBoard().values().size()));
-
-            // copyable from here on should be
+            // copyable from here on should be; ignore this i have now made it a generic method
             int rank = 1;         // current rank
             int previousScore = -1; // track previous player score
             int sameRankCount = 0; // starts at 0 in case for first player
@@ -106,7 +208,37 @@ public enum Goals {
             for(int i = 0; i < sortedPlayers.size(); i++)
             {
                 Player p = sortedPlayers.get(i);
-                int score = p.getBoard().values().size(); // if copied need to change this
+                int score;
+
+                // gets the score based on the goal it is
+                switch(goal)
+                {
+                    // # Eggs in habitat
+                    case EGGS_IN_FOREST: 
+                    case EGGS_IN_GRASSLAND:
+                    case EGGS_IN_WETLAND: score = p.getBoard().get(specificHabitatOrNest).stream().mapToInt(BirdInstance::getEggStored).sum(); break;
+                    // # Birds in habitat
+                    case BIRDS_IN_FOREST:
+                    case BIRDS_IN_GRASSLAND:
+                    case BIRDS_IN_WETLAND: score = p.getBoard().get(specificHabitatOrNest).size(); break;
+                    // # nest birds with eggs
+                    case BOWL_BIRDS_WITH_EGGS:
+                    case CAVITY_BIRDS_WITH_EGGS:
+                    case PLATFORM_BIRDS_WITH_EGGS:
+                    case GROUND_BIRDS_WITH_EGGS: 
+                    score = (int) p.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(specificHabitatOrNest) && b.getEggStored() > 0).count(); break;
+                    // # of eggs in nest types
+                    case EGGS_IN_BOWL:
+                    case EGGS_IN_CAVITY:
+                    case EGGS_IN_PLATFORM:
+                    case EGGS_IN_GROUND: 
+                    score = p.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(specificHabitatOrNest)).mapToInt(BirdInstance::getEggStored).sum(); break;
+                    // misc
+                    case TOTAL_BIRDS: score = p.getBoard().values().size(); break;
+                    case SETS_OF_3_EGGS_IN_EACH_HABITAT: 
+                    score = java.util.stream.Stream.of("forest", "grassland", "wetland").mapToInt(h -> p.getBoard().get(h).stream().mapToInt(BirdInstance::getEggStored).sum()/3).sum(); break;
+                    default: System.out.println("ERROR: goal could not be identified in competitive scoring and we're screwed"); score = 0;
+                }
 
                 // if score same, increase the rank count
                 if (score == previousScore)
@@ -124,22 +256,45 @@ public enum Goals {
                 else if(rank == 3) p.addPoints(0 + roundsPlayed);
             }
         }
-        // non competitive scoring; probably has to be manual for each except end goal rankings
         else
         {
-            for(Player p: playerList)
+            for(Player p: sortedPlayers)
             {
-                int amount = p.getBoard().values().size();
+                // gets the score based on the goal it is
+                int score;
+                switch(goal)
+                {
+                    // # Eggs in habitat
+                    case EGGS_IN_FOREST: 
+                    case EGGS_IN_GRASSLAND:
+                    case EGGS_IN_WETLAND: score = p.getBoard().get(specificHabitatOrNest).stream().mapToInt(BirdInstance::getEggStored).sum(); break;
+                    // # Birds in habitat
+                    case BIRDS_IN_FOREST:
+                    case BIRDS_IN_GRASSLAND:
+                    case BIRDS_IN_WETLAND: score = p.getBoard().get(specificHabitatOrNest).size(); break;
+                    // # nest birds with eggs
+                    case BOWL_BIRDS_WITH_EGGS:
+                    case CAVITY_BIRDS_WITH_EGGS:
+                    case PLATFORM_BIRDS_WITH_EGGS:
+                    case GROUND_BIRDS_WITH_EGGS:
+                    score = (int) p.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(specificHabitatOrNest) && b.getEggStored() > 0).count(); break;
+                    // # of eggs in nest types
+                    case EGGS_IN_BOWL:
+                    case EGGS_IN_CAVITY:
+                    case EGGS_IN_PLATFORM:
+                    case EGGS_IN_GROUND:
+                    score = p.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(specificHabitatOrNest)).mapToInt(BirdInstance::getEggStored).sum(); break;
+                    // misc
+                    case TOTAL_BIRDS: score = p.getBoard().values().size(); break;
+                    case SETS_OF_3_EGGS_IN_EACH_HABITAT: 
+                    score = java.util.stream.Stream.of("forest", "grassland", "wetland").mapToInt(h -> p.getBoard().get(h).stream().mapToInt(BirdInstance::getEggStored).sum()/3).sum(); break;
+                    default: System.out.println("ERROR: goal could not be identified in non-competitive scoring and we're screwed"); score = 0;
+                }
 
-                p.setGoalRankings(roundsPlayed, Math.min(5, amount));
-                p.addPoints(Math.min(5, amount));
+                // copyable from here on should be ; ignore made into generic method
+                p.setGoalRankings(roundsPlayed, Math.min(5, score));
+                p.addPoints(Math.min(5, score));
             }
         }
-    }
-    
-    // sorts the players based on the # of eggs in specific habitat / 3 (integer divison) added with same operation on other habitat
-    public void setOf3(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
-    {
-
     }
 }
