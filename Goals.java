@@ -35,42 +35,42 @@ public enum Goals {
         this.imageFileString = imageFileString;
     }
 
-    public void determineRankings(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
+    public void determineRankings(ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
-        switch(goal)
+        switch(this)
         {
             // # Eggs in habitat
             case EGGS_IN_FOREST: 
             case EGGS_IN_GRASSLAND:
-            case EGGS_IN_WETLAND: eggHabitat(goal, playerList, roundsPlayed, isCompetitive); break;
+            case EGGS_IN_WETLAND: eggHabitat(playerList, roundsPlayed, isCompetitive); break;
             // # Birds in habitat
             case BIRDS_IN_FOREST:
             case BIRDS_IN_GRASSLAND:
-            case BIRDS_IN_WETLAND: birdsHabitat(goal, playerList, roundsPlayed, isCompetitive); break;
+            case BIRDS_IN_WETLAND: birdsHabitat(playerList, roundsPlayed, isCompetitive); break;
             // # nest birds with eggs
             case BOWL_BIRDS_WITH_EGGS:
             case CAVITY_BIRDS_WITH_EGGS:
             case PLATFORM_BIRDS_WITH_EGGS:
-            case GROUND_BIRDS_WITH_EGGS: birdsNest(goal, playerList, roundsPlayed, isCompetitive); break;
+            case GROUND_BIRDS_WITH_EGGS: birdsNest(playerList, roundsPlayed, isCompetitive); break;
             // # of eggs in nest types
             case EGGS_IN_BOWL:
             case EGGS_IN_CAVITY:
             case EGGS_IN_PLATFORM: // yo, i thought p comes before g but i realized but too late and lazy to change a bunch of different methods :laugh:
-            case EGGS_IN_GROUND: eggsNest(goal, playerList, roundsPlayed, isCompetitive); break;
+            case EGGS_IN_GROUND: eggsNest(playerList, roundsPlayed, isCompetitive); break;
             // misc
-            case TOTAL_BIRDS: totalBirds(goal, playerList, roundsPlayed, isCompetitive); break;
-            case SETS_OF_3_EGGS_IN_EACH_HABITAT: setOf3(goal, playerList, roundsPlayed, isCompetitive); break;
+            case TOTAL_BIRDS: totalBirds(playerList, roundsPlayed, isCompetitive); break;
+            case SETS_OF_3_EGGS_IN_EACH_HABITAT: setOf3(playerList, roundsPlayed, isCompetitive); break;
             default: System.out.println("ERROR: goal could not be identified");
         }
     }
 
     // sorts the players based on the # of eggs in habitat
-    public void eggHabitat(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
+    public void eggHabitat(ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
         String habitat;
-        if(goal == EGGS_IN_FOREST) habitat = "forest";
-        else if(goal == EGGS_IN_GRASSLAND) habitat = "grassland";
-        else if(goal == EGGS_IN_WETLAND) habitat = "wetland";
+        if(this == EGGS_IN_FOREST) habitat = "forest";
+        else if(this == EGGS_IN_GRASSLAND) habitat = "grassland";
+        else if(this == EGGS_IN_WETLAND) habitat = "wetland";
         else { System.out.println("ERROR: the goal couldn't find its habitat in eggs in habitat goals somehow gg we screwed"); return; }
 
         ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList
@@ -87,16 +87,16 @@ public enum Goals {
         }); 
 
         // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
-        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, habitat);
+        rankSorting(sortedPlayers, isCompetitive, roundsPlayed, habitat);
     }
 
     // sorts the players based on the # of birds in habitat
-    public void birdsHabitat(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
+    public void birdsHabitat(ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
         String habitat;
-        if(goal == BIRDS_IN_FOREST) habitat = "forest";
-        else if(goal == BIRDS_IN_GRASSLAND) habitat = "grassland";
-        else if(goal == BIRDS_IN_WETLAND) habitat = "wetland";
+        if(this == BIRDS_IN_FOREST) habitat = "forest";
+        else if(this == BIRDS_IN_GRASSLAND) habitat = "grassland";
+        else if(this == BIRDS_IN_WETLAND) habitat = "wetland";
         else { System.out.println("ERROR: the goal couldn't find its habitat in birds in habitat goals somehow gg we screwed"); return; }
 
         ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList 
@@ -105,17 +105,17 @@ public enum Goals {
         sortedPlayers.sort((p1, p2) -> Integer.compare(p2.getBoard().get(habitat).size(), p1.getBoard().get(habitat).size()));
 
         // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
-        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, habitat);
+        rankSorting(sortedPlayers, isCompetitive, roundsPlayed, habitat);
     }
 
     // sorts the players based on the # of birds with a certain nest type with eggs on it
-    public void birdsNest(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
+    public void birdsNest(ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
         String nest;
-        if(goal == BOWL_BIRDS_WITH_EGGS) nest = "Bowl";
-        else if(goal == CAVITY_BIRDS_WITH_EGGS) nest = "Cavity";
-        else if(goal == PLATFORM_BIRDS_WITH_EGGS) nest = "Platform";
-        else if(goal == GROUND_BIRDS_WITH_EGGS) nest = "Ground";
+        if(this == BOWL_BIRDS_WITH_EGGS) nest = "Bowl";
+        else if(this == CAVITY_BIRDS_WITH_EGGS) nest = "Cavity";
+        else if(this == PLATFORM_BIRDS_WITH_EGGS) nest = "Platform";
+        else if(this == GROUND_BIRDS_WITH_EGGS) nest = "Ground";
         else { System.out.println("ERROR: the goal couldn't find its nest in birds with eggs in nest goals somehow gg we screwed"); return; }
 
         ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList 
@@ -132,17 +132,17 @@ public enum Goals {
         });
 
         // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
-        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, nest);
+        rankSorting(sortedPlayers, isCompetitive, roundsPlayed, nest);
     }
 
     // sorts the players based on the # of eggs on a certain nest type
-    public void eggsNest(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
+    public void eggsNest(ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
         String nest;
-        if(goal == BOWL_BIRDS_WITH_EGGS) nest = "Bowl";
-        else if(goal == CAVITY_BIRDS_WITH_EGGS) nest = "Cavity";
-        else if(goal == PLATFORM_BIRDS_WITH_EGGS) nest = "Platform";
-        else if(goal == GROUND_BIRDS_WITH_EGGS) nest = "Ground";
+        if(this == BOWL_BIRDS_WITH_EGGS) nest = "Bowl";
+        else if(this == CAVITY_BIRDS_WITH_EGGS) nest = "Cavity";
+        else if(this == PLATFORM_BIRDS_WITH_EGGS) nest = "Platform";
+        else if(this == GROUND_BIRDS_WITH_EGGS) nest = "Ground";
         else { System.out.println("ERROR: the goal couldn't find its nest eggs in nest goals somehow gg we screwed"); return; }
 
         ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList 
@@ -159,11 +159,11 @@ public enum Goals {
         });
 
         // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
-        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, nest);
+        rankSorting(sortedPlayers, isCompetitive, roundsPlayed, nest);
     }
 
     // sorts the players based on the # of birds on the board
-    public void totalBirds(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
+    public void totalBirds(ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
         // Need to have players sorted first for competitive mode, it won't matter for the non-competitive as it directly updates the players anyways
         ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList
@@ -173,11 +173,11 @@ public enum Goals {
                            p1.getBoard().values().stream().mapToInt(List::size).sum()));
 
         // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
-        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, "NONE");
+        rankSorting(sortedPlayers, isCompetitive, roundsPlayed, "NONE");
     }
     
     // sorts the players based on the # of eggs in specific habitat / 3 (integer divison) added with same operation on other habitat
-    public void setOf3(Goals goal, ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
+    public void setOf3(ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
         // Need to have players sorted first for competitive mode, it won't matter for the non-competitive as it directly updates the players anyways
         ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList
@@ -192,11 +192,11 @@ public enum Goals {
         });
 
         // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
-        rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, "NONE");
+        rankSorting(sortedPlayers, isCompetitive, roundsPlayed, "NONE");
     }
 
     // adds ranks to players and points
-    public void rankSorting(Goals goal, ArrayList<Player> sortedPlayers, boolean isCompetitive, int roundsPlayed, String specificHabitatOrNest)
+    public void rankSorting(ArrayList<Player> sortedPlayers, boolean isCompetitive, int roundsPlayed, String specificHabitatOrNest)
     {
         // competitive scoring based on rankings and an already sorted players list. uses a previous score reference to check ties
         if(isCompetitive)
@@ -212,7 +212,7 @@ public enum Goals {
                 int score;
 
                 // gets the score based on the goal it is
-                switch(goal)
+                switch(this)
                 {
                     // # Eggs in habitat
                     case EGGS_IN_FOREST: 
@@ -263,7 +263,7 @@ public enum Goals {
             {
                 // gets the score based on the goal it is
                 int score;
-                switch(goal)
+                switch(this)
                 {
                     // # Eggs in habitat
                     case EGGS_IN_FOREST: 

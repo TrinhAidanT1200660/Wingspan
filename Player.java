@@ -39,6 +39,7 @@ public class Player {
         food.put("seed", 0);
         food.put("worm", 0);
         this.actionCubes = 8;
+        this.goalRankings = new ArrayList<>();
     }
 
     //RETURN METHODS:
