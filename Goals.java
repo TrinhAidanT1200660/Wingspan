@@ -251,7 +251,7 @@ public enum Goals {
 
                 previousScore = score; // updates previous score
 
-                p.setGoalRankings(roundsPlayed, Math.min(rank, 4)); // updates player's rank for UI to use on goal board. If ranking is greater than 4, goes back to 4
+                p.setGoalRankings(Math.min(rank, 4)); // updates player's rank for UI to use on goal board. If ranking is greater than 4, goes back to 4
                 if(rank == 1) p.addPoints(4 + roundsPlayed); // directly adds the points
                 else if(rank == 2) p.addPoints(1 + roundsPlayed);
                 else if(rank == 3) p.addPoints(0 + roundsPlayed);
@@ -293,7 +293,7 @@ public enum Goals {
                 }
 
                 // copyable from here on should be ; ignore made into generic method
-                p.setGoalRankings(roundsPlayed, Math.min(5, score));
+                p.setGoalRankings(Math.min(5, score));
                 p.addPoints(Math.min(5, score));
             }
         }
