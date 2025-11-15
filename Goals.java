@@ -206,41 +206,55 @@ public enum Goals {
             int previousScore = -1; // track previous player score
             int sameRankCount = 0; // starts at 0 in case for first player
 
-            for(int i = 0; i < sortedPlayers.size(); i++)
-            {
-                Player p = sortedPlayers.get(i);
-                int score;
-
+            int[] scores = sortedPlayers.stream().mapToInt(p -> {
                 // gets the score based on the goal it is
                 switch(this)
                 {
                     // # Eggs in habitat
                     case EGGS_IN_FOREST: 
                     case EGGS_IN_GRASSLAND:
-                    case EGGS_IN_WETLAND: score = p.getBoard().get(specificHabitatOrNest).stream().mapToInt(BirdInstance::getEggStored).sum(); break;
+                    case EGGS_IN_WETLAND: return p.getBoard().get(specificHabitatOrNest).stream().mapToInt(BirdInstance::getEggStored).sum();
                     // # Birds in habitat
                     case BIRDS_IN_FOREST:
                     case BIRDS_IN_GRASSLAND:
-                    case BIRDS_IN_WETLAND: score = p.getBoard().get(specificHabitatOrNest).size(); break;
+                    case BIRDS_IN_WETLAND: return p.getBoard().get(specificHabitatOrNest).size();
                     // # nest birds with eggs
                     case BOWL_BIRDS_WITH_EGGS:
                     case CAVITY_BIRDS_WITH_EGGS:
                     case PLATFORM_BIRDS_WITH_EGGS:
                     case GROUND_BIRDS_WITH_EGGS: 
-                    score = (int) p.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(specificHabitatOrNest) && b.getEggStored() > 0).count(); break;
+                    return (int) p.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(specificHabitatOrNest) && b.getEggStored() > 0).count();
                     // # of eggs in nest types
                     case EGGS_IN_BOWL:
                     case EGGS_IN_CAVITY:
                     case EGGS_IN_PLATFORM:
-                    case EGGS_IN_GROUND: 
-                    score = p.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(specificHabitatOrNest)).mapToInt(BirdInstance::getEggStored).sum(); break;
-                    // misc
-                    case TOTAL_BIRDS: score = p.getBoard().values().stream().mapToInt(List::size).sum(); break;
+                    case EGGS_IN_GROUND:
+                    return p.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(specificHabitatOrNest)).mapToInt(BirdInstance::getEggStored).sum();                      // misc
+                    case TOTAL_BIRDS: return p.getBoard().values().stream().mapToInt(List::size).sum();
                     case SETS_OF_3_EGGS_IN_EACH_HABITAT: 
-                    score = java.util.stream.Stream.of("forest", "grassland", "wetland").mapToInt(h -> p.getBoard().get(h).stream().mapToInt(BirdInstance::getEggStored).sum()/3).sum(); break;
-                    default: System.out.println("ERROR: goal could not be identified in competitive scoring and we're screwed"); score = 0;
+                    return java.util.stream.Stream.of("forest", "grassland", "wetland").mapToInt(h -> p.getBoard().get(h).stream().mapToInt(BirdInstance::getEggStored).sum()/3).sum();
+                    default: System.out.println("ERROR: goal could not be identified in competitive scoring and we're screwed"); return 0;
                 }
+            }).toArray();
 
+            boolean allTied = java.util.Arrays.stream(scores).distinct().count() == 1;
+
+            if (allTied)
+            {
+                // if everyone is tied, nobody wins
+                for (Player p : sortedPlayers)
+                {
+                    p.setGoalRankings(roundsPlayed, 4);
+                    p.addPoints(0);
+                }
+                return; // Skip the rest of competitive scoring
+            }
+            
+            for(int i = 0; i < sortedPlayers.size(); i++)
+            {
+                Player p = sortedPlayers.get(i);
+                int score = scores[i];
+    
                 // if score same, increase the rank count
                 if (score == previousScore)
                     sameRankCount++;
