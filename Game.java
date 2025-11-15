@@ -246,8 +246,8 @@ public class Game {
 	public void setCompetitiveType(boolean isCompetitive) {this.isCompetitive = isCompetitive;}
 
 	private void handleSelected() { // if the user selected more than 5 things deselect the least recent thing selected (could be bird or food token)
-		if (selectionPhase == 1 ? selected.size() > 5 : selected.size() > 1) {
-			Selectable first = selected.first();
+		if (selectionPhase == 1 ? selected.size() > 5 : selected.size() > 1) { // if selected amounts went over limit (5 for birds/foods, 1 for bonus cards)
+			Selectable first = selected.first(); // remove the least recent selection
 			first.getElement().setAttribute("Selected", false);
 			selected.remove(first);
 			((Runnable)(first.getElement().getAttribute("Deselect"))).run();
@@ -290,9 +290,7 @@ public class Game {
 		}
 	}
 
-	public boolean canContinueResources() {
-		return selectionPhase == 1 ? selected.size() == 5 : selected.size() == 1;
-	}
+	public boolean canContinueResources() { return selectionPhase == 1 ? selected.size() == 5 : selected.size() == 1; }
 
 	public int getSelectionPhase() { return selectionPhase; }
 
