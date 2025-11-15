@@ -30,8 +30,10 @@ public class Game {
 		this.selectionPhase = 1;
         for (int i = 0; i < 5; ++i)
             playerList.add(new Player());
+		this.birdFeeder = new ArrayList<>();
 		this.rollBirdFeeder(); // rolls bird feeder
 		this.faceUpBirds = new ArrayList<>();
+		this.goalBoard = new ArrayList<>();
 		this.selectGoals(); // selects goals; shouldn't be recalled
     }
 
