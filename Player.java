@@ -121,8 +121,8 @@ public class Player {
     }
 
     //sets the ranking of the player of the round
-    public void setGoalRankings(int round, int ranking) {
-        goalRankings.set(round, ranking);
+    public void setGoalRankings(int ranking) {
+        goalRankings.add(ranking);
     }
 
     public boolean hasEnoughFood(Bird bird) {
