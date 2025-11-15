@@ -244,7 +244,7 @@ public enum Goals {
                 // if everyone is tied, nobody wins
                 for (Player p : sortedPlayers)
                 {
-                    p.setGoalRankings(roundsPlayed, 4);
+                    p.setGoalRankings(4);
                     p.addPoints(0);
                 }
                 return; // Skip the rest of competitive scoring
