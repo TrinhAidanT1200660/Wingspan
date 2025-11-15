@@ -14,6 +14,7 @@ public class Game {
 	private int gamePhase; // what point are we in during the game
 	private ArrayList<String> birdFeeder; // replicates a bird feeder using a simple arrayList
 	private ArrayList<Bird> faceUpBirds; // replicates the 3 face up bird cards in the bird tray ; not sure when we want to create this, before or after player select resources
+	private ArrayList<Goals> goalBoard; // replicates the 4 goals on the goal board ; should be fine to create at game creation
 
     // CONSTRUCTOR
     public Game(WingspanPanel panel) 
@@ -29,11 +30,38 @@ public class Game {
 		this.selectionPhase = 1;
         for (int i = 0; i < 5; ++i)
             playerList.add(new Player());
-		this.rollBirdFeeder();
+		this.rollBirdFeeder(); // rolls bird feeder
 		this.faceUpBirds = new ArrayList<>();
+		this.selectGoals(); // selects goals; shouldn't be recalled
     }
 
     // GAME | VOID METHODS
+
+	// Simulates randomly choosing goals without repeats
+	public void selectGoals()
+	{
+		List<Goals> list = new ArrayList<>(Arrays.asList(Goals.values()));
+		Collections.shuffle(list);
+		goalBoard.clear();
+		goalBoard.addAll(list.subList(0, 4));
+	}
+
+	// Simulates going down the habitat's row of bird abilities and activating all the brown abilities
+	public void iterateBirdAbilities(Player player, String habitat) {
+		ArrayList<BirdInstance> birds = player.getBoard().get(habitat);
+		for(int i = birds.size()-1; i >= 0; --i) // goes backwards, replicates right to left behavior on board
+		{
+			BirdInstance bird = birds.get(i);
+			if(bird.getActionColor().equalsIgnoreCase("BROWN")) // checks if it's a brown ability
+			{
+				// UI should popup a yes or no asking whether player desires to activate the ability
+				// For now, the boolean will be true and ability will activate
+				boolean activate = true;
+				if(activate)
+					bird.performAction(this, player);
+			}
+		}
+	}
 
 	// Simulates rolling the birdFeeder to generate 5 random food dies
 	public void rollBirdFeeder() {
@@ -76,28 +104,27 @@ public class Game {
     }
 
 	// Randomly draws bird card to simulate the random drawing, has no remove card rn because lack of bird cards
-	// I NEED TO MAKE THIS HAVE SIZE BUT WILL DO LATER TO TELL MOHAMMED TO MAKE SURE HE CAN CHANGE IT IN UI
-	public ArrayList<Bird> pullRandomBirds(int amount) {
+	public ArrayList<Bird> pullRandomBirds(int amount)
+	{
 		Bird[] allBirds = Bird.values();
-		ArrayList<Bird> returning = new ArrayList<>();
+		ArrayList<Bird> deck = new ArrayList<>();
+		for(Bird card: allBirds)
+			if(card.getDeckCount() > 0)	
+				deck.add(card);
 
 		// makes sure there are cards available
-		int availableCards = 0;
-		for (Bird card : allBirds)
-        	availableCards += card.getDeckCount();
-
+		int availableCards = deck.size();
 		// just sends a message in case we're testing and wondering what went wrong
-		if (amount > availableCards) System.out.println("Ran out of bird cards"); 
-	
+		if (amount > availableCards) System.out.println("Ran out of bird cards");
 		amount = Math.min(amount, availableCards);
 
-		while (returning.size() < amount) { 
-			int randCard = (int) (Math.random() * allBirds.length);
-			/* if(allBirds[randCard].getDeckCount() > 0) {
-				allBirds[randCard].removeCardFromDeck();
-			} */
-			returning.add(allBirds[randCard]); // this has to be in that getDeckCount if statement once actually implemented SUPER IMPORTANT
-		}
+		Collections.shuffle(deck);
+
+		ArrayList<Bird> returning = new ArrayList<>(deck.subList(0, amount));
+
+		for(Bird c : returning)
+			c.removeCardFromDeck();
+			
 		return returning;
 	}
 
@@ -145,28 +172,23 @@ public class Game {
 	public ArrayList<BonusCard> pullRandomBonusCards(int amount)
 	{
 		BonusCard[] allBonuses = BonusCard.values();
-		ArrayList<BonusCard> returning = new ArrayList<>();
+		ArrayList<BonusCard> deck = new ArrayList<>();
+		for(BonusCard card: allBonuses)
+			if(card.getDeckCount() > 0)	
+				deck.add(card);
 
 		// makes sure there are cards available
-		int availableCards = 0;
-		for (BonusCard card : allBonuses)
-        	availableCards += card.getDeckCount();
-
+		int availableCards = deck.size();
 		// just sends a message in case we're testing and wondering what went wrong
 		if (amount > availableCards) System.out.println("Ran out of bonus cards");
-
 		amount = Math.min(amount, availableCards);
-		
-		while(returning.size() < amount) {
-			while (true) {
-				int randCard = (int) (Math.random() * allBonuses.length);
-				if(allBonuses[randCard].getDeckCount() > 0) {
-					allBonuses[randCard].removeCardFromDeck();
-					returning.add(allBonuses[randCard]);
-					break;
-				}
-			}
-		}
+
+		Collections.shuffle(deck);
+
+		ArrayList<BonusCard> returning = new ArrayList<>(deck.subList(0, amount));
+		for(BonusCard c : returning)
+			c.removeCardFromDeck();
+
 		return returning;
 	}
 

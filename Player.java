@@ -18,7 +18,9 @@ public class Player {
     private HashMap<String, Integer> food;
     //stores the number of action cubes each player has
     private int actionCubes;
-    //stores the goal ranking for each round
+    //stores the goal ranking for each round; flipped for each mode
+    // competitive goes from 1-4 (best to worst) | non-competitive goes from (5-0) (best to worst)
+    // keep in mind when having UI place action cubes on board based on rankings
     private ArrayList<Integer> goalRankings;
 
     //CONSTRUCTOR:
