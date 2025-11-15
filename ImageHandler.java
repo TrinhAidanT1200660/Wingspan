@@ -1,6 +1,7 @@
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import javax.imageio.ImageIO;
@@ -20,13 +21,16 @@ public interface ImageHandler {
         if (imgObj != null && imgObj.image != null) return imgObj.image;
         
         try {
-            BufferedImage image = ImageIO.read(ImageHandler.class.getResource("/resources/" + imagePath));
-            if (image != null) {
-                imgObj = new ImageObject(image, group);
-                cache.put(imagePath, imgObj);
-                getGroup(group).add(originalImage);
-            }
-            return image;
+            URL resource = ImageHandler.class.getResource("/resources/" + imagePath);
+            if (resource != null) {
+                BufferedImage image = ImageIO.read(resource);
+                if (image != null) {
+                    imgObj = new ImageObject(image, group);
+                    cache.put(imagePath, imgObj);
+                    getGroup(group).add(originalImage);
+                }
+                return image;
+            } else return null;
         } catch (IOException e) {
             System.out.println("Couldn't load image from " + imagePath + ": " + e.getMessage());
             return null;
