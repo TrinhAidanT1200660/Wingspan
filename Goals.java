@@ -169,7 +169,8 @@ public enum Goals {
         ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList
         // some weird sorting lambda method from java; should sort all 5 players
         // place with p2 first in order to sort from largest to smallest
-        sortedPlayers.sort((p1, p2) -> Integer.compare(p2.getBoard().values().size(), p1.getBoard().values().size()));
+        sortedPlayers.sort((p1, p2) -> Integer.compare(p2.getBoard().values().stream().mapToInt(List::size).sum(), 
+                           p1.getBoard().values().stream().mapToInt(List::size).sum());
 
         // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
         rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, "NONE");
@@ -234,7 +235,7 @@ public enum Goals {
                     case EGGS_IN_GROUND: 
                     score = p.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(specificHabitatOrNest)).mapToInt(BirdInstance::getEggStored).sum(); break;
                     // misc
-                    case TOTAL_BIRDS: score = p.getBoard().values().size(); break;
+                    case TOTAL_BIRDS: score = p.getBoard().values().stream().mapToInt(List::size).sum(); break;
                     case SETS_OF_3_EGGS_IN_EACH_HABITAT: 
                     score = java.util.stream.Stream.of("forest", "grassland", "wetland").mapToInt(h -> p.getBoard().get(h).stream().mapToInt(BirdInstance::getEggStored).sum()/3).sum(); break;
                     default: System.out.println("ERROR: goal could not be identified in competitive scoring and we're screwed"); score = 0;
@@ -285,7 +286,7 @@ public enum Goals {
                     case EGGS_IN_GROUND:
                     score = p.getBoard().values().stream().flatMap(list -> list.stream()).filter(b -> b.getNest().equalsIgnoreCase(specificHabitatOrNest)).mapToInt(BirdInstance::getEggStored).sum(); break;
                     // misc
-                    case TOTAL_BIRDS: score = p.getBoard().values().size(); break;
+                    case TOTAL_BIRDS: score = p.getBoard().values().stream().mapToInt(List::size).sum(); break;
                     case SETS_OF_3_EGGS_IN_EACH_HABITAT: 
                     score = java.util.stream.Stream.of("forest", "grassland", "wetland").mapToInt(h -> p.getBoard().get(h).stream().mapToInt(BirdInstance::getEggStored).sum()/3).sum(); break;
                     default: System.out.println("ERROR: goal could not be identified in non-competitive scoring and we're screwed"); score = 0;
