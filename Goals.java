@@ -1,7 +1,7 @@
 import java.util.*;
 
 public enum Goals {
-    // There are only 8 goals i believe.
+    // There are only 16 goals i believe.
     // Since there is such a small data size, I will use switch case rather than interface to implement methods
     // The only parameter is the image String
     // ENUMS are sorted by similarities/stratas
