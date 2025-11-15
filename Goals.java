@@ -170,7 +170,7 @@ public enum Goals {
         // some weird sorting lambda method from java; should sort all 5 players
         // place with p2 first in order to sort from largest to smallest
         sortedPlayers.sort((p1, p2) -> Integer.compare(p2.getBoard().values().stream().mapToInt(List::size).sum(), 
-                           p1.getBoard().values().stream().mapToInt(List::size).sum());
+                           p1.getBoard().values().stream().mapToInt(List::size).sum()));
 
         // does all the rank sorting in this method. Im lwk the goat for this it might just be glorious
         rankSorting(goal, sortedPlayers, isCompetitive, roundsPlayed, "NONE");
