@@ -352,7 +352,7 @@ public enum BirdAction implements BirdActionInterface
 	// Rolls all the dice not in the birdFeeder and if any are fish, cache 1 fish into the supply of the bird
 	// ANHINGA | BLACK_SKIMMER | COMMON_MERGANSER | SNOWY_EGRET | WHITE_FACED_IBIS | WILLET
 	ROLLDICEANDFINDFISH((gameContext, player, birdInstance) -> {
-		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
+		String[] foods = {"berry", "fish", "rat", "seed", "worm", "seed/worm"};
 		ArrayList<String> rolledFoods = new ArrayList<>();
 		for(int i = 0; i < (5-gameContext.getBirdFeeder().size()); ++i)
 		{
@@ -365,7 +365,7 @@ public enum BirdAction implements BirdActionInterface
 	// Rolls all the dice not in the birdFeeder and if any are rat, cache 1 rat into the supply of the bird
 	// AMERICAN_KESTREL | BARN_OWL | BROAD_WINGED_HAWK | BURROWING_OWL | EASTERN_SCREECH_OWL | FERRUGINOUS_HAWK | MISSISSIPPI_KITE
 	ROLLDICEANDFINDRAT((gameContext, player, birdInstance) -> {
-		final String[] foods = {"berry", "fish", "rat", "seed", "worm"};
+		String[] foods = {"berry", "fish", "rat", "seed", "worm", "seed/worm"};
 		ArrayList<String> rolledFoods = new ArrayList<>();
 		for(int i = 0; i < (5-gameContext.getBirdFeeder().size()); ++i)
 		{
