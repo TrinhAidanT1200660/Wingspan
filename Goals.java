@@ -139,10 +139,10 @@ public enum Goals {
     public void eggsNest(ArrayList<Player> playerList, int roundsPlayed, boolean isCompetitive)
     {
         String nest;
-        if(this == BOWL_BIRDS_WITH_EGGS) nest = "Bowl";
-        else if(this == CAVITY_BIRDS_WITH_EGGS) nest = "Cavity";
-        else if(this == PLATFORM_BIRDS_WITH_EGGS) nest = "Platform";
-        else if(this == GROUND_BIRDS_WITH_EGGS) nest = "Ground";
+        if(this == EGGS_IN_BOWL) nest = "Bowl";
+        else if(this == EGGS_IN_CAVITY) nest = "Cavity";
+        else if(this == EGGS_IN_PLATFORM) nest = "Platform";
+        else if(this == EGGS_IN_GROUND) nest = "Ground";
         else { System.out.println("ERROR: the goal couldn't find its nest eggs in nest goals somehow gg we screwed"); return; }
 
         ArrayList<Player> sortedPlayers = new ArrayList<>(playerList); // local copy of playerList 
@@ -265,7 +265,7 @@ public enum Goals {
 
                 previousScore = score; // updates previous score
 
-                p.setGoalRankings(roundsPlayed, Math.min(rank, 4)); // updates player's rank for UI to use on goal board. If ranking is greater than 4, goes back to 4
+                p.setGoalRankings(Math.min(rank, 4)); // updates player's rank for UI to use on goal board. If ranking is greater than 4, goes back to 4
                 if(rank == 1) p.addPoints(4 + roundsPlayed); // directly adds the points
                 else if(rank == 2) p.addPoints(1 + roundsPlayed);
                 else if(rank == 3) p.addPoints(0 + roundsPlayed);
@@ -307,7 +307,7 @@ public enum Goals {
                 }
 
                 // copyable from here on should be ; ignore made into generic method
-                p.setGoalRankings(roundsPlayed, Math.min(5, score));
+                p.setGoalRankings(Math.min(5, score));
                 p.addPoints(Math.min(5, score));
             }
         }
