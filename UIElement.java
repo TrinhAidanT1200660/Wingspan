@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import java.util.Arrays;
 
 class Vector2 {
 
@@ -1680,8 +1681,6 @@ class UIImage extends UIElement {
     }
 }
 
-/*
-
 class UIText extends UIElement {
 
     public static String defaultFontName = "Arial";
@@ -1723,68 +1722,74 @@ class UIText extends UIElement {
     protected void drawCustom(Graphics2D g2d) {
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        if (textScaled) textWrapped = true; // you need text wrapped for text scaled so it always fits in the container
+        if (textScaled) textWrapped = true;
+
+        double width = absoluteSize.getX();
+        double height = absoluteSize.getY();
 
         Font font = new Font(fontName, fontStyle, fontSize);
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
 
-        ArrayList<String> lines = new ArrayList<>();
-        if (textWrapped) {
-            lines = wrapText(g2d);
-        } else {
-            lines.add(text);
-        }
+        ArrayList<String> lines;
 
-        double width = absoluteSize.getX();
-        double height = absoluteSize.getY();
-
-        textDirty = !(oldAbsSize.getX() == absoluteSize.getX() && oldAbsSize.getY() == absoluteSize.getY());
-        oldAbsSize = new Vector2(absoluteSize.getX(), absoluteSize.getY());
-
-        // so we gotta find the maximum possible size it can be to fit in the container
-        if (textScaled && !textDirty) {
-            double textHeight = lines.size() * fm.getHeight();
-            double maxLineWidth = 0;
-            int newSize = 1;
-            for (String line : lines) {
-                maxLineWidth = Math.max(maxLineWidth, fm.stringWidth(line)); // get the width of the longest line
-                newSize = (int)(maxLineWidth / line.length());
-            }
-
-            while ((textHeight > height || maxLineWidth > width) && newSize > 1) { // so basically while the text is too tall or too wide for the container and the font size isnt 0
-                newSize--;
-                font = new Font(fontName, fontStyle, newSize);
-                g2d.setFont(font);
-                fm = g2d.getFontMetrics();
-                lines = wrapText(g2d);
-                textHeight = lines.size() * fm.getHeight();
-                maxLineWidth = 0;
-                for (String line : lines) {
-                    maxLineWidth = Math.max(maxLineWidth, fm.stringWidth(line)); // get the width of the longest line
+        if (textScaled) {
+            int low = 1;
+            int high = 500;
+            int bestFit = 1;
+            while (low <= high) {
+                int mid = (low + high) / 2;
+                Font testFont = new Font(fontName, fontStyle, mid);
+                g2d.setFont(testFont);
+                FontMetrics fm2 = g2d.getFontMetrics();
+                ArrayList<String> wrapped = wrapText(g2d);
+                int totalHeight = wrapped.size() * fm2.getHeight();
+                int maxWidth = 0;
+                for (String s : wrapped) {
+                    maxWidth = Math.max(maxWidth, fm2.stringWidth(s));
+                }
+                boolean fits = (maxWidth <= width && totalHeight <= height);
+                if (fits) {
+                    bestFit = mid;
+                    low = mid + 1;
+                } else {
+                    high = mid - 1;
                 }
             }
-            textDirty = false;
+            font = new Font(fontName, fontStyle, bestFit);
+            g2d.setFont(font);
+            fm = g2d.getFontMetrics();
+            lines = wrapText(g2d);
+        } else {
+            lines = textWrapped ? wrapText(g2d) : new ArrayList<>(Arrays.asList(text));
         }
 
-        float totalTextHeight = (float)lines.size() * fm.getHeight();
-        float startY = (float)absolutePosition.getY();
+        float lineHeight = fm.getHeight();
+        float totalTextHeight = lines.size() * lineHeight;
+        float y = (float)absolutePosition.getY();
 
-        if (verticialAlignment == MIDDLE) startY += (height - totalTextHeight) / 2 + fm.getAscent(); else if (verticialAlignment == BOTTOM) startY += height - totalTextHeight + fm.getAscent(); else startY += fm.getAscent();
+        if (verticialAlignment == MIDDLE) {
+            y += (height - totalTextHeight) / 2f + fm.getAscent();
+        } else if (verticialAlignment == BOTTOM) {
+            y += (height - totalTextHeight) + fm.getAscent();
+        } else {
+            y += fm.getAscent();
+        }
 
         for (String line : lines) {
             float textWidth = fm.stringWidth(line);
             float x = (float) absolutePosition.getX();
 
-            if (horizontalAlignment == CENTER)
-                x += (width - textWidth) / 2;
-            else if (horizontalAlignment == RIGHT)
-                x += width - textWidth;
+            if (horizontalAlignment == CENTER) {
+                x += (width - textWidth) / 2f;
+            } else if (horizontalAlignment == RIGHT) {
+                x += (height - textWidth);
+            }
 
-            if (textStrokeTransparency > 0) {
+            if (textStrokeTransparency > 0 && absoluteTextStrokeThickness > 0) {
                 FontRenderContext frc = g2d.getFontRenderContext();
                 GlyphVector gv = g2d.getFont().createGlyphVector(frc, line);
-                Shape outline = gv.getOutline(x, startY);
+                Shape outline = gv.getOutline(x, y);
                 g2d.setColor(textStrokeColor);
                 g2d.setStroke(new BasicStroke((float) absoluteTextStrokeThickness));
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(textStrokeTransparency, 1f))));
@@ -1794,10 +1799,10 @@ class UIText extends UIElement {
             if (textTransparency > 0) {
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(textTransparency, 1f))));
                 g2d.setColor(textColor);
-                g2d.drawString(line, x, startY);
+                g2d.drawString(line, x, y);
             }
 
-            startY += fm.getHeight();
+            y += lineHeight;
         }
     }
 
@@ -1819,109 +1824,6 @@ class UIText extends UIElement {
         }
         if (line.length() > 0) lines.add(line); // if there's any remaining text in line after the loop then add it as well
         return lines;
-    }
-
-    public Tween tweenTextTransparency(float endTextTransparency, double time) {
-        return addTween(textTransparency, endTextTransparency, time, "txtt", "float", Tween.LINEAR);
-    }
-
-    public Tween tweenTextTransparency(float endTextTransparency, double time, int animationStyle) {
-        return addTween(textTransparency, endTextTransparency, time, "txtt", "float", animationStyle);
-    }
-}
-
-*/
-
-class UIText extends UIElement {
-
-    public static String defaultFontName = "Arial";
-
-    public String fontName = defaultFontName;
-    public int fontStyle = Font.PLAIN;
-    public int fontSize = 30;
-    public float textTransparency = 1f;
-    public Color textColor = Color.black;
-    public String text = "Text";
-    public float textStrokeTransparency = 0f;
-    public Color textStrokeColor = Color.black;
-    public Dim textStrokeThickness = new Dim();
-    public int absoluteTextStrokeThickness = 0;
-    public boolean textScaled = false;
-
-    public static int LEFT = 0;
-    public static int CENTER = 1;
-    public static int RIGHT = 2;
-
-    public static int TOP = 0;
-    public static int MIDDLE = 1;
-    public static int BOTTOM = 2;
-
-    public int horizontalAlignment = CENTER;
-    public int verticialAlignment = MIDDLE;
-
-    public UIText(String name, JPanel panel) {
-        super(name, panel);
-    }
-
-    protected void customUpdateAbsolute(double width, double height) {
-        absoluteTextStrokeThickness = (int) (textStrokeThickness.getScale() * Math.min(width, height) + textStrokeThickness.getOffset());
-    }
-
-    protected void drawCustom(Graphics2D g2d) {
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        float x = (float) absolutePosition.getX();
-        float y = (float) absolutePosition.getY();
-        Font font = new Font(fontName, fontStyle, fontSize);
-
-        double width = absoluteSize.getX();
-        double height = absoluteSize.getY();
-
-        if (textScaled) {
-            FontMetrics fm = g2d.getFontMetrics(font);
-            int textWidth = fm.stringWidth(text); // calculate how much width the text takes
-            int textHeight = fm.getHeight(); // calcualte how much height the text takes
-            double scaleX = (double) width / textWidth; // ratio between container width and text width
-            double scaleY = (double) height / textHeight; // ratio between container height and text height 
-            double scale = Math.min(scaleX, scaleY); // pick whichever ratio is smaller so we can make that the text size
-            int newSize = Math.max(1, (int) (fontSize * scale));
-            font = new Font(fontName, fontStyle, newSize); // set the text size
-        }
-
-        g2d.setFont(font);
-
-        FontMetrics fm = g2d.getFontMetrics();
-
-        float textAscent = fm.getAscent();
-        float textDescent = fm.getDescent();
-        float textWidth = fm.stringWidth(text);
-
-        y += fm.getAscent();
-
-        if (horizontalAlignment == CENTER) {
-            x += ((int) width - textWidth) / 2;
-        } else if (horizontalAlignment == RIGHT) {
-            x += (int) width - textWidth;
-        }
-
-        if (verticialAlignment == MIDDLE) {
-            y += -textAscent + ((float) height / 2) + ((textAscent - textDescent) / 2);
-        } else if (verticialAlignment == BOTTOM) {
-            y += (int) height - textDescent;
-        }
-        if (textStrokeTransparency > 0) {
-            FontRenderContext frc = g2d.getFontRenderContext();
-            GlyphVector gv = font.createGlyphVector(frc, text);
-            Shape outline = gv.getOutline(x, y);
-            g2d.setColor(textStrokeColor);
-            g2d.setStroke(new BasicStroke((float) absoluteTextStrokeThickness)); // set border thickness
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(textStrokeTransparency, 1f))));
-            g2d.draw(outline);
-        }
-        if (textTransparency > 0) {
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(textTransparency, 1f))));
-            g2d.setColor(textColor);
-            g2d.drawString(text, x, y);
-        }
     }
 
     public Tween tweenTextTransparency(float endTextTransparency, double time) {
