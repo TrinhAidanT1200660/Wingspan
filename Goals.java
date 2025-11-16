@@ -239,7 +239,7 @@ public enum Goals {
 
             boolean allTied = java.util.Arrays.stream(scores).distinct().count() == 1;
 
-            if (allTied)
+            if (allTied && scores[0] == 0)
             {
                 // if everyone is tied, nobody wins
                 for (Player p : sortedPlayers)
@@ -247,7 +247,7 @@ public enum Goals {
                     p.setGoalRankings(4);
                     p.addPoints(0);
                 }
-                return; // Skip the rest of competitive scoring
+                return; // so skip the rest of competitive scoring
             }
             
             for(int i = 0; i < sortedPlayers.size(); i++)
@@ -266,9 +266,37 @@ public enum Goals {
                 previousScore = score; // updates previous score
 
                 p.setGoalRankings(Math.min(rank, 4)); // updates player's rank for UI to use on goal board. If ranking is greater than 4, goes back to 4
-                if(rank == 1) p.addPoints(4 + roundsPlayed); // directly adds the points
-                else if(rank == 2) p.addPoints(1 + roundsPlayed);
-                else if(rank == 3) p.addPoints(0 + roundsPlayed);
+            }
+
+            // need to divide points based on ties; if tied the points need to be divided
+            int n = sortedPlayers.size();
+            int i = 0;
+            // points per goal slot; is different based on rounds played for competitive
+            int[] competitivePoints = new int[4];
+            competitivePoints[0] = 4 + roundsPlayed;
+            competitivePoints[1] = 1 + roundsPlayed;
+            competitivePoints[2] = 0 + roundsPlayed;
+            competitivePoints[3] = 0;
+
+            // loop to compute ties and divide scores
+            while(i < n) 
+            {
+                int r2 = sortedPlayers.get(i).getGoalRankings(roundsPlayed); // gets players rank
+                int gStart = i; // marks the start
+
+                int j = i + 1; // advances j to end and checks for ties
+                while (j < n && sortedPlayers.get(j).getGoalRankings(roundsPlayed) == r2) j++; // checks the player for ties
+                
+                int tiedCount = j - gStart; // subtracts number of advances from start to get amount of ties
+
+                int totalPoints = 0;
+                for (int r = r2; r < r2 + tiedCount && r <= 4; ++r) totalPoints += competitivePoints[r - 1]; // adds up the total points from the ranks tied and skipped
+
+                int pointsEach = totalPoints / tiedCount; // divides total by amount tied
+
+                for(int k = gStart; k < j; ++k) sortedPlayers.get(k).addPoints(pointsEach); // adds each player from the start to k last tied
+
+                i = j; // sets i to j whcih is the first index after the tie
             }
         }
         else
