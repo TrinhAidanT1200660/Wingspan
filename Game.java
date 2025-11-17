@@ -94,9 +94,9 @@ public class Game {
 
 		while (returning.size() < amount) { 
 			int randCard = (int) (Math.random() * allBirds.length);
-			/* if(allBirds[randCard].getDeckCount() > 0) {
+			if(allBirds[randCard].getDeckCount() > 0) {
 				allBirds[randCard].removeCardFromDeck();
-			} */
+			} 
 			returning.add(allBirds[randCard]); // this has to be in that getDeckCount if statement once actually implemented SUPER IMPORTANT
 		}
 		return returning;
@@ -161,11 +161,10 @@ public class Game {
 	{
 		if (gamePhase == 0)
 			releasedPhase0(event, released);
-		if (gamePhase == 1)
+		else if (gamePhase == 1)
 			releasedPhase1(event, released);
 	}
-	
-	
+
 	public void releasedPhase0(RootMouseEvent event, UIElement released)
 	{
         if (released.getAttribute("startButton") != null)
@@ -181,74 +180,55 @@ public class Game {
 	
 	public void releasedPhase1(RootMouseEvent event, UIElement released)
 	{
-        if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null)
+		if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null)
 		{
         	toggleSelect(released);
 			panel.clickedResource(event, released, canContinueResources());
+            
         }
-
-        else if (released == UIElement.getByName("ContinueResourcesButtonBg")) 
+		 
+		if (released == UIElement.getByName("ContinueResourcesButtonBg")) 
 		{
             Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
             if (ready != null && (boolean)ready) 
             {
-            	panel.playTransition((Runnable)() -> { // plays transition
-            		panel.clickedResourceContinue(event, released, selectionPhase == 1); // updates screen
-            		
+				panel.playTransition((Runnable)() -> { // plays transition
 					selectionPhase = (selectionPhase % 2) + 1; // updates selection phase (can only be 1 or 2)
-					continueSelection(); 
+					panel.clickedResourceContinue(event, released, selectionPhase == 1); // updates screen
+					Player current = playerList.get(playerTurn - 1); // get current player
+					if (getSelectionPhase() == 1) // if reset selection phase back to the 1st one
+					{
+						incrementPlayerTurn(); // now its the next players turn to select
+						current.addBonusHand((BonusCard)selected.first().getValue()); // add previous players bonus card selection
+						deselect(selected.last()); // remove from selected
+						if (playerTurn == 1) { // if new player is back to 1 then
+							gamePhase++;
+						} else { // else if we're not done choosing yet
+							// update player title to show the turn
+							UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
+							playerChoosingTitle.text = "Player " + getPlayerTurn();
+							giveUIBirds(5); // give next player bird choices
+						}
+					} else if (getSelectionPhase() == 2) // if next phase (bonus cards)
+					{
+						// give player their bird and food selections
+						for (Selectable selection : selected) {
+							UIElement element = selection.getElement();
+							if (element.getAttribute("birdChoice") != null) {
+								current.addBirdHand((Bird)selection.getValue());
+							} else if (element.getAttribute("foodChoice") != null) {
+								current.addFood((String)selection.getValue(), 1);
+							}
+						}
+						for (int i = 0; i < 5; i++) // deselect everything since we dont need it anymore
+							deselect(selected.last());
+						giveUIBonus(2); // draw 2 bonus cards to be able to be chosen
+					}
 				});
             }
         }
 	}
 	
-	public boolean continueSelection() 
-	{	
-		if (!canContinueResources()) return false;
-		
-		selectionPhase = (selectionPhase % 2) + 1; // updates selection phase (can only be 1 or 2)
-		Player current = playerList.get(playerTurn - 1); // get current player
-		
-		if (selectionPhase == 1) // if reset selection phase back to the 1st one
-		{
-			incrementPlayerTurn(); // now its the next players turn to select
-			current.addBonusHand((BonusCard)selected.first().getValue()); // add previous players bonus card selection
-			deselect(selected.last()); // remove from selected
-			
-			if (playerTurn == 1) // if new player is back to 1 then
-			{
-				
-				// here we move onto actual board 
-				
-			}
-			else // else if we're not done choosing yet
-			{
-				// update player title to show the turn
-				UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
-				playerChoosingTitle.text = "Player " + getPlayerTurn();
-				giveUIBirds(5); // give next player bird choices
-			}
-		} 
-			
-		else if (selectionPhase == 2) // if next phase (bonus cards)
-		{
-			// give player their bird and food selections
-			for (Selectable selection : selected) 
-			{
-				UIElement element = selection.getElement();
-				
-				if (element.getAttribute("birdChoice") != null) 
-					current.addBirdHand((Bird)selection.getValue());
-				else if (element.getAttribute("foodChoice") != null) 
-					current.addFood((String)selection.getValue(), 1);
-			}
-			giveUIBonus(2); // draw 2 bonus cards to be able to be chosen
-		}
-
-		for (int i = 0; i < 5; i++) // deselect everything since we dont need it anymore
-			deselect(selected.last());
-		return true;
-	}
 	
 	public void releasedPhase2(RootMouseEvent event, UIElement released)
 	{
@@ -257,7 +237,7 @@ public class Game {
 			
 		}
 	}
-
+	
 	public void giveUIBonus(int num)
 	{
 		ArrayList<BonusCard> randomBonus = this.pullRandomBonusCards(num);
@@ -287,8 +267,8 @@ public class Game {
 	public void setCompetitiveType(boolean isCompetitive) {this.isCompetitive = isCompetitive;}
 
 	private void handleSelected() { // if the user selected more than 5 things deselect the least recent thing selected (could be bird or food token)
-		if (selectionPhase == 1 ? selected.size() > 5 : selected.size() > 1) {
-			Selectable first = selected.first();
+		if (selectionPhase == 1 ? selected.size() > 5 : selected.size() > 1) { // if selected amounts went over limit (5 for birds/foods, 1 for bonus cards)
+			Selectable first = selected.first(); // remove the least recent selection
 			first.getElement().setAttribute("Selected", false);
 			selected.remove(first);
 			((Runnable)(first.getElement().getAttribute("Deselect"))).run();
@@ -331,13 +311,11 @@ public class Game {
 		}
 	}
 
-	public boolean canContinueResources() {
-		return selectionPhase == 1 ? selected.size() == 5 : selected.size() == 1;
-	}
+	public boolean canContinueResources() { return selectionPhase == 1 ? selected.size() == 5 : selected.size() == 1; }
 
 	public int getSelectionPhase() { return selectionPhase; }
 
-	public void incrementPlayerTurn() { playerTurn = playerTurn % playerList.size() + 1; }
+	public void incrementPlayerTurn() { playerTurn = playerTurn % 5 + 1; }
 
 	
 
