@@ -35,7 +35,8 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         ImageHandler.loadGroup("StartMenu", () -> {
             Timer t = new Timer(1000, (e) -> {
                 resourceChoosingScreen.visible = false;
-                gameScreen.visible = false;
+                gameScreen.visible = true;
+                UIElement.getByName("StartScreen").visible = false;
                 loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
@@ -116,20 +117,19 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         if (released != null && released.containsPoint(e.getX(), e.getY())) { // if we actually pressed and released something
             // we can do whatever with the button that was fully clicked here...
             currentGame.UIMouseReleased(event, released);
-            
-            Object hasAnimOnPress = released.getAttribute("animOnPress"); // check if the element wants to be animated when pressed
-            if (hasAnimOnPress != null) { // if so
-                UIElement drop = (UIElement) hasAnimOnPress;
-                drop.tweenSize((Dim2) drop.getAttribute("ogsize"), 0.05, Tween.QUAD_IN_OUT); // set it back to its original size
-            }
-
-            Object hasPressCover = released.getAttribute("pressCover"); // check if element wants to slightly dim when pressed
-            if (released.getAttribute("pressCover") != null) { // if so
-                UIFrame pressCover = (UIFrame) hasPressCover;
-                pressCover.tweenBackgroundTransparency(0f, 0.075, Tween.QUAD_IN_OUT); // fade it out so u cant see it anymore
-            }
 
         }
+        Object hasAnimOnPress = released.getAttribute("animOnPress"); // check if the element wants to be animated when pressed
+        if (hasAnimOnPress != null) { // if so
+            UIElement drop = (UIElement) hasAnimOnPress;
+            drop.tweenSize((Dim2) drop.getAttribute("ogsize"), 0.05, Tween.QUAD_IN_OUT); // set it back to its original size
+        }
+        Object hasPressCover = released.getAttribute("pressCover"); // check if element wants to slightly dim when pressed
+        if (released.getAttribute("pressCover") != null) { // if so
+            UIFrame pressCover = (UIFrame) hasPressCover;
+            pressCover.tweenBackgroundTransparency(0f, 0.075, Tween.QUAD_IN_OUT); // fade it out so u cant see it anymore
+        }
+
         mouseMoved(e);
     }
 
@@ -668,8 +668,14 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         gameScreen.anchorPoint.center(); // centered anchor point
         gameScreen.position.center(); // center in middle
         gameScreen.size.full(); // entire screen
-        gameScreen.keepAspectRatio = true;
         gameScreen.backgroundTransparency = 0; // invisible
+        
+        UIFrame infoCorner = new UIFrame("GameInfoCorner", this);
+        infoCorner.backgroundTransparency = 0f;
+        infoCorner.size = new Dim2(0.12, 0, 0.29, 0);
+        infoCorner.position = new Dim2(0.02, 0, 0.03, 0);
+        infoCorner.keepAspectRatio = true;
+        infoCorner.setParent(gameScreen);
 
         createFoodChoice("Berries");
         createFoodChoice("Fish");
@@ -688,14 +694,26 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         
         UIFrame popupContainer = new UIFrame("PopupContainer", this);
         popupContainer.borderRadius = new Dim(0.07, 0);
-        popupContainer.strokeColor = Color.lightGray;
-        popupContainer.strokeTransparency = 1f;
-        popupContainer.strokeThickness = new Dim(0.005, 0);
+        //popupContainer.strokeColor = Color.lightGray;
+        popupContainer.backgroundColor = Color.decode("#faf4f4");
+        //popupContainer.strokeTransparency = 1f;
+        //popupContainer.strokeThickness = new Dim(0.005, 0);
         popupContainer.setParent(popupBackground);
         popupContainer.position.center();
         popupContainer.anchorPoint.center();
         popupContainer.keepAspectRatio = true;
-        popupContainer.size = new Dim2(0.6, 0, 0.4, 0);
+        popupContainer.size = new Dim2(0.5, 0, 0.4, 0);
+        
+        UIText popupPrompt = new UIText("PopupTitle", this);
+        popupPrompt.backgroundTransparency = 0f;
+        popupPrompt.textColor = Color.black;
+        popupPrompt.size = new Dim2(0.9, 0, 0.5, 0);
+        popupPrompt.anchorPoint.center();
+        popupPrompt.horizontalAlignment = UIText.CENTER;
+        popupPrompt.position = new Dim2(0.5, 0, 0.35, 0);
+        popupPrompt.textScaled = true;
+        popupPrompt.text = "hi guys do you wanna pick this card or this card idk cus lowk u have just two choices but it can change a lot";
+        popupPrompt.setParent(popupContainer);
     }
 
     public void createFoodChoice(String foodName) {
