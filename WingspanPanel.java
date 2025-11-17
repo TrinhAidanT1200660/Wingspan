@@ -676,6 +676,9 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         infoCorner.position = new Dim2(0.02, 0, 0.03, 0);
         infoCorner.keepAspectRatio = true;
         infoCorner.setParent(gameScreen);
+        
+        UIFrame actionCubesStatFrame = new UIFrame("ActionCubeStatFrame", this);
+        
 
         createFoodChoice("Berries");
         createFoodChoice("Fish");
