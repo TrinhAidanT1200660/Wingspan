@@ -16,12 +16,12 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import java.util.Arrays;
 
 class Vector2 {
 
@@ -999,10 +999,6 @@ class UIElement {
         transform.rotate(Math.toRadians(rotation), anchorScreenX, anchorScreenY);
         g2d.setTransform(transform);
         mostRecentTransform = new AffineTransform(transform);
-
-        if (cropOverflow) {
-            g2d.setClip((int) absolutePosition.getX(), (int) absolutePosition.getY(), (int) absoluteSize.getX(), (int) absoluteSize.getY());
-        }
         
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         //g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -1029,6 +1025,10 @@ class UIElement {
 
         if (layout != null) {
             layout.applyLayout(this);
+        }
+
+        if (cropOverflow) {
+            g2d.setClip((int) absolutePosition.getX(), (int) absolutePosition.getY(), (int) absoluteSize.getX(), (int) absoluteSize.getY());
         }
 
         for (UIElement child : children) {

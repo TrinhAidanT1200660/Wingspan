@@ -190,7 +190,8 @@ public class Game {
 						current.addBonusHand((BonusCard)selected.first().getValue()); // add previous players bonus card selection
 						deselect(selected.last()); // remove from selected
 						if (playerTurn == 1) { // if new player is back to 1 then
-							// here we move onto actual board 
+							UIElement.getByName("ResourceChoosingScreen").visible = false;
+							UIElement.getByName("GameScreen").visible = true;
 						} else { // else if we're not done choosing yet
 							// update player title to show the turn
 							UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
@@ -254,8 +255,7 @@ public class Game {
 		}
 	}
 
-	private void deselect(Selectable element) { // deselects a specific selectable item
-		System.out.println(element);
+	private void deselect(Selectable element) { // deselects a specific selectable item\
 		if (element != null) {
 			element.getElement().setAttribute("Selected", false);
 			selected.remove(element);
@@ -295,34 +295,6 @@ public class Game {
 	public int getSelectionPhase() { return selectionPhase; }
 
 	public void incrementPlayerTurn() { playerTurn = playerTurn % 5 + 1; }
-
-	public boolean continueSelection() {
-		if (!canContinueResources()) return false;
-		selectionPhase = (selectionPhase % 2) + 1;
-		Player current = playerList.get(playerTurn - 1);
-		if (selectionPhase == 1) {
-			incrementPlayerTurn();
-			current.addBonusHand((BonusCard)selected.first().getValue());
-			deselect(selected.last());
-			if (playerTurn > playerList.size()) {
-				// here we move onto actual board 
-			}
-		} else if (selectionPhase == 2) {
-			for (Selectable selection : selected) {
-				UIElement element = selection.getElement();
-				if (element.getAttribute("birdChoice") != null) {
-					current.addBirdHand((Bird)selection.getValue());
-				} else if (element.getAttribute("foodChoice") != null) {
-					current.addFood((String)selection.getValue(), 1);
-				}
-			}
-			for (int i = 0; i < 5; i++)
-				deselect(selected.last());
-		}
-
-		selected.clear();
-		return true;
-	}
 
 	public int getPlayerTurn() { return playerTurn; }
 }
