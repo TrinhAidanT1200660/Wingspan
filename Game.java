@@ -76,8 +76,7 @@ public class Game {
         return playerList;
     }
 
-	// Randomly draws bird card to simulate the random drawing, has no remove card rn because lack of bird cards
-	// I NEED TO MAKE THIS HAVE SIZE BUT WILL DO LATER TO TELL MOHAMMED TO MAKE SURE HE CAN CHANGE IT IN UI
+	// Randomly draws bird card to simulate the random drawing
 	public ArrayList<Bird> pullRandomBirds(int amount) {
 		Bird[] allBirds = Bird.values();
 		ArrayList<Bird> returning = new ArrayList<>();
@@ -92,12 +91,14 @@ public class Game {
 	
 		amount = Math.min(amount, availableCards);
 
-		while (returning.size() < amount) { 
+		while (returning.size() < amount) 
+		{ 
 			int randCard = (int) (Math.random() * allBirds.length);
-			if(allBirds[randCard].getDeckCount() > 0) {
+			if(allBirds[randCard].getDeckCount() > 0) 
+			{
 				allBirds[randCard].removeCardFromDeck();
+				returning.add(allBirds[randCard]);
 			} 
-			returning.add(allBirds[randCard]); // this has to be in that getDeckCount if statement once actually implemented SUPER IMPORTANT
 		}
 		return returning;
 	}
@@ -118,14 +119,13 @@ public class Game {
 
 		amount = Math.min(amount, availableCards);
 		
-		while(returning.size() < amount) {
-			while (true) {
-				int randCard = (int) (Math.random() * allBonuses.length);
-				if(allBonuses[randCard].getDeckCount() > 0) {
-					allBonuses[randCard].removeCardFromDeck();
-					returning.add(allBonuses[randCard]);
-					break;
-				}
+		while(returning.size() < amount) 
+		{
+			int randCard = (int) (Math.random() * allBonuses.length);
+			if(allBonuses[randCard].getDeckCount() > 0) 
+			{
+				allBonuses[randCard].removeCardFromDeck();
+				returning.add(allBonuses[randCard]);
 			}
 		}
 		return returning;
