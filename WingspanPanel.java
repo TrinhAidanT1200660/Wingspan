@@ -672,20 +672,42 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         
         UIFrame infoCorner = new UIFrame("GameInfoCorner", this);
         infoCorner.backgroundTransparency = 0f;
-        infoCorner.size = new Dim2(0.12, 0, 0.29, 0);
-        infoCorner.position = new Dim2(0.02, 0, 0.03, 0);
+        infoCorner.size = new Dim2(0.15, 0, 0.29, 0);
+        infoCorner.position = new Dim2(0.015, 0, 0.022, 0);
         infoCorner.keepAspectRatio = true;
         infoCorner.setParent(gameScreen);
         
         UIFrame actionCubesStatFrame = new UIFrame("ActionCubeStatFrame", this);
+        actionCubesStatFrame.setParent(infoCorner);
+        actionCubesStatFrame.size = new Dim2(0.48, 0, 0.22, 0);
+        actionCubesStatFrame.backgroundColor = Color.decode("#faf4f4");
+        actionCubesStatFrame.borderRadius = new Dim(0.1, 0);
         
+        UIImage actionCubeIcon = new UIImage("ActionCubeIcon", this);
+        actionCubeIcon.setParent(actionCubesStatFrame);
+        actionCubeIcon.setImagePath("images/blue_action_cube.png");
+        actionCubeIcon.setImageFillType(UIImage.FIT_IMAGE);
+        actionCubeIcon.backgroundTransparency = 0f;
+        actionCubeIcon.size = new Dim2(0.45, 0, 0.8, 0);
+        actionCubeIcon.anchorPoint = new Vector2(0, 0.5);
+        actionCubeIcon.position = new Dim2(0.08, 0, 0.5, 0);
+        
+        UIText actionCubesStat = new UIText("ActionCubesStat", this);
+        actionCubesStat.setParent(actionCubesStatFrame);
+        actionCubesStat.textScaled = true;
+        actionCubesStat.text = "1";
+        actionCubesStat.textColor = Color.black;
+        actionCubesStat.backgroundTransparency = 0f;
+        actionCubesStat.anchorPoint = new Vector2(0, 0.5);
+        actionCubesStat.position = new Dim2(0.5, 0, 0.5, 0);
+        actionCubesStat.size = new Dim2(0.45, 0, 0.8, 0);
 
         createFoodChoice("Berries");
         createFoodChoice("Fish");
         createFoodChoice("Worm");
         createFoodChoice("Seed");
         createFoodChoice("Rat");
-
+        
         UIFrame popupBackground = new UIFrame("PopupBackground", this);
         popupBackground.backgroundColor = Color.black;
         popupBackground.backgroundTransparency = 0.5f;
