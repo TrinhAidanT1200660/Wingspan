@@ -324,7 +324,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    NEST_BOX_BUILDER("best_box_builder.png", (player) -> {
+    NEST_BOX_BUILDER("nest_box_builder.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
