@@ -105,9 +105,8 @@ public class Game {
         return playerList;
     }
 
-	// Randomly draws bird card to simulate the random drawing, has no remove card rn because lack of bird cards
-	public ArrayList<Bird> pullRandomBirds(int amount)
-	{
+	// Randomly draws bird card to simulate the random drawing
+	public ArrayList<Bird> pullRandomBirds(int amount) {
 		Bird[] allBirds = Bird.values();
 		ArrayList<Bird> deck = new ArrayList<>();
 		for(Bird card: allBirds)
@@ -238,6 +237,14 @@ public class Game {
 
 	public void UIMouseReleased(RootMouseEvent event, UIElement released)
 	{
+		if (gamePhase == 0)
+			releasedPhase0(event, released);
+		else if (gamePhase == 1)
+			releasedPhase1(event, released);
+	}
+
+	public void releasedPhase0(RootMouseEvent event, UIElement released)
+	{
         if (released.getAttribute("startButton") != null)
 		{
 			panel.playTransition((Runnable)() -> {
@@ -245,15 +252,19 @@ public class Game {
 				giveUIBirds(5);
 				panel.clickedStart(event, released);
 			});
+			gamePhase++;
     	} 
-
-        else if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null)
+	}
+	
+	public void releasedPhase1(RootMouseEvent event, UIElement released)
+	{
+		if (released.getAttribute("birdChoice") != null || released.getAttribute("foodChoice") != null || released.getAttribute("bonusChoice") != null)
 		{
         	toggleSelect(released);
 			panel.clickedResource(event, released, canContinueResources());
             
         }
-
+		 
 		if (released == UIElement.getByName("ContinueResourcesButtonBg")) 
 		{
             Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
@@ -269,7 +280,7 @@ public class Game {
 						current.addBonusHand((BonusCard)selected.first().getValue()); // add previous players bonus card selection
 						deselect(selected.last()); // remove from selected
 						if (playerTurn == 1) { // if new player is back to 1 then
-							// here we move onto actual board 
+							gamePhase++;
 						} else { // else if we're not done choosing yet
 							// update player title to show the turn
 							UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
@@ -295,7 +306,16 @@ public class Game {
             }
         }
 	}
-
+	
+	
+	public void releasedPhase2(RootMouseEvent event, UIElement released)
+	{
+		if (released == UIElement.getByName(""))
+		{
+			
+		}
+	}
+	
 	public void giveUIBonus(int num)
 	{
 		ArrayList<BonusCard> randomBonus = this.pullRandomBonusCards(num);
@@ -325,8 +345,8 @@ public class Game {
 	public void setCompetitiveType(boolean isCompetitive) {this.isCompetitive = isCompetitive;}
 
 	private void handleSelected() { // if the user selected more than 5 things deselect the least recent thing selected (could be bird or food token)
-		if (selectionPhase == 1 ? selected.size() > 5 : selected.size() > 1) {
-			Selectable first = selected.first();
+		if (selectionPhase == 1 ? selected.size() > 5 : selected.size() > 1) { // if selected amounts went over limit (5 for birds/foods, 1 for bonus cards)
+			Selectable first = selected.first(); // remove the least recent selection
 			first.getElement().setAttribute("Selected", false);
 			selected.remove(first);
 			((Runnable)(first.getElement().getAttribute("Deselect"))).run();
@@ -369,41 +389,13 @@ public class Game {
 		}
 	}
 
-	public boolean canContinueResources() {
-		return selectionPhase == 1 ? selected.size() == 5 : selected.size() == 1;
-	}
+	public boolean canContinueResources() { return selectionPhase == 1 ? selected.size() == 5 : selected.size() == 1; }
 
 	public int getSelectionPhase() { return selectionPhase; }
 
 	public void incrementPlayerTurn() { playerTurn = playerTurn % 5 + 1; }
 
-	public boolean continueSelection() {
-		if (!canContinueResources()) return false;
-		selectionPhase = (selectionPhase % 2) + 1;
-		Player current = playerList.get(playerTurn - 1);
-		if (selectionPhase == 1) {
-			incrementPlayerTurn();
-			current.addBonusHand((BonusCard)selected.first().getValue());
-			deselect(selected.last());
-			if (playerTurn > playerList.size()) {
-				// here we move onto actual board 
-			}
-		} else if (selectionPhase == 2) {
-			for (Selectable selection : selected) {
-				UIElement element = selection.getElement();
-				if (element.getAttribute("birdChoice") != null) {
-					current.addBirdHand((Bird)selection.getValue());
-				} else if (element.getAttribute("foodChoice") != null) {
-					current.addFood((String)selection.getValue(), 1);
-				}
-			}
-			for (int i = 0; i < 5; i++)
-				deselect(selected.last());
-		}
-
-		selected.clear();
-		return true;
-	}
+	
 
 	public int getPlayerTurn() { return playerTurn; }
 }

@@ -14,9 +14,8 @@ import javax.swing.Timer;
 
 public class WingspanPanel extends JPanel implements MouseListener, MouseMotionListener {
     public Game currentGame;
-    private UIElement root, transition, startMenu, resourceChoosingScreen, birdContainer;
+    private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, birdContainer;
     private UIText loadingTitle;
-    private UIImage loadingBird;
 
     public WingspanPanel() {
         currentGame = new Game(this);
@@ -32,10 +31,13 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     public void addNotify() {
         super.addNotify();
         loadResources();
+        repaint();
         ImageHandler.loadGroup("StartMenu", () -> {
             Timer t = new Timer(1000, (e) -> {
-                UIElement.getByName("ResourceChoosingScreen").visible = false;
+                resourceChoosingScreen.visible = false;
+                gameScreen.visible = false;
                 loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
+                ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
                     transition.visible = false;
                 });
@@ -52,9 +54,11 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         transition.backgroundTransparency = 0f;
         loadingTitle.textTransparency = 0f;
         loadingTitle.tweenTextTransparency(1f, 0.4, Tween.QUAD_IN_OUT);
+        ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(1f, 0.4, Tween.QUAD_IN_OUT);
         transition.tweenBackgroundTransparency(1f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
             if (between != null) between.run();
             loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
+            ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
             transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> { 
                 transition.visible = false;
             });
@@ -262,8 +266,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         blackBackground.backgroundColor = Color.black;
 
         UIImage backgroundFrame = new UIImage("Background", this); // background image of the sky
-        backgroundFrame.setImagePath("images/wingspan_background.png"); // setting the picture to the BufferedImage of the
-        // sky
+        backgroundFrame.setImagePath("images/wingspan_background.png"); // setting the picture to the BufferedImage of the sky
         backgroundFrame.size.full(); // take 100% of the screen
         backgroundFrame.backgroundTransparency = 0f; // no background color
         backgroundFrame.setImageFillType(UIImage.CROP_IMAGE); // setting it so even if screen is an awkward size the
@@ -433,15 +436,40 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         transition.anchorPoint.center();
         transition.backgroundColor = Color.BLACK;
 
+        UIFrame transitionContainer = new UIFrame("TransitionContainer", this);
+        transitionContainer.backgroundTransparency = 0f;
+        transitionContainer.size = new Dim2(0.3, 0, 0.1, 0);
+        transitionContainer.anchorPoint.center();
+        transitionContainer.position.center();
+        transitionContainer.keepAspectRatio = true;
+        transitionContainer.setParent(transition);
+
+        UIFrame birdSpriteContainer = new UIFrame("BirdSpriteContainer", this);
+        birdSpriteContainer.size = new Dim2(0.2, 0, 1, 0);
+        birdSpriteContainer.position = new Dim2(0.05, 0, 0, 0);
+        birdSpriteContainer.backgroundTransparency = 0f;
+        birdSpriteContainer.setParent(transitionContainer);
+
+        UIImage birdSprite = new UIImage("BirdSprite", this);
+        birdSprite.size.full();
+        birdSprite.anchorPoint.center();
+        birdSprite.position.center();
+        birdSprite.rotation = -30;
+        birdSprite.backgroundTransparency = 0f;
+        birdSprite.setParent(birdSpriteContainer);
+        birdSprite.setImagePath("images/bird_flying.png");
+        birdSprite.setImageFillType(UIImage.SPRITE_ANIMATION);
+        birdSprite.setSpriteSheet(640, 640);
+        birdSprite.playSpriteAnimation(0.08, true);
+
         loadingTitle = new UIText("LoadingTitle", this);
         loadingTitle.backgroundTransparency = 0f;
         loadingTitle.textColor = Color.white;
         loadingTitle.textScaled = true;
-        loadingTitle.size = new Dim2(0.2, 0, 0.15, 0);
-        loadingTitle.position.center();
-        loadingTitle.anchorPoint.center();
+        loadingTitle.position = new Dim2(0.27, 0, 0, 0);
+        loadingTitle.size = new Dim2(0.6, 0, 1, 0);
         loadingTitle.text = "WINGSPAN";
-        loadingTitle.setParent(transition);
+        loadingTitle.setParent(transitionContainer);
 
         // next screen
         resourceChoosingScreen = new UIFrame("ResourceChoosingScreen", this); // invisible frame holding player choosing stuff
@@ -636,11 +664,38 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         foodChoicesLayout.spacing = new Dim(0.005, 0);
         choosableFoodsContainer.layout = foodChoicesLayout;
 
+        gameScreen = new UIFrame("GameScreen", this); // invisible frame for the game
+        gameScreen.anchorPoint.center(); // centered anchor point
+        gameScreen.position.center(); // center in middle
+        gameScreen.size.full(); // entire screen
+        gameScreen.keepAspectRatio = true;
+        gameScreen.backgroundTransparency = 0; // invisible
+
         createFoodChoice("Berries");
         createFoodChoice("Fish");
         createFoodChoice("Worm");
         createFoodChoice("Seed");
         createFoodChoice("Rat");
+
+        UIFrame popupBackground = new UIFrame("PopupBackground", this);
+        popupBackground.backgroundColor = Color.black;
+        popupBackground.backgroundTransparency = 0.5f;
+        popupBackground.size.full();
+        popupBackground.position.center();
+        popupBackground.anchorPoint.center();
+        popupBackground.setZIndex(100);
+        popupBackground.visible = false;
+        
+        UIFrame popupContainer = new UIFrame("PopupContainer", this);
+        popupContainer.borderRadius = new Dim(0.07, 0);
+        popupContainer.strokeColor = Color.lightGray;
+        popupContainer.strokeTransparency = 1f;
+        popupContainer.strokeThickness = new Dim(0.005, 0);
+        popupContainer.setParent(popupBackground);
+        popupContainer.position.center();
+        popupContainer.anchorPoint.center();
+        popupContainer.keepAspectRatio = true;
+        popupContainer.size = new Dim2(0.6, 0, 0.4, 0);
     }
 
     public void createFoodChoice(String foodName) {
@@ -704,6 +759,10 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
 
     public void animDropshadow(UIElement element, UIElement toAnimate) {
         element.setAttribute("drop", toAnimate);
+    }
+
+    public void promptPlayer(String question, String option1, String option2, Runnable callback) {
+
     }
 }
 
