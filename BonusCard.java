@@ -536,7 +536,7 @@ public enum BonusCard implements BonusCardInterface
     }),
 
 
-    VITACULTURALIST("vitaculturalist.png", (player) -> {
+    VITICULTURALIST("viticulturalist.png", (player) -> {
         //how many cards are counted towards the bonus card
 	    int count = 0; 
 
