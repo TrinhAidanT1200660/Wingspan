@@ -682,10 +682,13 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         actionCubesStatFrame.size = new Dim2(0.48, 0, 0.22, 0);
         actionCubesStatFrame.backgroundColor = Color.decode("#faf4f4");
         actionCubesStatFrame.borderRadius = new Dim(0.1, 0);
+        actionCubesStatFrame.strokeThickness = new Dim(0.01, 0);
+        actionCubesStatFrame.strokeTransparency = 0f;
+        actionCubesStatFrame.strokeColor = Color.decode("#fff7f7");
         
         UIImage actionCubeIcon = new UIImage("ActionCubeIcon", this);
         actionCubeIcon.setParent(actionCubesStatFrame);
-        actionCubeIcon.setImagePath("images/blue_action_cube.png");
+        actionCubeIcon.setImagePath("images/yellow_action_cube.png");
         actionCubeIcon.setImageFillType(UIImage.FIT_IMAGE);
         actionCubeIcon.backgroundTransparency = 0f;
         actionCubeIcon.size = new Dim2(0.45, 0, 0.8, 0);
@@ -697,16 +700,59 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         actionCubesStat.textScaled = true;
         actionCubesStat.text = "1";
         actionCubesStat.textColor = Color.black;
+        actionCubesStat.horizontalAlignment = UIText.LEFT;
         actionCubesStat.backgroundTransparency = 0f;
+        actionCubesStat.backgroundColor = Color.black;
         actionCubesStat.anchorPoint = new Vector2(0, 0.5);
-        actionCubesStat.position = new Dim2(0.5, 0, 0.5, 0);
-        actionCubesStat.size = new Dim2(0.45, 0, 0.8, 0);
-
-        createFoodChoice("Berries");
-        createFoodChoice("Fish");
-        createFoodChoice("Worm");
-        createFoodChoice("Seed");
-        createFoodChoice("Rat");
+        actionCubesStat.position = new Dim2(0.6, 0, 0.52, 0);
+        actionCubesStat.size = new Dim2(0.4, 0, 0.75, 0);
+        
+        UIFrame foodsStatFrame = new UIFrame("FoodsStatFrame", this);
+        foodsStatFrame.setParent(infoCorner);
+        foodsStatFrame.position = new Dim2(0, 0, 0.25, 0);
+        foodsStatFrame.size = new Dim2(0.48, 0, 0.85, 0);
+        foodsStatFrame.backgroundColor = Color.decode("#faf4f4");
+        foodsStatFrame.borderRadius = new Dim(0.1, 0);
+        foodsStatFrame.strokeThickness = new Dim(0.01, 0);
+        foodsStatFrame.strokeTransparency = 0f;
+        foodsStatFrame.strokeColor = Color.decode("#fff7f7");
+        
+        ListLayout foodsStatLayout = new ListLayout();
+        foodsStatLayout.direction = ListLayout.VERTICAL;
+        foodsStatLayout.verticalAlignment = ListLayout.CENTER;
+        foodsStatLayout.horizontalAlignment = ListLayout.CENTER;
+        foodsStatLayout.spacing = new Dim(0.00, 0);
+        foodsStatFrame.layout = foodsStatLayout;
+        
+        String[] foods = new String[] {"Berries", "Fish", "Worm", "Seed", "Rat"};
+        for (String food : foods) {
+        	createFoodChoice(food);
+        	
+        	UIFrame foodStatFrame = new UIFrame(food + "StatFrame", this);
+        	foodStatFrame.size = new Dim2(1, 0, 0.19, 0);
+        	foodStatFrame.backgroundTransparency = 0f;
+        	foodStatFrame.setParent(foodsStatFrame);
+        	
+        	UIImage foodStatIcon = new UIImage(food + "StatIcon", this);
+        	foodStatIcon.size = new Dim2(0.5, 0, 1, 0);
+        	foodStatIcon.position = new Dim2(0.05, 0, 0, 0);
+        	foodStatIcon.backgroundTransparency = 0f;
+        	foodStatIcon.setImageFillType(UIImage.FIT_IMAGE);
+        	foodStatIcon.setImagePath("foods/" + food.toLowerCase() + ".png");
+        	foodStatIcon.setParent(foodStatFrame);
+        	
+        	UIText foodStat = new UIText(food + "Stat", this);
+        	foodStat.setParent(foodStatFrame);
+        	foodStat.textScaled = true;
+        	foodStat.text = "1";
+        	foodStat.textColor = Color.black;
+        	foodStat.horizontalAlignment = UIText.LEFT;
+            foodStat.backgroundTransparency = 0f;
+            foodStat.backgroundColor = Color.black;
+            foodStat.anchorPoint = new Vector2(0, 0.5);
+            foodStat.position = new Dim2(0.6, 0, 0.52, 0);
+            foodStat.size = new Dim2(0.4, 0, 0.75, 0);
+        }
         
         UIFrame popupBackground = new UIFrame("PopupBackground", this);
         popupBackground.backgroundColor = Color.black;
