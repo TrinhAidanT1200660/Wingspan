@@ -18,7 +18,9 @@ public class Player {
     private HashMap<String, Integer> food;
     //stores the number of action cubes each player has
     private int actionCubes;
-    //stores the goal ranking for each round
+    //stores the goal ranking for each round; flipped for each mode
+    // competitive goes from 1-4 (best to worst) | non-competitive goes from (5-0) (best to worst)
+    // keep in mind when having UI place action cubes on board based on rankings
     private ArrayList<Integer> goalRankings;
 
     //CONSTRUCTOR:
@@ -37,6 +39,7 @@ public class Player {
         food.put("seed", 0);
         food.put("worm", 0);
         this.actionCubes = 8;
+        this.goalRankings = new ArrayList<>();
     }
 
     //RETURN METHODS:
@@ -118,8 +121,8 @@ public class Player {
     }
 
     //sets the ranking of the player of the round
-    public void setGoalRankings(int round, int ranking) {
-        goalRankings.set(round, ranking);
+    public void setGoalRankings(int ranking) {
+        goalRankings.add(ranking);
     }
 
     public boolean hasEnoughFood(Bird bird) {
