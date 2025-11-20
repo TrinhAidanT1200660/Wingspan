@@ -4,6 +4,8 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -12,7 +14,7 @@ import java.io.InputStream;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-public class WingspanPanel extends JPanel implements MouseListener, MouseMotionListener {
+public class WingspanPanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
     public Game currentGame;
     private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, birdContainer;
     private UIText loadingTitle;
@@ -25,18 +27,21 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
 
         addMouseMotionListener(this);
         addMouseListener(this);
+        addKeyListener(this);
+        
     }
 
     @Override
     public void addNotify() {
         super.addNotify();
+        requestFocus();
         loadResources();
         repaint();
         ImageHandler.loadGroup("StartMenu", () -> {
             Timer t = new Timer(1000, (e) -> {
                 resourceChoosingScreen.visible = false;
-                gameScreen.visible = true;
-                UIElement.getByName("StartScreen").visible = false;
+                gameScreen.visible = false;
+                UIElement.getByName("StartScreen").visible = true;
                 loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
@@ -207,6 +212,17 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
     @Override
     public void mouseDragged(MouseEvent e) {
     }
+    
+    @Override
+    public void keyTyped(KeyEvent e) { }
+    
+    @Override
+    public void keyReleased(KeyEvent e) {
+    	currentGame.UIKeyReleased(e);
+    }
+    
+    @Override
+    public void keyPressed(KeyEvent e) { }
 
     //to be called from back end
     public void clickedResource(RootMouseEvent event, UIElement released, boolean canContinue)
@@ -704,7 +720,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         actionCubesStat.backgroundTransparency = 0f;
         actionCubesStat.backgroundColor = Color.black;
         actionCubesStat.anchorPoint = new Vector2(0, 0.5);
-        actionCubesStat.position = new Dim2(0.6, 0, 0.52, 0);
+        actionCubesStat.position = new Dim2(0.65, 0, 0.52, 0);
         actionCubesStat.size = new Dim2(0.4, 0, 0.75, 0);
         
         UIFrame foodsStatFrame = new UIFrame("FoodsStatFrame", this);
@@ -721,7 +737,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         foodsStatLayout.direction = ListLayout.VERTICAL;
         foodsStatLayout.verticalAlignment = ListLayout.CENTER;
         foodsStatLayout.horizontalAlignment = ListLayout.CENTER;
-        foodsStatLayout.spacing = new Dim(0.00, 0);
+        foodsStatLayout.spacing = new Dim(-0.01, 0);
         foodsStatFrame.layout = foodsStatLayout;
         
         String[] foods = new String[] {"Berries", "Fish", "Worm", "Seed", "Rat"};
@@ -734,11 +750,11 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
         	foodStatFrame.setParent(foodsStatFrame);
         	
         	UIImage foodStatIcon = new UIImage(food + "StatIcon", this);
-        	foodStatIcon.size = new Dim2(0.5, 0, 1, 0);
+        	foodStatIcon.size = new Dim2(0.55, 0, 1, 0);
         	foodStatIcon.position = new Dim2(0.05, 0, 0, 0);
         	foodStatIcon.backgroundTransparency = 0f;
         	foodStatIcon.setImageFillType(UIImage.FIT_IMAGE);
-        	foodStatIcon.setImagePath("foods/" + food.toLowerCase() + ".png");
+        	foodStatIcon.setImagePath("foods/" + food.toLowerCase() + "_ns.png");
         	foodStatIcon.setParent(foodStatFrame);
         	
         	UIText foodStat = new UIText(food + "Stat", this);
@@ -750,7 +766,7 @@ public class WingspanPanel extends JPanel implements MouseListener, MouseMotionL
             foodStat.backgroundTransparency = 0f;
             foodStat.backgroundColor = Color.black;
             foodStat.anchorPoint = new Vector2(0, 0.5);
-            foodStat.position = new Dim2(0.6, 0, 0.52, 0);
+            foodStat.position = new Dim2(0.65, 0, 0.52, 0);
             foodStat.size = new Dim2(0.4, 0, 0.75, 0);
         }
         

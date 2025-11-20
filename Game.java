@@ -1,3 +1,4 @@
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
@@ -155,6 +156,12 @@ public class Game {
 	public ArrayList<String> getBirdFeeder()
 	{
 		return birdFeeder;
+	}
+	
+	public void UIKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			UIMouseReleased(null, UIElement.getByName("ContinueResourcesButtonBg"));
+		}
 	}
 
 	public void UIMouseReleased(RootMouseEvent event, UIElement released)
