@@ -40,8 +40,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         ImageHandler.loadGroup("StartMenu", () -> {
             Timer t = new Timer(1000, (e) -> {
                 resourceChoosingScreen.visible = false;
-                gameScreen.visible = false;
-                UIElement.getByName("StartScreen").visible = true;
+                gameScreen.visible = true;
+                UIElement.getByName("StartScreen").visible = false;
                 loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
@@ -688,48 +688,43 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         
         UIFrame infoCorner = new UIFrame("GameInfoCorner", this);
         infoCorner.backgroundTransparency = 0f;
-        infoCorner.size = new Dim2(0.15, 0, 0.29, 0);
+        infoCorner.size = new Dim2(0.15, 0, 0.29, 0).dilate(1.3);
         infoCorner.position = new Dim2(0.015, 0, 0.022, 0);
         infoCorner.keepAspectRatio = true;
         infoCorner.setParent(gameScreen);
         
-        UIFrame actionCubesStatFrame = new UIFrame("ActionCubeStatFrame", this);
-        actionCubesStatFrame.setParent(infoCorner);
-        actionCubesStatFrame.size = new Dim2(0.48, 0, 0.22, 0);
-        actionCubesStatFrame.backgroundColor = Color.decode("#faf4f4");
-        actionCubesStatFrame.borderRadius = new Dim(0.1, 0);
-        actionCubesStatFrame.strokeThickness = new Dim(0.01, 0);
-        actionCubesStatFrame.strokeTransparency = 0f;
-        actionCubesStatFrame.strokeColor = Color.decode("#fff7f7");
+        UIImage gameStatsFrame = new UIImage("GameStatsFrame", this);
+        gameStatsFrame.setParent(infoCorner);
+        gameStatsFrame.setImagePath("images/game_stats_background.png");
+        gameStatsFrame.setImageFillType(UIImage.FIT_IMAGE);
+        gameStatsFrame.size = new Dim2(0.46, 0, 1, 0);
+        gameStatsFrame.backgroundTransparency = 0f;
         
         UIImage actionCubeIcon = new UIImage("ActionCubeIcon", this);
-        actionCubeIcon.setParent(actionCubesStatFrame);
-        actionCubeIcon.setImagePath("images/yellow_action_cube.png");
+        actionCubeIcon.setParent(gameStatsFrame);
+        actionCubeIcon.setImagePath("images/blue_action_cube.png");
         actionCubeIcon.setImageFillType(UIImage.FIT_IMAGE);
         actionCubeIcon.backgroundTransparency = 0f;
-        actionCubeIcon.size = new Dim2(0.45, 0, 0.8, 0);
-        actionCubeIcon.anchorPoint = new Vector2(0, 0.5);
-        actionCubeIcon.position = new Dim2(0.08, 0, 0.5, 0);
+        actionCubeIcon.size = new Dim2(0.45, 0, 0.15, 0);
+        actionCubeIcon.position = new Dim2(0.12, 0, 0.05, 0);
         
         UIText actionCubesStat = new UIText("ActionCubesStat", this);
-        actionCubesStat.setParent(actionCubesStatFrame);
+        actionCubesStat.setParent(gameStatsFrame);
         actionCubesStat.textScaled = true;
-        actionCubesStat.text = "1";
+        actionCubesStat.text = "2";
         actionCubesStat.textColor = Color.black;
         actionCubesStat.horizontalAlignment = UIText.LEFT;
         actionCubesStat.backgroundTransparency = 0f;
         actionCubesStat.backgroundColor = Color.black;
-        actionCubesStat.anchorPoint = new Vector2(0, 0.5);
-        actionCubesStat.position = new Dim2(0.65, 0, 0.52, 0);
-        actionCubesStat.size = new Dim2(0.4, 0, 0.75, 0);
-        
+        actionCubesStat.position = new Dim2(0.625, 0, 0.055, 0);
+        actionCubesStat.size = new Dim2(0.4, 0, 0.15, 0);
+
         UIFrame foodsStatFrame = new UIFrame("FoodsStatFrame", this);
-        foodsStatFrame.setParent(infoCorner);
-        foodsStatFrame.position = new Dim2(0, 0, 0.25, 0);
-        foodsStatFrame.size = new Dim2(0.48, 0, 0.85, 0);
-        foodsStatFrame.backgroundColor = Color.decode("#faf4f4");
-        foodsStatFrame.borderRadius = new Dim(0.1, 0);
-        foodsStatFrame.strokeThickness = new Dim(0.01, 0);
+        foodsStatFrame.setParent(gameStatsFrame);
+        foodsStatFrame.position = new Dim2(0.045, 0, 0.315, 0);
+        foodsStatFrame.size = new Dim2(0.92, 0, 0.65, 0);
+        foodsStatFrame.backgroundColor = Color.black;
+        foodsStatFrame.backgroundTransparency = 0f;
         foodsStatFrame.strokeTransparency = 0f;
         foodsStatFrame.strokeColor = Color.decode("#fff7f7");
         
@@ -737,7 +732,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         foodsStatLayout.direction = ListLayout.VERTICAL;
         foodsStatLayout.verticalAlignment = ListLayout.CENTER;
         foodsStatLayout.horizontalAlignment = ListLayout.CENTER;
-        foodsStatLayout.spacing = new Dim(-0.01, 0);
+        foodsStatLayout.spacing = new Dim(-0.005, 0);
         foodsStatFrame.layout = foodsStatLayout;
         
         String[] foods = new String[] {"Berries", "Fish", "Worm", "Seed", "Rat"};
@@ -745,17 +740,9 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         	createFoodChoice(food);
         	
         	UIFrame foodStatFrame = new UIFrame(food + "StatFrame", this);
-        	foodStatFrame.size = new Dim2(1, 0, 0.19, 0);
+        	foodStatFrame.size = new Dim2(1, 0, 0.2, 0);
         	foodStatFrame.backgroundTransparency = 0f;
         	foodStatFrame.setParent(foodsStatFrame);
-        	
-        	UIImage foodStatIcon = new UIImage(food + "StatIcon", this);
-        	foodStatIcon.size = new Dim2(0.55, 0, 1, 0);
-        	foodStatIcon.position = new Dim2(0.05, 0, 0, 0);
-        	foodStatIcon.backgroundTransparency = 0f;
-        	foodStatIcon.setImageFillType(UIImage.FIT_IMAGE);
-        	foodStatIcon.setImagePath("foods/" + food.toLowerCase() + "_ns.png");
-        	foodStatIcon.setParent(foodStatFrame);
         	
         	UIText foodStat = new UIText(food + "Stat", this);
         	foodStat.setParent(foodStatFrame);
