@@ -195,7 +195,7 @@ public enum Bird
 	// WOOD_DUCK
 	WOOD_STORK("WOOD STORK", "birds/wood_stork.png", 2, 155, 6, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 1any 1fish 1rat", "PLATFORM", BirdAction.DRAW2BIRDCARDS),
 	YELLOW_BELLIED_SAPSUCKER("YELLOW BELLIED SAPSUCKER", "birds/yellow-bellied_sapsucker.png", 3, 41, 3, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1worm", "Cavity", BirdAction.GET1WORM),
-	// YELLOW_BILLED_CUCKOO
+	// YELLOW_BILLED_CUCKOO "birds/yellow-billed_cuckoo.png"
 	YELLOW_BREASTED_CHAT("YELLOW BREASTED CHAT", "birds/yellow-breasted_chat.png", 3, 25, 5, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 2berry 1worm", "Bowl", BirdAction.MOVEIFATVERYRIGHT),
 	YELLOW_HEADED_BLACKBIRD("YELLOW HEADED BLACKBIRD", "birds/yellow-headed_blackbird.png", 3, 38, 4, new String[] {"wetland"}, "BROWN", "Flocking", "and 1seed 1worm", "Bowl", BirdAction.TUCK1BIRDANDLAY1EGG),
 	YELLOW_RUMPED_WARBLER("YELLOW RUMPED WARBLER", "birds/yellow-rumped_warbler.png", 4, 23, 1, new String[] {"forest"}, "BROWN", "Flocking", "or 1berry 1seed 1worm", "Bowl", BirdAction.TUCK1BIRDANDDRAW1BIRD)
