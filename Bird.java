@@ -192,7 +192,7 @@ public enum Bird
 	WILD_TURKEY("WILD TURKEY", "birds/wild_turkey.png", 5, 135, 8, new String[] {"forest", "grassland"}, "NONE", "Other", "and 1berry 2seed", "Ground", BirdAction.NONE),
 	WILLET("WILLET", "birds/willet.png", 2, 66, 4, new String[] {"wetland"}, "BROWN", "Predator", "or 1fish 1worm", "Ground", BirdAction.ROLLDICEANDFINDFISH),
 	WILSONS_SNIPE("WILSON'S SNIPE", "birds/wilson's_snipe.png", 2, 41, 5, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1worm", "Ground", BirdAction.ALLDRAW1BIRD),
-	// WOOD_DUCK
+	// WOOD_DUCK "birds/wood_duck.png"
 	WOOD_STORK("WOOD STORK", "birds/wood_stork.png", 2, 155, 6, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 1any 1fish 1rat", "PLATFORM", BirdAction.DRAW2BIRDCARDS),
 	YELLOW_BELLIED_SAPSUCKER("YELLOW BELLIED SAPSUCKER", "birds/yellow-bellied_sapsucker.png", 3, 41, 3, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1worm", "Cavity", BirdAction.GET1WORM),
 	// YELLOW_BILLED_CUCKOO "birds/yellow-billed_cuckoo.png"
