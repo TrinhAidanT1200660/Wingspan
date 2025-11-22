@@ -179,7 +179,7 @@ public enum Bird
 	TREE_SWALLOW("TREE SWALLOW", "birds/tree_swallow.png", 4, 38, 3, new String[] {"wetland"}, "BROWN", "Flocking", "and 1berry 1worm", "Cavity", BirdAction.TUCK1BIRDANDDRAW1BIRD),
 	TRUMPETER_SWAN("TRUMPETER SWAN", "birds/trumpeter_swan.png", 2, 203, 9, new String[] {"wetland"}, "NONE", "Other", "and 1any 2seed", "Ground", BirdAction.NONE),
 	// TUFTED_TITMOUSE "birds/tufted_titmouse.png"
-	// TURKEY_VULTURE
+	// TURKEY_VULTURE "birds/turkey_vulture.png"
 	VAUXS_SWIFT("VAUX'S SWIFT", "birds/vaux's_swift.png", 3, 31, 2, new String[] {"forest"}, "BROWN", "Flocking", "and 1worm", "Cavity", BirdAction.TUCK1BIRDANDGET1WORM),
 	VIOLET_GREEN_SWALLOW("VIOLET GREEN SWALLOW", "birds/violet-green_swallow.png", 3, 36, 3, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Flocking", "and 2worm", "Cavity", BirdAction.TUCK1BIRDANDDRAW1BIRD),
 	// WESTERN_MEADOWLARK
