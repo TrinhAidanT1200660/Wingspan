@@ -182,7 +182,7 @@ public enum Bird
 	// TURKEY_VULTURE "birds/turkey_vulture.png"
 	VAUXS_SWIFT("VAUX'S SWIFT", "birds/vaux's_swift.png", 3, 31, 2, new String[] {"forest"}, "BROWN", "Flocking", "and 1worm", "Cavity", BirdAction.TUCK1BIRDANDGET1WORM),
 	VIOLET_GREEN_SWALLOW("VIOLET GREEN SWALLOW", "birds/violet-green_swallow.png", 3, 36, 3, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Flocking", "and 2worm", "Cavity", BirdAction.TUCK1BIRDANDDRAW1BIRD),
-	// WESTERN_MEADOWLARK
+	// WESTERN_MEADOWLARK "birds/western_meadowlark.png"
 	WESTERN_TANAGER("WESTERN TANAGER", "birds/western_tanager.png", 2, 30, 6, new String[] {"forest"}, "BROWN", "Other", "and 1berry 2worm", "Bowl", BirdAction.GET1BERRYOR1SEED),
 	WHITE_BREASTED_NUTHATCH("WHITE BREASTED NUTHATCH", "birds/white-breasted_nuthatch.png", 3, 28, 2, new String[] {"forest"}, "BROWN", "Other", "or 1seed 1worm", "Cavity", BirdAction.CACHE1SEED),
 	WHITE_CROWNED_SPARROW("WHITE CROWNED SPARROW", "birds/white-crested_sparrow.png" , 5, 25, 2, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1seed 1worm", "Ground", BirdAction.MOVEIFATVERYRIGHT),
