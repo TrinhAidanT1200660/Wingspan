@@ -176,29 +176,29 @@ public enum Bird
 	SPRAGUES_PIPIT("SPRAGUE'S PIPIT", "birds/sprague's_pipit.png", 3, 25, 3, new String[] {"grassland"}, "WHITE", "CardDrawing", "and 1seed 1worm", "Ground", BirdAction.DRAW2BONUSKEEP1),
 	STELLERS_JAY("STELLER'S JAY", "birds/steller's_jay.png", 2, 48, 5, new String[] {"forest"}, "BROWN", "Other", "and 1any 2seed", "Bowl", BirdAction.GAIN1SEEDANDCACHE),
 	SWAINSONS_HAWK("SWAINSON'S HAWK", "birds/swainson's_hawk.png", 2, 130, 5, new String[] {"grassland"}, "BROWN", "Predator", "and 1rat 1worm", "Platform", BirdAction.DRAW1BIRDANDTUCKIF75CM),
-	TREE_SWALLOW("TREE SWALLOW", "temp", 4, 38, 3, new String[] {"wetland"}, "BROWN", "Flocking", "and 1berry 1worm", "Cavity", BirdAction.TUCK1BIRDANDDRAW1BIRD),
+	TREE_SWALLOW("TREE SWALLOW", "birds/tree_swallow.png", 4, 38, 3, new String[] {"wetland"}, "BROWN", "Flocking", "and 1berry 1worm", "Cavity", BirdAction.TUCK1BIRDANDDRAW1BIRD),
 	TRUMPETER_SWAN("TRUMPETER SWAN", "birds/trumpeter_swan.png", 2, 203, 9, new String[] {"wetland"}, "NONE", "Other", "and 1any 2seed", "Ground", BirdAction.NONE),
 	// TUFTED_TITMOUSE "birds/tufted_titmouse.png"
 	// TURKEY_VULTURE
-	VAUXS_SWIFT("VAUX'S SWIFT", "temp", 3, 31, 2, new String[] {"forest"}, "BROWN", "Flocking", "and 1worm", "Cavity", BirdAction.TUCK1BIRDANDGET1WORM),
-	VIOLET_GREEN_SWALLOW("VIOLET GREEN SWALLOW", "temp", 3, 36, 3, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Flocking", "and 2worm", "Cavity", BirdAction.TUCK1BIRDANDDRAW1BIRD),
+	VAUXS_SWIFT("VAUX'S SWIFT", "birds/vaux's_swift.png", 3, 31, 2, new String[] {"forest"}, "BROWN", "Flocking", "and 1worm", "Cavity", BirdAction.TUCK1BIRDANDGET1WORM),
+	VIOLET_GREEN_SWALLOW("VIOLET GREEN SWALLOW", "birds/violet-green_swallow.png", 3, 36, 3, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Flocking", "and 2worm", "Cavity", BirdAction.TUCK1BIRDANDDRAW1BIRD),
 	// WESTERN_MEADOWLARK
-	WESTERN_TANAGER("WESTERN TANAGER", "temp", 2, 30, 6, new String[] {"forest"}, "BROWN", "Other", "and 1berry 2worm", "Bowl", BirdAction.GET1BERRYOR1SEED),
-	WHITE_BREASTED_NUTHATCH("WHITE BREASTED NUTHATCH", "temp", 3, 28, 2, new String[] {"forest"}, "BROWN", "Other", "or 1seed 1worm", "Cavity", BirdAction.CACHE1SEED),
-	WHITE_CROWNED_SPARROW("WHITE CROWNED SPARROW", "temp" , 5, 25, 2, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1seed 1worm", "Ground", BirdAction.MOVEIFATVERYRIGHT),
-	WHITE_FACED_IBIS("WHITE FACED IBIS", "temp", 2, 91, 8, new String[] {"wetland"}, "BROWN", "Predator", "and 1fish 2worm", "Platform", BirdAction.ROLLDICEANDFINDFISH),
-	WHITE_THROATED_SWIFT("WHITE THROATED SWIFT", "temp", 2, 38, 2, new String[] {"grassland"}, "BROWN", "Flocking", "and 1worm", "Cavity", BirdAction.TUCK1BIRDANDLAY1EGG),
-	WHOOPING_CRANE("WHOOPING CRANE", "temp", 1, 221, 6, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 3any", "Ground", BirdAction.DRAW2BONUSKEEP1),
-	WILD_TURKEY("WILD TURKEY", "temp", 5, 135, 8, new String[] {"forest", "grassland"}, "NONE", "Other", "and 1berry 2seed", "Ground", BirdAction.NONE),
-	WILLET("WILLET", "temp", 2, 66, 4, new String[] {"wetland"}, "BROWN", "Predator", "or 1fish 1worm", "Ground", BirdAction.ROLLDICEANDFINDFISH),
-	WILSONS_SNIPE("WILSON'S SNIPE", "temp", 2, 41, 5, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1worm", "Ground", BirdAction.ALLDRAW1BIRD),
+	WESTERN_TANAGER("WESTERN TANAGER", "birds/western_tanager.png", 2, 30, 6, new String[] {"forest"}, "BROWN", "Other", "and 1berry 2worm", "Bowl", BirdAction.GET1BERRYOR1SEED),
+	WHITE_BREASTED_NUTHATCH("WHITE BREASTED NUTHATCH", "birds/white-breasted_nuthatch.png", 3, 28, 2, new String[] {"forest"}, "BROWN", "Other", "or 1seed 1worm", "Cavity", BirdAction.CACHE1SEED),
+	WHITE_CROWNED_SPARROW("WHITE CROWNED SPARROW", "birds/white-crested_sparrow.png" , 5, 25, 2, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1seed 1worm", "Ground", BirdAction.MOVEIFATVERYRIGHT),
+	WHITE_FACED_IBIS("WHITE FACED IBIS", "birds/white-faced_ibis.png", 2, 91, 8, new String[] {"wetland"}, "BROWN", "Predator", "and 1fish 2worm", "Platform", BirdAction.ROLLDICEANDFINDFISH),
+	WHITE_THROATED_SWIFT("WHITE THROATED SWIFT", "birds/white-throated_swift.png", 2, 38, 2, new String[] {"grassland"}, "BROWN", "Flocking", "and 1worm", "Cavity", BirdAction.TUCK1BIRDANDLAY1EGG),
+	WHOOPING_CRANE("WHOOPING CRANE", "birds/whooping_crane.png", 1, 221, 6, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 3any", "Ground", BirdAction.DRAW2BONUSKEEP1),
+	WILD_TURKEY("WILD TURKEY", "birds/wild_turkey.png", 5, 135, 8, new String[] {"forest", "grassland"}, "NONE", "Other", "and 1berry 2seed", "Ground", BirdAction.NONE),
+	WILLET("WILLET", "birds/willet.png", 2, 66, 4, new String[] {"wetland"}, "BROWN", "Predator", "or 1fish 1worm", "Ground", BirdAction.ROLLDICEANDFINDFISH),
+	WILSONS_SNIPE("WILSON'S SNIPE", "birds/wilson's_snipe.png", 2, 41, 5, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1worm", "Ground", BirdAction.ALLDRAW1BIRD),
 	// WOOD_DUCK
-	WOOD_STORK("WOOD STORK", "temp", 2, 155, 6, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 1any 1fish 1rat", "PLATFORM", BirdAction.DRAW2BIRDCARDS),
-	YELLOW_BELLIED_SAPSUCKER("YELLOW BELLIED SAPSUCKER", "temp", 3, 41, 3, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1worm", "Cavity", BirdAction.GET1WORM),
+	WOOD_STORK("WOOD STORK", "birds/wood_stork.png", 2, 155, 6, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 1any 1fish 1rat", "PLATFORM", BirdAction.DRAW2BIRDCARDS),
+	YELLOW_BELLIED_SAPSUCKER("YELLOW BELLIED SAPSUCKER", "birds/yellow-bellied_sapsucker.png", 3, 41, 3, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1worm", "Cavity", BirdAction.GET1WORM),
 	// YELLOW_BILLED_CUCKOO
-	YELLOW_BREASTED_CHAT("YELLOW BREASTED CHAT", "temp", 3, 25, 5, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 2berry 1worm", "Bowl", BirdAction.MOVEIFATVERYRIGHT),
-	YELLOW_HEADED_BLACKBIRD("YELLOW HEADED BLACKBIRD", "temp", 3, 38, 4, new String[] {"wetland"}, "BROWN", "Flocking", "and 1seed 1worm", "Bowl", BirdAction.TUCK1BIRDANDLAY1EGG),
-	YELLOW_RUMPED_WARBLER("YELLOW RUMPED WARBLER", "temp", 4, 23, 1, new String[] {"forest"}, "BROWN", "Flocking", "or 1berry 1seed 1worm", "Bowl", BirdAction.TUCK1BIRDANDDRAW1BIRD)
+	YELLOW_BREASTED_CHAT("YELLOW BREASTED CHAT", "birds/yellow-breasted_chat.png", 3, 25, 5, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 2berry 1worm", "Bowl", BirdAction.MOVEIFATVERYRIGHT),
+	YELLOW_HEADED_BLACKBIRD("YELLOW HEADED BLACKBIRD", "birds/yellow-headed_blackbird.png", 3, 38, 4, new String[] {"wetland"}, "BROWN", "Flocking", "and 1seed 1worm", "Bowl", BirdAction.TUCK1BIRDANDLAY1EGG),
+	YELLOW_RUMPED_WARBLER("YELLOW RUMPED WARBLER", "birds/yellow-rumped_warbler.png", 4, 23, 1, new String[] {"forest"}, "BROWN", "Flocking", "or 1berry 1seed 1worm", "Bowl", BirdAction.TUCK1BIRDANDDRAW1BIRD)
 	;
 
 	private final String name; // holds birds name
