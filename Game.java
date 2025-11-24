@@ -39,6 +39,32 @@ public class Game {
 
     // GAME | VOID METHODS
 
+	// Checks all player's board to activate the bird's pink ability
+	// I would use the BirdActionEnum names but it's honestly easier to just have a key word that is similar
+	public void pinkAbilityActivation(String birdA)
+	{
+		String birdName = "";
+		if(birdA.equals("playForestAndGetWorm")) birdName = "EASTERN KINGBIRD";
+		else if(birdA.equals("playGrasslandAndTuck")) birdName = "HORNED LARK";
+		else if(birdA.equals("playWetlandGetFish")) birdName = "BELTED KINGFISHER";
+		
+		for(Player p : playerList) {
+			List<BirdInstance> birds = p.getBoard().values().stream().flatMap(List::stream).toList();
+			for(BirdInstance b: birds)
+				if(b.getName().equalsIgnoreCase(birdName))
+					b.performAction(this, p);
+		}
+	}
+
+	// resets all pink birds status to not played yet; used at end of turns
+	public void resetAllBirdsStatus()
+	{
+		for(Player p : playerList) {
+			List<BirdInstance> birds = p.getBoard().values().stream().flatMap(List::stream).toList();
+			for(BirdInstance b: birds) b.resetPlayed();
+		}
+	}
+
 	// Simulates randomly choosing goals without repeats
 	public void selectGoals()
 	{
@@ -166,8 +192,57 @@ public class Game {
 		int bonusCardPoints = player.getPoints() - endOfRoundPoints; // bonus cards directly add points so we can just subtract to get their value
 		scores.put("bonus", bonusCardPoints);
 
+		// adds up points here while and adds total to map
+		int total = 0;
+		for (Map.Entry<String, Integer> en : scores.entrySet())
+			total += en.getValue();
+		scores.put("total", total);
+
 		return scores;
 	}
+
+	//adds the specified bird to the board if the player has enough food and the bird is in their hand
+    //if it has any food type, UI will ask player to choose which food to use
+    //returns true if successful, false otherwise
+    public boolean addBirdToBoard(Player p, Bird bird) {
+        if(!p.getBirdHand().contains(bird)) return false; // checks if the player acc has the bird; idk how this goes off
+        if(!p.hasEnoughFood(bird)) return false; // checks if the player has enough food
+
+        // removes the food from the player's food supply
+        if(bird.getFoodRequired().contains("and")) {
+            p.removeAndFoodToAddBird(bird); // this method removes all food but the any
+            if(bird.getFoodRequired().contains("any")) {
+                //UI will ask which food to use
+
+            }
+        }
+        else {
+            //UI will ask which food to use; or foods should only have 1 food to remove so directly do it
+            String food = ""; // UI METHOD HERE that returns the food type
+            p.removeFood(food, 1);
+        }
+
+        String habitat = "";
+        if(bird.getHabitat().length > 1) {
+            //UI will ask which habitat to place the bird in
+            habitat = bird.getHabitat()[0]; // TEMPORARY SETTING TO FIRST HABITAT
+        }
+        else {
+            habitat = bird.getHabitat()[0];
+           
+        }
+        BirdInstance birdInstance = new BirdInstance(bird); // new bird instance
+        p.getBoard().get(habitat).add(birdInstance); // adds to board
+        p.getBirdHand().remove(bird); // removes from hand
+		if(habitat.equals("forest"))
+			pinkAbilityActivation("playForestAndGetWorm");
+		else if(habitat.equals("grassland"))
+			pinkAbilityActivation("playGrasslandAndTuck");
+		else if(habitat.equals("wetland"))
+			pinkAbilityActivation("playWetlandGetFish");
+
+        return true;
+    }
 
 	// Randomly draws bonus cards to simulate the random drawing.
 	public ArrayList<BonusCard> pullRandomBonusCards(int amount)

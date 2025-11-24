@@ -392,7 +392,7 @@ public enum BirdAction implements BirdActionInterface
 		boolean tuck = false;
 		if(tuck && !player.getBirdHand().isEmpty())
 		{
-			Bird card = player.getBirdHand().remove(0);
+			Bird card = player.getBirdHand().remove(0); // these lines are iffy will need to look over when ui good
 			birdInstance.tuckCard(1);
 			player.addBirdHand(gameContext.pullRandomBirds(1).get(0));
 		}
@@ -458,6 +458,37 @@ public enum BirdAction implements BirdActionInterface
 			birdInstance.tuckCard(1);
 			birdInstance.addEggs(1);
 		}
+	}),
+	// FROM NOW ON ARE PINK BIRD ABILITIES
+	// when player plays a bird in the forest, gain 1 worm from supply
+	// ticks at addBirdToBoard method
+	// EASTERN_KINGBIRD
+	PLAYFORESTANDGAIN1WORM((gameContext, player, birdInstance) -> {
+		if(!birdInstance.checkPlayedThisTurn())
+			player.addFood("worm", 1);
+		birdInstance.played();
+	}),
+	// when player plays a bird in the grassland, tuck 1 bird from hand
+	// ticks at addBirdToBoard method
+	// HORNED_LARK
+	PLAYGRASSLANDANDTUCK((gameContext, player, birdInstance) -> {
+		if(!birdInstance.checkPlayedThisTurn())
+		{
+			// UI will have to ask the player to choose a bird card from their deck; for now, empty as if they declined ability
+			Bird card = null;
+			if(card == null) return; // returns to not activate ability
+			birdInstance.tuckCard(1);
+			player.removeBirdCard(card);
+		}
+		birdInstance.played();
+	}),
+	// when player plays a bird in the wetland, gain 1 fish from supply
+	// ticks at addBirdToBoard method
+	// BELTED_KINGFISHER
+	PLAYWETLANDANDGAIN1FISH((gameContext, player, birdInstance) -> {
+		if(!birdInstance.checkPlayedThisTurn())
+			player.addFood("fish", 1);
+		birdInstance.played();
 	})
 	;
 

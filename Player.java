@@ -88,42 +88,6 @@ public class Player {
         return false;
     }
 
-    //adds the specified bird to the board if the player has enough food and the bird is in their hand
-    //if it has any food type, UI will ask player to choose which food to use
-    //returns true if successful, false otherwise
-    public boolean addBirdToBoard(Bird bird) {
-        if(!this.getBirdHand().contains(bird)) return false; // checks if the player acc has the bird; idk how this goes off
-        if(!this.hasEnoughFood(bird)) return false; // checks if the player has enough food
-
-        // removes the food from the player's food supply
-        if(bird.getFoodRequired().contains("and")) {
-            removeAndFoodToAddBird(bird); // this method removes all food but the any
-            if(bird.getFoodRequired().contains("any")) {
-                //UI will ask which food to use
-
-            }
-        }
-        else {
-            //UI will ask which food to use; or foods should only have 1 food to remove so directly do it
-            String food = ""; // UI METHOD HERE that returns the food type
-            this.removeFood(food, 1);
-        }
-
-        String habitat = "";
-        if(bird.getHabitat().length > 1) {
-            //UI will ask which habitat to place the bird in
-            habitat = bird.getHabitat()[0]; // TEMPORARY SETTING TO FIRST HABITAT
-        }
-        else {
-            habitat = bird.getHabitat()[0];
-           
-        }
-        BirdInstance birdInstance = new BirdInstance(bird); // new bird instance
-        this.getBoard().get(habitat).add(birdInstance); // adds to board
-        this.getBirdHand().remove(bird); // removes from hand
-        return true;
-    }
-
     //checks if the player has enough food to play the specified bird
     public boolean hasEnoughFood(Bird bird) {
         String foodRequired = bird.getFoodRequired();
@@ -158,6 +122,11 @@ public class Player {
     //adds the specified amount of points
     public void addPoints(int points) {
         this.points += points;
+    }
+
+    //removes the bird card from hand specified
+    public void removeBirdCard(Bird card) {
+        this.birdHand.remove(card);
     }
 
     //adds the specified Bonus card to the bonusHand

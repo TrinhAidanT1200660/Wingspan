@@ -43,7 +43,7 @@ public enum Bird
 	BARRED_OWL("BARRED OWL", "birds/barred_owl.png", 2, 107, 3, new String[] {"forest"}, "BROWN", "Predator", "and 1rat", "Cavity", BirdAction.DRAW1BIRDANDTUCKIF75CM),
 	// BARROWS_GOLDENEYE "birds/barrow's_goldeneye.png"
 	BELLS_VIREO("BELL'S VIREO", "birds/bell's_vireo.png", 2, 18, 4, new String[] {"forest", "grassland"}, "WHITE", "CardDrawing", "and 2worm", "Wild", BirdAction.DRAW2BONUSKEEP1),
-	// BELTED_KINGFISHER
+	// NO IMAGE RN BELTED_KINGFISHER("BELTED KINGFISHER", "temp", 4, 53, 4, new String[] {"wetland"}, "PINK", "Other", "and 1any 1fish", "Wild", BirdAction.PLAYWETLANDANDGAIN1FISH),
 	BEWICKS_WREN("BEWICK'S WREN", "birds/bewick's_wren.png", 3, 18, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1seed 2worm", "Cavity", BirdAction.MOVEIFATVERYRIGHT),
 	// BLACK_TERN
 	// BLACK_VULTURE
@@ -94,7 +94,7 @@ public enum Bird
 	DOUBLE_CRESTED_CORMORANT("DOUBLE CRESTED CORMORANT", "birds/double-crested_cormorant.png", 3, 132, 3, new String[] {"wetland"}, "BROWN", "Flocking", "and 1any 1fish", "Platform", BirdAction.DISCARDFISHANDTUCK2BIRDS),
 	// DOWNY_WOODPECKER
 	// EASTERN_BLUEBIRD
-	// EASTERN_KINGBIRD
+	// NO IMAGE RN EASTERN_KINGBIRD("EASTERN KINGBIRD", "temp", 2, 38, 2, new String[] {"forest", "grassland", "wetland"}, "PINK", "Other", "or 1berry 1worm", "Bowl", BirdAction.PLAYFORESTANDGAIN1WORM),
 	EASTERN_PHOEBE("EASTERN PHOEBE", "birds/eastern_phoebe.png", 4, 28, 3, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "or 1berry 1worm", "Wild", BirdAction.ALLGET1WORM),
 	EASTERN_SCREECH_OWL("EASTERN SCREECH OWL", "birds/eastern_screech-owl.png", 2, 51, 4, new String[] {"forest"}, "BROWN", "Predator", "or 1rat 1worm", "Cavity", BirdAction.ROLLDICEANDFINDRAT),
 	FERRUGINOUS_HAWK("FERRUGINOUS HAWK", "birds/ferruginous_hawk.png", 2, 142, 6, new String[] {"grassland"}, "BROWN", "Predator", "and 2rat", "Platform", BirdAction.ROLLDICEANDFINDRAT),
@@ -114,7 +114,7 @@ public enum Bird
 	HERMIT_THRUSH("HERMIT THRUSH", "birds/hermit_thrush.png", 2, 30, 7, new String[] {"forest"}, "BROWN", "Other", "and 2berry 1worm", "Wild", BirdAction.GET1FOODIFLEASTFOREST),
 	// HOODED_MERGANSER
 	HOODED_WARBLER("HOODED WARBLER", "birds/hooded_warbler.png", 3, 18, 7, new String[] {"forest"}, "NONE", "Other", "and 2worm", "Bowl", BirdAction.NONE),
-	// HORNED_LARK
+	// NO IMAGE RN HORNED_LARK("HORNED LARK", "temp", 4, 30, 5, new String[] {"grassland"}, "PINK", "Flocking", "and 1seed 1worm", "Ground", BirdAction.PLAYGRASSLANDANDTUCK),
 	HOUSE_FINCH("HOUSE FINCH", "birds/house_finch.png", 6, 25, 3, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Flocking", "and 1berry 1seed", "Bowl", BirdAction.TUCK1BIRDANDDRAW1BIRD),
 	// HOUSE_WREN
 	INCA_DOVE("INCA DOVE", "birds/inca_dove.png", 4, 28, 2, new String[] {"grassland"}, "WHITE", "EggLaying", "and 2seed", "Platform", BirdAction.LAYEGGONALLPLATFORM),
