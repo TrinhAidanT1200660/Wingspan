@@ -128,22 +128,28 @@ public enum BirdAction implements BirdActionInterface
 	// GREATER_ROADRUNNER
 	DRAW1BIRDANDTUCKIF50CM((gameContext, player, birdInstance) -> {
 		Bird card = gameContext.pullRandomBirds(1).get(0);
-		if(card.getWingspan() < 50)
+		if(card.getWingspan() < 50) {
 			birdInstance.tuckCard(1);
+			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
+		}
 	}),
 	// Look at a bird card from deck (face down pile) and if less than 75 cm wingpsan, tuck it behind card, if not discard
 	// BARRED_OWL | COOPERS_HAWK | NORTHERN_HARRIER | RED_SHOULDERED_HAWK | RED_TAILED_HAWK | SWAINSONS_HAWK
 	DRAW1BIRDANDTUCKIF75CM((gameContext, player, birdInstance) -> {
 		Bird card = gameContext.pullRandomBirds(1).get(0);
-		if(card.getWingspan() < 75)
+		if(card.getWingspan() < 75) {
 			birdInstance.tuckCard(1);
+			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
+		}
 	}),
 	// Look at a bird card from deck (face down pile) and if less than 100 cm wingpsan, tuck it behind card, if not discard
 	// GOLDEN_EAGLE | GREAT_HORNED_OWL | PEREGRINE_FALCON
 	DRAW1BIRDANDTUCKIF100CM((gameContext, player, birdInstance) -> {
 		Bird card = gameContext.pullRandomBirds(1).get(0);
-		if(card.getWingspan() < 100)
+		if(card.getWingspan() < 100) {
 			birdInstance.tuckCard(1);
+			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
+		}
 	}),
 	// Draw the 3 face up bird cards in the bird tray
 	// BRANT
@@ -360,7 +366,10 @@ public enum BirdAction implements BirdActionInterface
 			rolledFoods.add(foods[randFood]);
 		}
 		if(rolledFoods.contains("fish"))
+		{
 			birdInstance.cacheFood(1);
+			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
+		}
 	}),
 	// Rolls all the dice not in the birdFeeder and if any are rat, cache 1 rat into the supply of the bird
 	// AMERICAN_KESTREL | BARN_OWL | BROAD_WINGED_HAWK | BURROWING_OWL | EASTERN_SCREECH_OWL | FERRUGINOUS_HAWK | MISSISSIPPI_KITE
@@ -372,8 +381,10 @@ public enum BirdAction implements BirdActionInterface
 			int randFood = (int) (Math.random() * foods.length);
 			rolledFoods.add(foods[randFood]);
 		}
-		if(rolledFoods.contains("rat"))
+		if(rolledFoods.contains("rat")) {
 			birdInstance.cacheFood(1);
+			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
+		}
 	}),
 	// trade 1 of any type of food for any other type from the supply
 	// GREEN_HERON
@@ -461,7 +472,7 @@ public enum BirdAction implements BirdActionInterface
 	}),
 	// FROM NOW ON ARE PINK BIRD ABILITIES
 	// when player plays a bird in the forest, gain 1 worm from supply
-	// ticks at addBirdToBoard method
+	// ticks at game addBirdToBoard method
 	// EASTERN_KINGBIRD
 	PLAYFORESTANDGAIN1WORM((gameContext, player, birdInstance) -> {
 		if(!birdInstance.checkPlayedThisTurn())
@@ -469,7 +480,7 @@ public enum BirdAction implements BirdActionInterface
 		birdInstance.played();
 	}),
 	// when player plays a bird in the grassland, tuck 1 bird from hand
-	// ticks at addBirdToBoard method
+	// ticks at game addBirdToBoard method
 	// HORNED_LARK
 	PLAYGRASSLANDANDTUCK((gameContext, player, birdInstance) -> {
 		if(!birdInstance.checkPlayedThisTurn())
@@ -483,11 +494,20 @@ public enum BirdAction implements BirdActionInterface
 		birdInstance.played();
 	}),
 	// when player plays a bird in the wetland, gain 1 fish from supply
-	// ticks at addBirdToBoard method
+	// ticks at game addBirdToBoard method
 	// BELTED_KINGFISHER
 	PLAYWETLANDANDGAIN1FISH((gameContext, player, birdInstance) -> {
 		if(!birdInstance.checkPlayedThisTurn())
 			player.addFood("fish", 1);
+		birdInstance.played();
+	}),
+	// when another player's predator ability succeeds, gain 1 food from birdfeeder
+	// ticks at birdAction ROLLDICEANDFINDFISH, ROLLDICEANDFINDRAT, and DRAW1BIRDANDTUCKIF___CM; so 5 methods in total
+	// BLACK_VULTURE | BLACK_BILLED_MAGPIE | TURKEY_VULTURE
+	IFPREDATORSUCCESSGAIN1FOOD((gameContext, player, birdInstance) -> {
+		// UI will have to have a prompt that asks the player for which food they want from feeder; for now it'll be rat
+		String food = "rat";
+		gameContext.grabFood("rat", player, 1);
 		birdInstance.played();
 	})
 	;

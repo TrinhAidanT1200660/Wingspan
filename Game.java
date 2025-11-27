@@ -43,17 +43,21 @@ public class Game {
 	// I would use the BirdActionEnum names but it's honestly easier to just have a key word that is similar
 	public void pinkAbilityActivation(String birdA)
 	{
-		String birdName = "";
-		if(birdA.equals("playForestAndGetWorm")) birdName = "EASTERN KINGBIRD";
-		else if(birdA.equals("playGrasslandAndTuck")) birdName = "HORNED LARK";
-		else if(birdA.equals("playWetlandGetFish")) birdName = "BELTED KINGFISHER";
+		List<String> birdNames = switch (birdA) {
+			case "playForestAndGetWorm" -> List.of("EASTERN KINGBIRD");
+			case "playGrasslandAndTuck" -> List.of("HORNED LARK");
+			case "playWetlandGetFish" -> List.of("BELTED KINGFISHER");
+			case "ifPredatorSucceeds" -> List.of("BLACK VULTURE", "BLACK BILLED MAGPIE", "TURKEY_VULTURE");
+			default -> List.of();
+		};
 		
-		for(Player p : playerList) {
-			List<BirdInstance> birds = p.getBoard().values().stream().flatMap(List::stream).toList();
-			for(BirdInstance b: birds)
-				if(b.getName().equalsIgnoreCase(birdName))
-					b.performAction(this, p);
-		}
+		// now directly activates ability after searching through the list
+		for(Player p : playerList)
+			p.getBoard().values().stream()
+			.flatMap(List::stream) // makes into list
+			.filter(b -> birdNames.contains(b.getName().toUpperCase())) // checks each bird of the player if they have the bird
+			// .filter(b -> abilityConfirmation(p, b)). this is a placeholder for the popup method that will ask yes or no question and return a boolean. for now it is just ignored. ignore the method name too
+			.forEach(b -> b.performAction(this, p)); // if player has the bird and confirms then activate ability
 	}
 
 	// resets all pink birds status to not played yet; used at end of turns
@@ -212,8 +216,8 @@ public class Game {
         if(bird.getFoodRequired().contains("and")) {
             p.removeAndFoodToAddBird(bird); // this method removes all food but the any
             if(bird.getFoodRequired().contains("any")) {
-                //UI will ask which food to use
-
+                // UI will ask which food to use
+				// Realized there are birds with multiple any. Either can just not put them in game or have a big method we can see
             }
         }
         else {
