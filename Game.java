@@ -39,15 +39,174 @@ public class Game {
 
     // GAME | VOID METHODS
 
+	// not sure we need to keep this; i think we should imo
+	// acts to begin each player turn
+	public void playActions()
+	{
+		// player has four choices here, the play bird, food, eggs, or draw birds
+		// ui will return which choice they pick, should just return a string
+		// for now, it'll be just lay eggs
+		// string returns should be playBird, getFood, layEggs, drawBirds
+		Player p = this.playerList.get(playerTurn);
+		String choice = "layEggs";
+		if(choice.equals("playBird")) this.playBird(p);
+		else if(choice.equals("getFood")) this.getFood(p);
+		else if(choice.equals("layEggs")) this.layEggs(p);
+		else if(choice.equals("drawBirds")) this.drawBirds(p);
+		else System.out.println("ERROR IN PLAYACTIONS, CAN'T FIND ACTION");
+
+		this.incrementPlayerTurn();
+	}
+
+	// method that has the play draw bird cards based on whether they want the face up or random pile
+	public void drawBirds(Player p)
+	{
+		// amount of birds depends on the amount of birds in the wetland habitat
+		// if there is an even amount, there is capability of trading an egg for a bird
+		int birdGet = 0;
+		int birdAmount = p.getBoard().get("forest").size();
+		if(birdAmount < 2) birdGet = 1;
+		else if (birdAmount < 5) birdGet = 2;
+		else birdGet = 3;
+		if(birdAmount % 2 == 0 || birdAmount > 5)
+		{
+			// UI asks player if they would like to trade
+			// for now the trade will be false
+			boolean trade = false;
+			if(trade)
+			{
+				// UI has the player remove an egg from a bird using removeEgg
+				this.removeEggs(p, 1);
+				birdGet ++;
+			}
+		}
+		// will grab one bird at a time to be sequential and have different choices
+		for (int i = 0 ; i < birdGet; ++i)
+		{
+			// UI should have the player pick the bird they want
+			// not sure how we want to do this but there are 3 face up cards they can pick and a random draw pile
+			// if they pick up a face up card, can just return 0-2 for the index, make sure to not allow choosing indices without cards
+			// 3 index can be for random faceup pile
+			// this logic can be changed ; for now they will only be able to get a random bird
+			int choice = 3;
+			if(choice >= 0 && choice <=2) this.grabFaceUpCard(choice, p); // ranges from 0 - 2: the ui method shouldnt return index 2 if there was only 2 cards
+			else if(choice == 3) p.addBirdHand(this.pullRandomBirds(1).get(0));
+			else System.out.println("ERROR IN DRAWBIRDS METHOD GAME");
+		}
+		this.regenerateFaceUpTray(); // regens the tray without removing old cards
+	}
+
+	// method that has the player lay eggs on which bird they want
+	public void layEggs(Player p)
+	{
+		// amount of eggs depends on the amount of birds in the grassland habitat
+		// if there are an even amount, there is capability of trading a food for egg
+		int eggGet = 0;
+		int birdAmount = p.getBoard().get("grassland").size();
+		if(birdAmount < 2) eggGet = 2;
+		else if (birdAmount < 5) eggGet = 3;
+		else eggGet = 4;
+		if(birdAmount % 2 == 0 || birdAmount > 5)
+		{
+			// UI asks player if they would like to trade
+			// for now the trade will be false
+			boolean trade = false;
+			if(trade)
+			{
+				// UI asks player which food they would trade in
+				// not sure if it will make sure if the player has the sufficient food in the UI method or here, for now i implement here in case
+				while (true)
+				{
+					String food = "seed"; // left as seed for now but should be returned a value
+					if(p.removeFood(food, 1)) break; // auto removes food and returns true if food is removed
+				}
+				eggGet ++;
+			}
+		}
+		// will lay eggs one at a time to allow eggs to be chosen where it's placed
+		for (int i = 0; i < eggGet; ++i)
+		{
+			// UI should choose the bird
+			// not sure if it will make sure if the bird has the sufficient space in the UI method or here, for now i implement here in case
+			// have while loop commented to not create errors if called for now
+			while(true)
+			{
+				BirdInstance bird = new BirdInstance(Bird.ACORN_WOODPECKER);
+				if(bird.addEggs(1)) // auto adds egg and returns true if egg is added
+				{
+					pinkAbilityActivation("eggLaid"); 
+					break; // breaks while loop
+				}
+			}
+		}
+	}
+
+	// method that has the player choose which food they want and then grab it
+	// since player can grab multiple foods, it will continue in a sequence until they finish grabbing all they want
+	public void getFood(Player p) 
+	{
+		// amount of food depends on the amount of birds in the forest habitat
+		// if there are an even amount, there is capability of trading a bird for food
+		int foodGet = 0;
+		int birdAmount = p.getBoard().get("forest").size();
+		if(birdAmount < 2) foodGet = 1;
+		else if (birdAmount < 5) foodGet = 2;
+		else foodGet = 3;
+		if(birdAmount % 2 == 0 || birdAmount > 5)
+		{
+			// UI asks player if they would like to trade
+			// for now the trade will be false
+			boolean trade = false;
+			if(trade)
+			{
+				// UI asks player which bird they would trade in
+				// Bird b = ;
+				// p.getBirdHand().remove(b);
+				foodGet ++;
+			}
+		}
+		// Will grab one food at a time to be sequential and allow rerolls mid action
+		for(int i = 0; i < foodGet; ++i)
+		{
+			// UI should be dynamic and allow them to choose either the food or reroll
+			// rerolling can just call rollBirdFeeder(). UI should return the food they chose
+			// for now it's seed
+			String food = "seed";
+			this.grabFood(food, p, 1);
+		}
+	}
+
+	// method that has the player choose which bird and then play it
+	public void playBird(Player p) 
+	{
+		// UI should be asking the player which bird from their hand to play
+		// for now it'll be the first bird in the hand
+		Bird birdToPlay = p.getBirdHand().get(0);
+		addBirdToBoard(p, birdToPlay);
+	}
+
+	// method that allows the player to choose which birds to remove eggs
+	public void removeEggs(Player p, int amount)
+	{
+		for(int i = 0; i < amount; ++i)
+		{
+			// UI has player choose a bird with an egg on it, removing one at a time until amount is reached
+			// for now, idk just no eggs removed
+			// BirdInstance bird = ;
+			// bird.removeEggs(1);
+		}
+	}
+
 	// Checks all player's board to activate the bird's pink ability
 	// I would use the BirdActionEnum names but it's honestly easier to just have a key word that is similar
 	public void pinkAbilityActivation(String birdA)
 	{
 		List<String> birdNames = switch (birdA) {
 			case "playForestAndGetWorm" -> List.of("EASTERN KINGBIRD");
-			case "playGrasslandAndTuck" -> List.of("HORNED LARK");
+			case "playGrasslandAndTuck" -> List.of("HORNED LARK"); // these three are separated because they have different activation conditions
 			case "playWetlandGetFish" -> List.of("BELTED KINGFISHER");
 			case "ifPredatorSucceeds" -> List.of("BLACK VULTURE", "BLACK BILLED MAGPIE", "TURKEY_VULTURE");
+			case "eggLaid" -> List.of("AMERICAN AVOCET", "BARROW'S GOLDENEYE", "BRONZED COWBIRD", "BROWN HEADED COWBIRD", "YELLOW BILLED CUCKOO"); // these can be grouped as even tho diff abilities, same activation
 			default -> List.of();
 		};
 		
@@ -235,9 +394,16 @@ public class Game {
             habitat = bird.getHabitat()[0];
            
         }
+		int eggsReq = 0;
+		if(p.getBoard().get(habitat).isEmpty()) eggsReq = 0;
+		else if(p.getBoard().get(habitat).size() < 4) eggsReq = 1;
+		else eggsReq = 2;
+		if(!(p.getBoard().values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() == eggsReq)) return false; // checks if player has enough eggs
         BirdInstance birdInstance = new BirdInstance(bird); // new bird instance
+		birdInstance.setCurrentHabitat(habitat);
         p.getBoard().get(habitat).add(birdInstance); // adds to board
         p.getBirdHand().remove(bird); // removes from hand
+		this.removeEggs(p, eggsReq); // removes eggs from birds
 		if(habitat.equals("forest"))
 			pinkAbilityActivation("playForestAndGetWorm");
 		else if(habitat.equals("grassland"))
@@ -295,6 +461,7 @@ public class Game {
 				atLeast1Grabbed = true;
 			}
 		}
+		if(this.birdFeeder.isEmpty()) this.rollBirdFeeder(); // checks if the feeder is empty and rerolls it if so
 		return atLeast1Grabbed;
 	}
 

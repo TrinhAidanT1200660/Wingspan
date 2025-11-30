@@ -344,10 +344,12 @@ public enum BirdAction implements BirdActionInterface
 		ArrayList<BirdInstance> birdInstances = player.getBoard().get(habitat);
 		if(birdInstances.get(birdInstances.size()-1) == birdInstance)
 		{
-			// Has the UI ask which habitat the player would like the bird to move in; for now it will just not move the bird
+			// Has the UI ask which habitat the player would like the bird to move in; for now it will just not move the bird i hope or it might break idk
 			String newHabitat = "";
-			// player.getBoard().get(newHabitat).add(birdInstance);
-			// birdInstances.remove(birdInstance);
+			BirdInstance bird = birdInstances.get(birdInstances.size() - 1);
+			player.getBoard().get(newHabitat).add(bird);
+			bird.setCurrentHabitat(newHabitat);
+			birdInstances.remove(birdInstance);
 		}
 	}),
 	// This ability is for birds with no ability. My favourite.
@@ -508,6 +510,93 @@ public enum BirdAction implements BirdActionInterface
 		// UI will have to have a prompt that asks the player for which food they want from feeder; for now it'll be rat
 		String food = "rat";
 		gameContext.grabFood("rat", player, 1);
+		birdInstance.played();
+	}),
+	// when another player takes the lay egg action, lay an egg on another bird with Bowl nest
+	// ticks at game layEggs method
+	// BRONZED_COWBIRD | BROWN_HEADED_COWBIRD | YELLOW_BILLED_CUCKOO
+	LAYEGGTHENLAYBOWL((gameContext, player, birdInstance) -> {
+		// first need to check if the player even has a bird with the correct nest
+		boolean containsNest = false;
+		List<BirdInstance> birds = player.getBoard().values().stream().flatMap(List::stream).toList();
+		for(BirdInstance b : birds)
+			if(b.getNest().equalsIgnoreCase("Bowl"))
+				containsNest = true;
+
+		if(!containsNest) return; // if no nest then just stop the method
+
+		// UI should have the player select a bird with the habitat
+		// unsure whether the UI will ensure it is the correct habitat or not but i will check here too
+		// completely commented out for now so no inf loop 
+		/*
+		while (true) 
+		{ 
+			BirdInstance bird = ;
+			if(bird.getNest().equalsIgnoreCase("Bowl"))
+			{
+				bird.addEggs(1);
+				break;
+			}
+		}
+		*/
+		birdInstance.played();
+	}),
+	// when another player takes the lay egg action, lay an egg on another bird with Cavity nest
+	// ticks at game layEggs method
+	// BARROW'S_GOLDENEYE
+	LAYEGGTHENLAYCAVITY((gameContext, player, birdInstance) -> {
+		// first need to check if the player even has a bird with the correct nest
+		boolean containsNest = false;
+		List<BirdInstance> birds = player.getBoard().values().stream().flatMap(List::stream).toList();
+		for(BirdInstance b : birds)
+			if(b.getNest().equalsIgnoreCase("Cavity"))
+				containsNest = true;
+
+		if(!containsNest) return; // if no nest then just stop the method
+
+		// UI should have the player select a bird with the habitat
+		// unsure whether the UI will ensure it is the correct habitat or not but i will check here too
+		// completely commented out for now so no inf loop 
+		/*
+		while (true) 
+		{ 
+			BirdInstance bird = ;
+			if(bird.getNest().equalsIgnoreCase("Cavity"))
+			{
+				bird.addEggs(1);
+				break;
+			}
+		}
+		*/
+		birdInstance.played();
+	}),
+	// when another player takes the lay egg action, lay an egg on another bird with ground nest
+	// ticks at game layEggs method
+	// AMERICAN_AVOCET
+	LAYEGGTHENLAYGROUND((gameContext, player, birdInstance) -> {
+		// first need to check if the player even has a bird with the correct nest
+		boolean containsNest = false;
+		List<BirdInstance> birds = player.getBoard().values().stream().flatMap(List::stream).toList();
+		for(BirdInstance b : birds)
+			if(b.getNest().equalsIgnoreCase("Ground"))
+				containsNest = true;
+
+		if(!containsNest) return; // if no nest then just stop the method
+
+		// UI should have the player select a bird with the habitat
+		// unsure whether the UI will ensure it is the correct habitat or not but i will check here too
+		// completely commented out for now so no inf loop 
+		/*
+		while (true) 
+		{ 
+			BirdInstance bird = ;
+			if(bird.getNest().equalsIgnoreCase("Ground"))
+			{
+				bird.addEggs(1);
+				break;
+			}
+		}
+		*/
 		birdInstance.played();
 	})
 	;
