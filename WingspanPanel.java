@@ -11,12 +11,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class WingspanPanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
     public Game currentGame;
-    private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, birdContainer;
+    private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, chosenScreen, boardScreen, deckScreen, birdFeederScreen, handScreen, birdContainer, cyclingView;
     private UIText loadingTitle;
 
     public WingspanPanel() {
@@ -38,13 +39,22 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         loadResources();
         repaint();
         ImageHandler.loadGroup("StartMenu", () -> {
+            boardScreen.visible = true;
+            deckScreen.visible = true;
+            birdFeederScreen.visible = true;
+            handScreen.visible = true;
             Timer t = new Timer(1000, (e) -> {
                 resourceChoosingScreen.visible = false;
-                gameScreen.visible = true;
-                UIElement.getByName("StartScreen").visible = false;
+                gameScreen.visible = false;
+                UIElement.getByName("StartScreen").visible = true;
+                boardScreen.visible = true;
+                deckScreen.visible = false;
+                birdFeederScreen.visible = false;
+                handScreen.visible = false;
                 loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
+                    System.out.println("AIODSASIODAUIBSDOAUSYDAUSDBASUIDOB ASUIDO GASUIDGBASUIDG ASUID GASIUDG ASUIODG AUOISDG AUSIOD G");
                     transition.visible = false;
                 });
                 startMenu.tweenSize(new Dim2(0.5, 0, 0.6, 0), 0.4, Tween.QUAD_IN_OUT);
@@ -117,8 +127,9 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
     @Override
     public void mouseReleased(MouseEvent e) {
         RootMouseEvent event = root.handleRelease(e);
-        UIElement released = event.getElement(); // tells us what button was pressed on and then released on (so full
-        // click)
+        UIElement released = event.getElement(); // tells us what button was pressed on and then released on (so full click)
+        if (released == null) return;
+        System.out.println("Released on: " + released.getName());
         if (released != null && released.containsPoint(e.getX(), e.getY())) { // if we actually pressed and released something
             // we can do whatever with the button that was fully clicked here...
             currentGame.UIMouseReleased(event, released);
@@ -264,6 +275,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
     }
 
     public void animateBird() {
+        if (UIElement.performanceMode) return;
         if (startMenu.visible) {
             birdContainer.tweenPosition(new Dim2(-0.1, 0, 0.55, 0), 1, Tween.QUAD_IN_OUT).onFinish(() -> {
                 birdContainer.tweenPosition(new Dim2(-0.1, 0, 0.45, 0), 1, Tween.QUAD_IN_OUT).onFinish(() -> {
@@ -689,7 +701,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         UIFrame infoCorner = new UIFrame("GameInfoCorner", this);
         infoCorner.backgroundTransparency = 0f;
         infoCorner.size = new Dim2(0.15, 0, 0.29, 0).dilate(1.3);
-        infoCorner.position = new Dim2(0.015, 0, 0.022, 0);
+        infoCorner.position = new Dim2(0.02, 0, 0.04, 0);
         infoCorner.keepAspectRatio = true;
         infoCorner.setParent(gameScreen);
         
@@ -702,7 +714,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         
         UIImage actionCubeIcon = new UIImage("ActionCubeIcon", this);
         actionCubeIcon.setParent(gameStatsFrame);
-        actionCubeIcon.setImagePath("images/blue_action_cube.png");
+        actionCubeIcon.setImagePath("images/p1_action_cube.png");
         actionCubeIcon.setImageFillType(UIImage.FIT_IMAGE);
         actionCubeIcon.backgroundTransparency = 0f;
         actionCubeIcon.size = new Dim2(0.45, 0, 0.15, 0);
@@ -721,7 +733,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
 
         UIFrame foodsStatFrame = new UIFrame("FoodsStatFrame", this);
         foodsStatFrame.setParent(gameStatsFrame);
-        foodsStatFrame.position = new Dim2(0.045, 0, 0.315, 0);
+        foodsStatFrame.position = new Dim2(0.045, 0, 0.313, 0);
         foodsStatFrame.size = new Dim2(0.92, 0, 0.65, 0);
         foodsStatFrame.backgroundColor = Color.black;
         foodsStatFrame.backgroundTransparency = 0f;
@@ -732,30 +744,805 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         foodsStatLayout.direction = ListLayout.VERTICAL;
         foodsStatLayout.verticalAlignment = ListLayout.CENTER;
         foodsStatLayout.horizontalAlignment = ListLayout.CENTER;
-        foodsStatLayout.spacing = new Dim(-0.005, 0);
+        foodsStatLayout.spacing = new Dim(-0.006, 0);
         foodsStatFrame.layout = foodsStatLayout;
-        
-        String[] foods = new String[] {"Berries", "Fish", "Worm", "Seed", "Rat"};
-        for (String food : foods) {
-        	createFoodChoice(food);
-        	
-        	UIFrame foodStatFrame = new UIFrame(food + "StatFrame", this);
-        	foodStatFrame.size = new Dim2(1, 0, 0.2, 0);
-        	foodStatFrame.backgroundTransparency = 0f;
-        	foodStatFrame.setParent(foodsStatFrame);
-        	
-        	UIText foodStat = new UIText(food + "Stat", this);
-        	foodStat.setParent(foodStatFrame);
-        	foodStat.textScaled = true;
-        	foodStat.text = "1";
-        	foodStat.textColor = Color.black;
-        	foodStat.horizontalAlignment = UIText.LEFT;
-            foodStat.backgroundTransparency = 0f;
-            foodStat.backgroundColor = Color.black;
-            foodStat.anchorPoint = new Vector2(0, 0.5);
-            foodStat.position = new Dim2(0.65, 0, 0.52, 0);
-            foodStat.size = new Dim2(0.4, 0, 0.75, 0);
+
+        UIFrame birdFeederButtonContainer = new UIFrame("BirdFeederButtonContainer", this);
+        birdFeederButtonContainer.backgroundTransparency = 0f;
+        birdFeederButtonContainer.size = new Dim2(0.42, 0, 0.5, 0);
+        birdFeederButtonContainer.position = new Dim2(0.5, 0, 0.035, 0);
+        birdFeederButtonContainer.setParent(infoCorner);
+
+        UIImage birdFeederButton = new UIImage("BirdFeederButton", this);
+        birdFeederButton.setImagePath("images/bird_feeder_button.png");
+        birdFeederButton.setImageFillType(UIImage.FIT_IMAGE);
+        birdFeederButton.size = new Dim2(1, 0, 0.9, 0).dilate(0.85);
+        birdFeederButton.anchorPoint.center();
+        birdFeederButton.position.center();
+        birdFeederButton.backgroundTransparency = 0f;
+        birdFeederButton.setParent(birdFeederButtonContainer);
+        birdFeederButton.addReleaseListener((e) -> {
+            choosePlayingScreen(birdFeederScreen);
+        });
+        animOnHover(birdFeederButton, birdFeederButton);
+        animOnPress(birdFeederButton, birdFeederButton);
+
+        UIFrame birdFeederButtonOutline = new UIFrame("BirdFeederButtonOutline", this);
+        birdFeederButtonOutline.size.full();
+        birdFeederButtonOutline.anchorPoint.center();
+        birdFeederButtonOutline.position.center();
+        birdFeederButtonOutline.backgroundTransparency = 0f;
+        birdFeederButtonOutline.setParent(birdFeederButton);
+        birdFeederButtonOutline.borderRadius = new Dim(0.25, 0);
+        birdFeederButtonOutline.strokeColor = Color.white;
+        birdFeederButtonOutline.strokeThickness = new Dim(0.07, 0);
+        birdFeederButtonOutline.strokeTransparency = 1f;
+        birdFeederButtonOutline.ignore = true;
+
+        UIFrame birdFeederButtonCover = new UIFrame("BirdFeederButtonCover", this);
+        birdFeederButtonCover.size = new Dim2(1.06, 0, 1.04, 0).dilate(1.01);
+        birdFeederButtonCover.anchorPoint.center();
+        birdFeederButtonCover.position.center();
+        birdFeederButtonCover.backgroundTransparency = 0f;
+        birdFeederButtonCover.backgroundColor = Color.black;
+        birdFeederButtonCover.setParent(birdFeederButton);
+        birdFeederButtonCover.setZIndex(1);
+        birdFeederButtonCover.borderRadius = new Dim(0.34, 0);
+        birdFeederButtonCover.ignore = true;
+        pressCover(birdFeederButton, birdFeederButtonCover);
+
+        UIFrame deckButtonContainer = new UIFrame("DeckButtonContainer", this);
+        deckButtonContainer.backgroundTransparency = 0f;
+        deckButtonContainer.size = new Dim2(0.42, 0, 0.5, 0);
+        deckButtonContainer.position = new Dim2(0.5, 0, 0.485, 0);
+        deckButtonContainer.setParent(infoCorner);
+
+        UIImage deckButton = new UIImage("DeckButton", this);
+        deckButton.setImagePath("images/deck_button.png");
+        deckButton.setImageFillType(UIImage.FIT_IMAGE);
+        deckButton.size = new Dim2(1, 0, 0.9, 0).dilate(0.85);
+        deckButton.anchorPoint.center();
+        deckButton.position.center();
+        deckButton.backgroundTransparency = 0f;
+        deckButton.setParent(deckButtonContainer);
+        deckButton.addReleaseListener((e) -> {
+            choosePlayingScreen(deckScreen);
+        });
+        animOnHover(deckButton, deckButton);
+        animOnPress(deckButton, deckButton);
+
+        UIFrame deckButtonOutline = new UIFrame("DeckButtonOutline", this);
+        deckButtonOutline.size.full();
+        deckButtonOutline.anchorPoint.center();
+        deckButtonOutline.position.center();
+        deckButtonOutline.backgroundTransparency = 0f;
+        deckButtonOutline.setParent(deckButton);
+        deckButtonOutline.borderRadius = new Dim(0.25, 0);
+        deckButtonOutline.strokeColor = Color.white;
+        deckButtonOutline.strokeThickness = new Dim(0.07, 0);
+        deckButtonOutline.strokeTransparency = 1f;
+        deckButtonOutline.ignore = true;
+
+        UIFrame deckButtonCover = new UIFrame("DeckButtonCover", this);
+        deckButtonCover.size = new Dim2(1.06, 0, 1.04, 0).dilate(1.01);
+        deckButtonCover.anchorPoint.center();
+        deckButtonCover.position.center();
+        deckButtonCover.backgroundTransparency = 0f;
+        deckButtonCover.backgroundColor = Color.black;
+        deckButtonCover.setParent(deckButton);
+        deckButtonCover.setZIndex(1);
+        deckButtonCover.borderRadius = new Dim(0.34, 0);
+        deckButtonCover.ignore = true;
+        pressCover(deckButton, deckButtonCover);
+
+        UIFrame handButtonContainer = new UIFrame("HandButtonContainer", this);
+        handButtonContainer.backgroundTransparency = 0f;
+        handButtonContainer.size = new Dim2(0.155, 0, 0.35, 0).dilate(1.1);
+        handButtonContainer.keepAspectRatio = true;
+        handButtonContainer.position = new Dim2(0.0225, 0, 0.95, 0);
+        handButtonContainer.anchorPoint = new Vector2(0, 1);
+        handButtonContainer.setParent(gameScreen);
+
+        UIFrame handButton = new UIFrame("HandButton", this);
+        handButton.backgroundTransparency = 0f;
+        handButton.size.full().dilate(0.9);
+        handButton.position.center();
+        handButton.anchorPoint.center();
+        handButton.addReleaseListener(e -> {
+            choosePlayingScreen(handScreen);
+        });
+        handButton.setParent(handButtonContainer);
+
+        UIImage handButtonBird = new UIImage("HandButtonBird", this);
+        handButtonBird.setImagePath("birds/back_of_bird.png");
+        handButtonBird.setImageFillType(UIImage.FIT_IMAGE);
+        handButtonBird.setZIndex(1);
+        handButtonBird.size = new Dim2(0.885, 0, 0.935, 0);
+        handButtonBird.anchorPoint = new Vector2(0, 1);
+        handButtonBird.position = new Dim2(0, 0, 1, 0);
+        handButtonBird.backgroundTransparency = 0f;
+        handButtonBird.ignore = true;
+        handButtonBird.setParent(handButton);
+
+        UIFrame handButtonBirdOutline = new UIFrame("HandButtonBirdOutline", this);
+        handButtonBirdOutline.size = handButtonBird.size;
+        handButtonBirdOutline.backgroundTransparency = 0f;
+        handButtonBirdOutline.position = handButtonBird.position;
+        handButtonBirdOutline.anchorPoint = handButtonBird.anchorPoint;
+        handButtonBirdOutline.setZIndex(-1);
+        handButtonBirdOutline.setParent(handButton);
+        handButtonBirdOutline.borderRadius = new Dim(0.08, 0);
+        handButtonBirdOutline.strokeColor = Color.white;
+        handButtonBirdOutline.strokeThickness = new Dim(0.1, 0);
+        handButtonBirdOutline.strokeTransparency = 1f;
+        handButtonBirdOutline.ignore = true;
+
+        UIImage handButtonBonus = new UIImage("HandButtonBonus", this);
+        handButtonBonus.setImagePath("bonus/back_of_bonus.png");
+        handButtonBonus.setImageFillType(UIImage.FIT_IMAGE);
+        handButtonBonus.size = new Dim2(0.885, 0, 0.935, 0);
+        handButtonBonus.anchorPoint = new Vector2(1, 0);
+        handButtonBonus.position = new Dim2(1, 0, 0, 0);
+        handButtonBonus.backgroundTransparency = 0f;
+        handButtonBonus.setBrightness(0.8f);
+        handButtonBonus.ignore = true;
+        handButtonBonus.setParent(handButton);
+
+        UIFrame handButtonBonusOutline = new UIFrame("HandButtonBonusOutline", this);
+        handButtonBonusOutline.size = handButtonBonus.size;
+        handButtonBonusOutline.backgroundTransparency = 0f;
+        handButtonBonusOutline.position = handButtonBonus.position;
+        handButtonBonusOutline.anchorPoint = handButtonBonus.anchorPoint;
+        handButtonBonusOutline.setZIndex(-1);
+        handButtonBonusOutline.setParent(handButton);
+        handButtonBonusOutline.borderRadius = new Dim(0.08, 0);
+        handButtonBonusOutline.strokeColor = Color.white;
+        handButtonBonusOutline.strokeThickness = new Dim(0.1, 0);
+        handButtonBonusOutline.strokeTransparency = 1f;
+        handButtonBonusOutline.ignore = true;
+        animOnHover(handButton, handButton);
+        animOnPress(handButton, handButton);
+
+        boardScreen = new UIFrame("BoardScreen", this);
+        boardScreen.anchorPoint = new Vector2(1, 0.5);
+        boardScreen.position = new Dim2(0.925, 0, 0.5, 0);
+        boardScreen.size = new Dim2(0.68, 0, 0.8, 0);
+        boardScreen.backgroundTransparency = 0f;
+        boardScreen.visible = false;
+        boardScreen.setParent(gameScreen);
+
+        UIText boardTitle = new UIText("BoardTitle", this);
+        boardTitle.backgroundTransparency = 0f;
+        boardTitle.textColor = Color.white;
+        boardTitle.textScaled = true;
+        boardTitle.position = new Dim2(0.5, 0, 0, 0);
+        boardTitle.size = new Dim2(0.9, 0, 0.15, 0);
+        boardTitle.textStrokeColor = Color.black;
+        boardTitle.textStrokeTransparency = 1f;
+        boardTitle.textStrokeThickness = new Dim(0.01, 0);
+        boardTitle.horizontalAlignment = UIText.CENTER;
+        boardTitle.anchorPoint.center();
+        boardTitle.text = "Player Board";
+        boardTitle.setParent(boardScreen);
+
+        UIFrame boards = new UIFrame("Boards", this);
+        boards.backgroundTransparency = 0f;
+        boards.keepAspectRatio = true;
+        boards.size.full();
+        boards.position.center();
+        boards.anchorPoint.center();
+        boards.setParent(boardScreen);
+        boards.setAttribute("Index", 1);
+        boards.setAttribute("ViewBoard", (Runnable)() -> {
+            int index = (int)boards.getAttribute("Index");
+            if (index == currentGame.getPlayerTurn()) {
+                boardTitle.text = "Player " + index + "'s Turn";
+            } else {
+                boardTitle.text = "Viewing Player " + index + "'s Board";
+            }
+            UIImage prevBoard = (UIImage)boards.getAttribute("Current");
+            if (prevBoard != null) {
+                UIFrame.getByName("Player" + prevBoard.getName().split("PlayerBoard")[1] + "Button").strokeColor = Color.white;
+                prevBoard.visible = false;
+            }
+            UIImage newBoard = UIImage.getByName("PlayerBoard" + index);
+            UIFrame.getByName("Player" + index + "Button").strokeColor = Color.green;
+            newBoard.visible = true;
+            boards.setAttribute("Current", newBoard);
+            choosePlayingScreen(boardScreen);
+        });
+
+        for (int i = 0; i < 5; i++) {
+            UIImage playerBoard = new UIImage("PlayerBoard" + (i + 1), this);
+            playerBoard.size = new Dim2(1, 0, 1, 0).dilate(0.85);
+            playerBoard.position = new Dim2(0.5, 0, 0.475, 0);
+            playerBoard.anchorPoint.center();
+            playerBoard.backgroundTransparency = 0f;
+            playerBoard.setImageFillType(UIImage.FIT_IMAGE);
+            playerBoard.setImagePath("images/board.jpg");
+            playerBoard.setParent(boards);
+            playerBoard.visible = false;
         }
+
+        deckScreen = (UIFrame)boardScreen.clone("DeckScreen");
+        deckScreen.setAttribute("Button", deckButton);
+
+        UIFrame deckScreenContent = new UIFrame("DeckScreenContent", this);
+        deckScreenContent.backgroundTransparency = 0f;
+        deckScreenContent.size.full();
+        deckScreenContent.position.center();
+        deckScreenContent.anchorPoint.center();
+        deckScreenContent.setParent(deckScreen);
+        deckScreenContent.keepAspectRatio = true;
+
+        UIText deckTitle = new UIText("DeckTitle", this);
+        deckTitle.backgroundTransparency = 0f;
+        deckTitle.textColor = Color.white;
+        deckTitle.textScaled = true;
+        deckTitle.position = new Dim2(0.5, 0, 0, 0);
+        deckTitle.size = new Dim2(0.9, 0, 0.15, 0);
+        deckTitle.textStrokeColor = Color.black;
+        deckTitle.textStrokeTransparency = 1f;
+        deckTitle.textStrokeThickness = new Dim(0.01, 0);
+        deckTitle.horizontalAlignment = UIText.CENTER;
+        deckTitle.anchorPoint .center();
+        deckTitle.text = "Deck";
+        deckTitle.setParent(deckScreenContent);
+
+        UIFrame deckCardsContainer = new UIFrame("DeckCardsContainer", this);
+        deckCardsContainer.backgroundTransparency = 0f;
+        deckCardsContainer.size = new Dim2(1, 0, 0.6, 0).dilate(0.75);
+        deckCardsContainer.position = new Dim2(0.5, 0, 0.35, 0);
+        deckCardsContainer.anchorPoint.center();
+        deckCardsContainer.setParent(deckScreenContent);
+
+        UIFrame deckCard1Frame = new UIFrame("DeckCard1Frame", this);
+        deckCard1Frame.size = new Dim2(0.15, 0, 0.5, 0).dilate(1.6);
+        deckCard1Frame.position = new Dim2(0.5, 0, 0.4, 0);
+        deckCard1Frame.anchorPoint.center();
+        deckCard1Frame.backgroundTransparency = 0f;
+        deckCard1Frame.setParent(deckCardsContainer);
+
+        UIImage deckCard1 = new UIImage("DeckCard1", this);
+        deckCard1.size.full();
+        deckCard1.position.center();
+        deckCard1.anchorPoint.center();
+        deckCard1.backgroundTransparency = 0f;
+        deckCard1.setImageFillType(UIImage.FIT_IMAGE);
+        deckCard1.setParent(deckCard1Frame);
+        animOnHover(deckCard1, deckCard1);
+        animOnPress(deckCard1, deckCard1);
+        deckCard1.addReleaseListener(e -> {
+            cyclingView.setAttribute("Items", currentGame.getFaceUpTray());
+            cyclingView.setAttribute("Index", currentGame.getFaceUpTray().indexOf(deckCard1.getAttribute("Card")));
+            ((Runnable)cyclingView.getAttribute("Run")).run();
+        });
+
+        UIFrame deckCard2Frame = deckCard1Frame.clone("DeckCard2Frame");
+        deckCard2Frame.position = new Dim2(0.825, 0, 0.53, 0);
+        deckCard2Frame.rotation = 20;
+        deckCard2Frame.setParent(deckCardsContainer);
+
+        UIImage deckCard2 = deckCard1.clone("DeckCard2");
+        deckCard2.setParent(deckCard2Frame);
+        animOnHover(deckCard2, deckCard2);
+        animOnPress(deckCard2, deckCard2);
+        deckCard2.addReleaseListener(e -> {
+            cyclingView.setAttribute("Items", currentGame.getFaceUpTray());
+            cyclingView.setAttribute("Index", currentGame.getFaceUpTray().indexOf(deckCard2.getAttribute("Card")));
+            ((Runnable)cyclingView.getAttribute("Run")).run();
+        });
+
+        UIFrame deckCard3Frame = deckCard1Frame.clone("DeckCard3Frame");
+        deckCard3Frame.position = new Dim2(0.175, 0, 0.53, 0);
+        deckCard3Frame.rotation = -20;
+        deckCard3Frame.setParent(deckCardsContainer);
+
+        UIImage deckCard3 = deckCard1.clone("DeckCard3");
+        deckCard3.setParent(deckCard3Frame);
+        animOnHover(deckCard3, deckCard3);
+        animOnPress(deckCard3, deckCard3);
+        deckCard3.addReleaseListener(e -> {
+            cyclingView.setAttribute("Items", currentGame.getFaceUpTray());
+            cyclingView.setAttribute("Index", currentGame.getFaceUpTray().indexOf(deckCard3.getAttribute("Card")));
+            ((Runnable)cyclingView.getAttribute("Run")).run();
+        });
+
+        UIImage featherThingLeft = new UIImage("FeatherThingLeft", this);
+        featherThingLeft.size = new Dim2(0.15, 0, 0.15, 0).dilate(1.2);
+        featherThingLeft.position = new Dim2(0.15, 0, 0.7, 0);
+        featherThingLeft.anchorPoint = new Vector2(0, 0.5);
+        featherThingLeft.backgroundTransparency = 0f;
+        featherThingLeft.setImagePath("images/feather_thing_left.png");
+        featherThingLeft.setImageFillType(UIImage.FIT_IMAGE);
+        featherThingLeft.setParent(deckScreenContent);
+
+        UIImage featherThingRight = featherThingLeft.clone("FeatherThingRight");
+        featherThingRight.position = new Dim2(0.85, 0, 0.7, 0);
+        featherThingRight.anchorPoint = new Vector2(1, 0.5);
+        featherThingRight.setImagePath("images/feather_thing_right.png");
+        featherThingRight.setParent(deckScreenContent);
+
+        UIFrame faceDownCardFrame = new UIFrame("FaceDownCardFrame", this);
+        faceDownCardFrame.size = new Dim2(0.15, 0, 0.3, 0).dilate(1.1);
+        faceDownCardFrame.position = new Dim2(0.5, 0, 0.7, 0);
+        faceDownCardFrame.anchorPoint.center();
+        faceDownCardFrame.rotation = 90;
+        faceDownCardFrame.backgroundTransparency = 0f;
+        faceDownCardFrame.setParent(deckScreenContent);
+
+        UIImage faceDownCard = new UIImage("FaceDownCard", this);
+        faceDownCard.size.full();
+        faceDownCard.position.center();
+        faceDownCard.anchorPoint.center();
+        faceDownCard.backgroundTransparency = 0f;
+        faceDownCard.setImagePath("birds/back_of_bird.png");
+        faceDownCard.setImageFillType(UIImage.FIT_IMAGE);
+        faceDownCard.setParent(faceDownCardFrame);
+        animOnHover(faceDownCard, faceDownCard);
+        animOnPress(faceDownCard, faceDownCard);
+
+        birdFeederScreen = boardScreen.clone("BirdFeederScreen");
+        birdFeederScreen.setAttribute("Button", birdFeederButton);
+
+        UIFrame birdFeederScreenContent = new UIFrame("BirdFeederScreenContent", this);
+        birdFeederScreenContent.backgroundTransparency = 0f;
+        birdFeederScreenContent.size.full();
+        birdFeederScreenContent.position.center();
+        birdFeederScreenContent.anchorPoint.center();
+        birdFeederScreenContent.setParent(birdFeederScreen);
+        birdFeederScreenContent.keepAspectRatio = true;
+        
+        UIText birdFeederTitle = new UIText("BirdFeederTitle", this);
+        birdFeederTitle.backgroundTransparency = 0f;
+        birdFeederTitle.textColor = Color.white;
+        birdFeederTitle.textScaled = true;
+        birdFeederTitle.position = new Dim2(0.5, 0, 0, 0);
+        birdFeederTitle.size = new Dim2(0.9, 0, 0.15, 0);
+        birdFeederTitle.textStrokeColor = Color.black;
+        birdFeederTitle.textStrokeTransparency = 1f;
+        birdFeederTitle.textStrokeThickness = new Dim(0.01, 0);
+        birdFeederTitle.horizontalAlignment = UIText.CENTER;
+        birdFeederTitle.anchorPoint .center();
+        birdFeederTitle.text = "BIRD FEEDER";
+        birdFeederTitle.setParent(birdFeederScreenContent);
+
+        UIFrame birdFeederChoicesContainer = new UIFrame("BirdFeederChoicesContainer", this);
+        birdFeederChoicesContainer.backgroundTransparency = 0f;
+        birdFeederChoicesContainer.size = new Dim2(0.9, 0, 0.15, 0);
+        birdFeederChoicesContainer.position = new Dim2(0.5, 0, 0.35, 0);
+        birdFeederChoicesContainer.anchorPoint.center();
+        birdFeederChoicesContainer.setParent(birdFeederScreenContent);
+
+        ListLayout birdFeederChoicesLayout = new ListLayout();
+        birdFeederChoicesLayout.direction = ListLayout.HORIZONTAL;
+        birdFeederChoicesLayout.horizontalAlignment = ListLayout.CENTER;
+        birdFeederChoicesLayout.verticalAlignment = ListLayout.CENTER;
+        birdFeederChoicesLayout.spacing = new Dim(0.05, 0);
+        birdFeederChoicesContainer.layout = birdFeederChoicesLayout;
+
+        UIFrame rerollBirdFeederButtonContainer = new UIFrame("RerollBirdFeederButtonContainer", this);
+        rerollBirdFeederButtonContainer.backgroundTransparency = 0f;
+        rerollBirdFeederButtonContainer.size = new Dim2(0.25, 0, 0.1, 0).dilate(1.1);
+        rerollBirdFeederButtonContainer.anchorPoint = new Vector2(1, 0.5);
+        rerollBirdFeederButtonContainer.position = new Dim2(0.95, 0, 0.55, 0);
+        rerollBirdFeederButtonContainer.setParent(birdFeederScreenContent);
+
+        UIFrame rerollBirdFeederButton = new UIFrame("RerollBirdFeederButton", this);
+        rerollBirdFeederButton.size.full().dilate(0.9);
+        rerollBirdFeederButton.backgroundColor = Color.gray;
+        rerollBirdFeederButton.strokeColor = Color.black;
+        rerollBirdFeederButton.borderRadius = new Dim(0.3, 0);
+        rerollBirdFeederButton.strokeThickness = new Dim(0.05, 0);
+        rerollBirdFeederButton.strokeTransparency = 1f;
+        rerollBirdFeederButton.position.center();
+        rerollBirdFeederButton.anchorPoint.center();
+        rerollBirdFeederButton.setParent(rerollBirdFeederButtonContainer);
+
+        UIText rerollBirdFeederButtonText = new UIText("RerollBirdFeederButtonText", this);
+        rerollBirdFeederButtonText.ignore = true;
+        rerollBirdFeederButtonText.textScaled = true;
+        rerollBirdFeederButtonText.text = "RE-ROLL";
+        rerollBirdFeederButtonText.textColor = Color.black;
+        rerollBirdFeederButtonText.size.full().dilate(0.75);
+        rerollBirdFeederButtonText.position.center();
+        rerollBirdFeederButtonText.anchorPoint.center();
+        rerollBirdFeederButtonText.backgroundTransparency = 0f;
+        rerollBirdFeederButtonText.setParent(rerollBirdFeederButton);
+
+        UIFrame rerollBirdFeederCover = new UIFrame("RerollBirdFeederCover", this);
+        rerollBirdFeederCover.size.full();
+        rerollBirdFeederCover.position.center();
+        rerollBirdFeederCover.anchorPoint.center();
+        rerollBirdFeederCover.backgroundTransparency = 0f;
+        rerollBirdFeederCover.borderRadius = rerollBirdFeederButton.borderRadius;
+        rerollBirdFeederCover.backgroundColor = Color.black;
+        rerollBirdFeederCover.ignore = true;
+        rerollBirdFeederCover.setParent(rerollBirdFeederButton);
+        animOnHover(rerollBirdFeederButton, rerollBirdFeederButton);
+        animOnPress(rerollBirdFeederButton, rerollBirdFeederButton);
+        pressCover(rerollBirdFeederButton, rerollBirdFeederCover);
+
+        handScreen = (UIFrame)boardScreen.clone("HandScreen");
+        handScreen.setAttribute("Button", handButton);
+
+        UIFrame handScreenContent = new UIFrame("HandScreenContent", this);
+        handScreenContent.backgroundTransparency = 0f;
+        handScreenContent.size.full();
+        handScreenContent.position.center();
+        handScreenContent.anchorPoint.center();
+        handScreenContent.setParent(handScreen);
+        handScreenContent.keepAspectRatio = true;
+
+        UIText handTitle = new UIText("HandTitle", this);
+        handTitle.backgroundTransparency = 0f;
+        handTitle.textColor = Color.white;
+        handTitle.textScaled = true;
+        handTitle.position = new Dim2(0.5, 0, 0, 0);
+        handTitle.size = new Dim2(0.9, 0, 0.15, 0);
+        handTitle.textStrokeColor = Color.black;
+        handTitle.textStrokeTransparency = 1f;
+        handTitle.textStrokeThickness = new Dim(0.01, 0);
+        handTitle.horizontalAlignment = UIText.CENTER;
+        handTitle.anchorPoint .center();
+        handTitle.text = "Hand";
+        handTitle.setParent(handScreenContent);
+
+        UIFrame handCardsContainer = new UIFrame("HandCardsContainer", this);
+        handCardsContainer.backgroundTransparency = 0.4f;
+        handCardsContainer.backgroundColor = Color.black;
+        handCardsContainer.borderRadius = new Dim(0.05, 0);
+        handCardsContainer.size = new Dim2(0.8, 0, 0.6, 0);
+        handCardsContainer.position = new Dim2(0.5, 0, 0.55, 0);
+        handCardsContainer.anchorPoint.center();
+        handCardsContainer.setParent(handScreenContent);
+
+        choosePlayingScreen(boardScreen);
+
+        cyclingView = new UIFrame("CyclingView", this);
+        cyclingView.size.full();
+        cyclingView.position.center();
+        cyclingView.anchorPoint.center();
+        cyclingView.backgroundTransparency = 0f;
+        cyclingView.keepAspectRatio = true;
+        cyclingView.visible = false;
+        cyclingView.setParent(gameScreen);
+        cyclingView.setZIndex(98);
+
+        UIFrame cyclingViewContent = new UIFrame("CyclingViewContent", this);
+        cyclingViewContent.size = new Dim2(0.53, 0, 0.67, 0);
+        cyclingViewContent.position = new Dim2(0.5, 0, 0.485, 0);
+        cyclingViewContent.anchorPoint.center();
+        cyclingViewContent.backgroundTransparency = 0f;
+        cyclingViewContent.setParent(cyclingView);
+
+        UIFrame cyclingViewBackground = new UIFrame("CyclingViewBackground", this);
+        cyclingViewBackground.size.full().dilate(150);
+        cyclingViewBackground.position.center();
+        cyclingViewBackground.anchorPoint.center();
+        cyclingViewBackground.backgroundColor = Color.decode("#422508");
+        cyclingViewBackground.backgroundTransparency = 0.5f;
+        cyclingViewBackground.setZIndex(-1);
+        cyclingViewBackground.setParent(cyclingView);
+        cyclingViewBackground.addReleaseListener((e) -> {
+            ((Runnable)cyclingView.getAttribute("Stop")).run();
+        });
+
+        UIImage item1 = new UIImage("Item1", this);
+        item1.size = new Dim2(0.15, 0, 0.3, 0).dilate(2);
+        item1.position = new Dim2(0.5, 0, 0.45, 0);
+        item1.anchorPoint.center();
+        item1.backgroundTransparency = 0f;
+        item1.setImageFillType(UIImage.FIT_IMAGE);
+        item1.setImagePath("birds/back_of_bird.png");
+        item1.setParent(cyclingView);
+
+        UIImage item2 = (UIImage)item1.clone("Item2");
+        item2.size.dilate(0.9);
+        item2.position = new Dim2(0.35, 0, 0.55, 0);
+        item2.setZIndex(-2);
+        item2.setParent(cyclingView);
+
+        UIImage item3 = (UIImage)item2.clone("Item3");
+        item3.position = new Dim2(0.65, 0, 0.55, 0);
+        item3.setParent(cyclingView);
+
+        UIFrame exitCyclingViewFrame = new UIFrame("ExitCyclingViewFrame", this);
+        exitCyclingViewFrame.size = new Dim2(0.065, 0, 0.1, 0).dilate(1.2);
+        exitCyclingViewFrame.position = new Dim2(0.99, 0, 0.025, 0);
+        exitCyclingViewFrame.anchorPoint = new Vector2(1, 0);
+        exitCyclingViewFrame.backgroundTransparency = 0f;
+        exitCyclingViewFrame.keepAspectRatio = true;
+        exitCyclingViewFrame.visible = false;
+        exitCyclingViewFrame.setZIndex(99);
+
+        UIText exitCyclingViewButton = new UIText("ExitCyclingViewButton", this);
+        exitCyclingViewButton.size.full().dilate(0.8);
+        exitCyclingViewButton.position.center();
+        exitCyclingViewButton.anchorPoint.center();
+        exitCyclingViewButton.text = "X";
+        exitCyclingViewButton.textColor = Color.decode("#ff5d5d");
+        exitCyclingViewButton.textScaled = true;
+        exitCyclingViewButton.backgroundTransparency = 0f;
+        exitCyclingViewButton.setParent(exitCyclingViewFrame);
+        exitCyclingViewButton.addReleaseListener((e) -> {
+            ((Runnable)cyclingView.getAttribute("Stop")).run();
+        });
+        animOnHover(exitCyclingViewButton, exitCyclingViewButton);
+        animOnPress(exitCyclingViewButton, exitCyclingViewButton);
+
+        UIFrame backArrowFrame = new UIFrame("BackArrowFrame", this);
+        backArrowFrame.size = new Dim2(0.065, 0, 0.1, 0).dilate(1.2);
+        backArrowFrame.position = new Dim2(0.3, 0, 0.45, 0);
+        backArrowFrame.anchorPoint.center();
+        backArrowFrame.backgroundTransparency = 0f;
+        backArrowFrame.setParent(cyclingView);
+
+        UIImage backArrowButton = new UIImage("BackArrowButton", this);
+        backArrowButton.size.full().dilate(0.8);
+        backArrowButton.position.center();
+        backArrowButton.anchorPoint.center();
+        backArrowButton.setImagePath("images/arrow.png");
+        backArrowButton.setImageFillType(UIImage.FIT_IMAGE);
+        backArrowButton.backgroundTransparency = 0f;
+        backArrowButton.setParent(backArrowFrame);
+        backArrowButton.addReleaseListener((e) -> {
+            ((Runnable)cyclingView.getAttribute("Previous")).run();
+        });
+        animOnHover(backArrowButton, backArrowButton);
+        animOnPress(backArrowButton, backArrowButton);
+
+        UIFrame nextArrowFrame = (UIFrame)backArrowFrame.clone("NextArrowFrame");
+        nextArrowFrame.position = new Dim2(0.7, 0, 0.45, 0);
+        nextArrowFrame.setParent(cyclingView);
+
+        UIImage nextArrowButton = (UIImage)backArrowButton.clone("NextArrowButton");
+        nextArrowButton.rotation = 180;
+        nextArrowButton.setParent(nextArrowFrame);
+        animOnHover(nextArrowButton, nextArrowButton);
+        animOnPress(nextArrowButton, nextArrowButton);
+        nextArrowButton.addReleaseListener((e) -> {
+            ((Runnable)cyclingView.getAttribute("Next")).run();
+        });
+
+        cyclingView.setAttribute("CurrentImage", item1);
+        cyclingView.setAttribute("NextImage", item2);
+        cyclingView.setAttribute("PrevImage", item3);
+        cyclingView.setAttribute("db", false);
+        cyclingView.setAttribute("Running", false);
+        cyclingView.setAttribute("Run", (Runnable) () -> {
+            cyclingView.setAttribute("Running", true);
+            ArrayList<Card> items = (ArrayList<Card>)cyclingView.getAttribute("Items");
+            int i = (int)cyclingView.getAttribute("Index");
+            ((UIImage)cyclingView.getAttribute("CurrentImage")).setImagePath(items.get(i).getImage());
+            ((UIImage)cyclingView.getAttribute("NextImage")).setImagePath(items.get((i + 1) % items.size()).getImage());
+            ((UIImage)cyclingView.getAttribute("PrevImage")).setImagePath(items.get((i - 1 + items.size()) % items.size()).getImage());
+            cyclingViewBackground.backgroundTransparency = 0f;
+            item1.imageTransparency = 0f;
+            item2.imageTransparency = 0f;
+            item3.imageTransparency = 0f;
+            exitCyclingViewButton.textTransparency = 0f;
+            nextArrowButton.imageTransparency = 0f;
+            backArrowButton.imageTransparency = 0f;
+            exitCyclingViewFrame.visible = true;
+            cyclingView.visible = true;
+            cyclingViewBackground.tweenBackgroundTransparency(0.5f, 0.3, Tween.QUAD_IN_OUT);
+            item1.tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            item2.tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            item3.tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            nextArrowButton.tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            backArrowButton.tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            exitCyclingViewButton.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            
+        });
+
+        cyclingView.setAttribute("Stop", (Runnable) () -> {
+            if ((boolean)cyclingView.getAttribute("db")) return;
+            cyclingView.setAttribute("db", true);
+            cyclingView.setAttribute("Running", false);
+            cyclingViewBackground.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            item1.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            item2.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            item3.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            nextArrowButton.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            backArrowButton.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            exitCyclingViewButton.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            Timer t = new Timer(300, e -> {
+                cyclingView.visible = false;
+                exitCyclingViewFrame.visible = false;
+                cyclingView.setAttribute("db", false);
+            });
+            t.setRepeats(false);
+            t.start();
+        });
+
+        cyclingView.setAttribute("Next", (Runnable)() -> {
+            if (!(boolean)cyclingView.getAttribute("Running") || (boolean)cyclingView.getAttribute("db")) return;
+            cyclingView.setAttribute("db", true);
+            UIImage current = (UIImage)cyclingView.getAttribute("CurrentImage");
+            UIImage next = (UIImage)cyclingView.getAttribute("NextImage");
+            UIImage prev = (UIImage)cyclingView.getAttribute("PrevImage");
+            ArrayList<Card> items = (ArrayList<Card>)cyclingView.getAttribute("Items");
+            final int i = ((int)cyclingView.getAttribute("Index") + 1) % items.size();
+            cyclingView.setAttribute("Index", i);
+            current.setZIndex(-2);
+            current.tweenPosition(new Dim2(0.65, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
+            current.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
+            next.setZIndex(0);
+            next.tweenPosition(new Dim2(0.5, 0, 0.45, 0), 0.3, Tween.QUAD_IN_OUT);
+            next.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2), 0.3, Tween.QUAD_IN_OUT);
+            prev.setZIndex(-2);
+            prev.tweenPosition(new Dim2(0.35, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
+            prev.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
+            UIImage temp = (UIImage)cyclingView.getAttribute("CurrentImage");
+            cyclingView.setAttribute("CurrentImage", cyclingView.getAttribute("NextImage"));
+            cyclingView.setAttribute("NextImage", cyclingView.getAttribute("PrevImage"));
+            cyclingView.setAttribute("PrevImage", temp);
+            Timer t = new Timer(150, e -> {
+                cyclingView.setAttribute("db", false);
+                ((UIImage)cyclingView.getAttribute("NextImage")).setImagePath(items.get((i + 1) % items.size()).getImage());
+            });
+            t.setRepeats(false);
+            t.start();
+        });
+
+        cyclingView.setAttribute("Previous", (Runnable)() -> {
+            if (!(boolean)cyclingView.getAttribute("Running") || (boolean)cyclingView.getAttribute("db")) return;
+            cyclingView.setAttribute("db", true);
+            UIImage current = (UIImage)cyclingView.getAttribute("CurrentImage");
+            UIImage next = (UIImage)cyclingView.getAttribute("NextImage");
+            UIImage prev = (UIImage)cyclingView.getAttribute("PrevImage");
+            ArrayList<Card> items = (ArrayList<Card>)cyclingView.getAttribute("Items");
+            final int i = ((int)cyclingView.getAttribute("Index") - 1 + items.size()) % items.size();
+            cyclingView.setAttribute("Index", i);
+            current.setZIndex(-2);
+            current.tweenPosition(new Dim2(0.35, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
+            current.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
+            prev.setZIndex(0);
+            prev.tweenPosition(new Dim2(0.5, 0, 0.45, 0), 0.3, Tween.QUAD_IN_OUT);
+            prev.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2), 0.3, Tween.QUAD_IN_OUT);
+            next.setZIndex(-2);
+            next.tweenPosition(new Dim2(0.65, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
+            next.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
+            UIImage temp = (UIImage)cyclingView.getAttribute("CurrentImage");
+            cyclingView.setAttribute("CurrentImage", cyclingView.getAttribute("PrevImage"));
+            cyclingView.setAttribute("PrevImage", cyclingView.getAttribute("NextImage"));
+            cyclingView.setAttribute("NextImage", temp);
+            Timer t = new Timer(150, e -> {
+                cyclingView.setAttribute("db", false);
+                ((UIImage)cyclingView.getAttribute("PrevImage")).setImagePath(items.get((i - 1 + items.size()) % items.size()).getImage());
+            });
+            t.setRepeats(false);
+            t.start();
+        });
+
+        UIFrame playerSelectionContainer = new UIFrame("PlayerSelectionContainer", this);
+        playerSelectionContainer.size = new Dim2(0.68, 0, 0.15, 0);
+        playerSelectionContainer.position = new Dim2(0.925, 0, 0.95, 0);
+        playerSelectionContainer.anchorPoint = new Vector2(1, 1);
+        playerSelectionContainer.backgroundTransparency = 0f;
+        playerSelectionContainer.setParent(gameScreen);
+
+        UIFrame playerSelectionItems = new UIFrame("PlayerSelectionItems", this);
+        playerSelectionItems.backgroundTransparency = 0f;
+        playerSelectionItems.keepAspectRatio = true;
+        playerSelectionItems.size.full();
+        playerSelectionItems.position.center();
+        playerSelectionItems.anchorPoint.center();
+        playerSelectionItems.setParent(playerSelectionContainer);
+
+        ListLayout playerSelectionLayout = new ListLayout();
+        playerSelectionLayout.direction = ListLayout.HORIZONTAL;
+        playerSelectionLayout.horizontalAlignment = ListLayout.CENTER;
+        playerSelectionLayout.verticalAlignment = ListLayout.CENTER;
+        playerSelectionLayout.spacing = new Dim(0.05, 0);
+        playerSelectionItems.layout = playerSelectionLayout;
+
+        UIFrame player1ButtonFrame = new UIFrame("Player1ButtonFrame", this);
+        player1ButtonFrame.size = new Dim2(0.116, 0, 0.8, 0).dilate(0.9);
+        player1ButtonFrame.backgroundTransparency = 0f;
+        player1ButtonFrame.setParent(playerSelectionItems);
+
+        UIFrame player1Button = new UIFrame("Player1Button", this);
+        player1Button.size.full().dilate(0.9);
+        player1Button.position.center();
+        player1Button.anchorPoint.center();
+        player1Button.backgroundColor = Color.decode("#ce173b");
+        player1Button.borderRadius = new Dim(0.2, 0);
+        player1Button.strokeColor = Color.white;
+        player1Button.strokeThickness = new Dim(0.06, 0);
+        player1Button.strokeTransparency = 1f;
+        player1Button.setParent(player1ButtonFrame);
+        player1Button.addReleaseListener((e) -> {
+            boards.setAttribute("Index", 1);
+            ((Runnable)boards.getAttribute("ViewBoard")).run();
+        });
+        animOnHover(player1Button, player1Button);
+        animOnPress(player1Button, player1Button);
+
+        UIText player1ButtonText = new UIText("Player1ButtonText", this);
+        player1ButtonText.size.full().dilate(0.8);
+        player1ButtonText.position.center();
+        player1ButtonText.anchorPoint.center();
+        player1ButtonText.text = "1";
+        player1ButtonText.textColor = Color.white;
+        player1ButtonText.textScaled = true;
+        player1ButtonText.backgroundTransparency = 0f;
+        player1ButtonText.ignore = true;
+        player1ButtonText.setParent(player1Button);
+
+        UIFrame player2ButtonFrame = player1ButtonFrame.clone("Player2ButtonFrame");
+        player2ButtonFrame.setParent(playerSelectionItems);
+
+        UIFrame player2Button = player1Button.clone("Player2Button");
+        player2Button.backgroundColor = Color.decode("#e4b800");
+        player2Button.setParent(player2ButtonFrame);
+        player2Button.addReleaseListener((e) -> {
+            boards.setAttribute("Index", 2);
+            ((Runnable)boards.getAttribute("ViewBoard")).run();
+        });
+        animOnHover(player2Button, player2Button);
+        animOnPress(player2Button, player2Button);
+
+        UIText player2ButtonText = player1ButtonText.clone("Player2ButtonText");
+        player2ButtonText.setParent(player2Button);
+        player2ButtonText.text = "2";
+
+        UIFrame player3ButtonFrame = player1ButtonFrame.clone("Player3ButtonFrame");
+        player3ButtonFrame.setParent(playerSelectionItems);
+
+        UIFrame player3Button = player1Button.clone("Player3Button");
+        player3Button.backgroundColor = Color.decode("#91bf55");
+        player3Button.setParent(player3ButtonFrame);
+        player3Button.addReleaseListener((e) -> {
+            boards.setAttribute("Index", 3);
+            ((Runnable)boards.getAttribute("ViewBoard")).run();
+        });
+        animOnHover(player3Button, player3Button);
+        animOnPress(player3Button, player3Button);
+
+        UIText player3ButtonText = player1ButtonText.clone("Player3ButtonText");
+        player3ButtonText.setParent(player3Button);
+        player3ButtonText.text = "3";
+
+        UIFrame player4ButtonFrame = player1ButtonFrame.clone("Player4ButtonFrame");
+        player4ButtonFrame.setParent(playerSelectionItems);
+
+        UIFrame player4Button = player1Button.clone("Player4Button");
+        player4Button.backgroundColor = Color.decode("#0080ab");
+        player4Button.setParent(player4ButtonFrame);
+        player4Button.addReleaseListener((e) -> {
+            boards.setAttribute("Index", 4);
+            ((Runnable)boards.getAttribute("ViewBoard")).run();
+        });
+        animOnHover(player4Button, player4Button);
+        animOnPress(player4Button, player4Button);
+
+        UIText player4ButtonText = player1ButtonText.clone("Player4ButtonText");
+        player4ButtonText.setParent(player4Button);
+        player4ButtonText.text = "4";
+
+        UIFrame player5ButtonFrame = player1ButtonFrame.clone("Player5ButtonFrame");
+        player5ButtonFrame.setParent(playerSelectionItems);
+
+        UIFrame player5Button = player1Button.clone("Player5Button");
+        player5Button.backgroundColor = Color.decode("#6c2175");
+        player5Button.setParent(player5ButtonFrame);
+        player5Button.addReleaseListener((e) -> {
+            boards.setAttribute("Index", 5);
+            ((Runnable)boards.getAttribute("ViewBoard")).run();
+        });
+        animOnHover(player5Button, player5Button);
+        animOnPress(player5Button, player5Button);
+
+        UIText player5ButtonText = player1ButtonText.clone("Player5ButtonText");
+        player5ButtonText.setParent(player5Button);
+        player5ButtonText.text = "5";
+
+        player1Button.rotation = 45;
+        player1ButtonText.rotation = -45;
+
+        ((Runnable)boards.getAttribute("ViewBoard")).run();
         
         UIFrame popupBackground = new UIFrame("PopupBackground", this);
         popupBackground.backgroundColor = Color.black;
@@ -788,7 +1575,104 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupPrompt.textScaled = true;
         popupPrompt.text = "hi guys do you wanna pick this card or this card idk cus lowk u have just two choices but it can change a lot";
         popupPrompt.setParent(popupContainer);
+
+        String[] foods = new String[] {"Berries", "Fish", "Worm", "Seed", "Rat"};
+        for (String food : foods) {
+        	createFoodChoice(food);
+        	
+        	UIFrame foodStatFrame = new UIFrame(food + "StatFrame", this);
+        	foodStatFrame.size = new Dim2(1, 0, 0.2, 0);
+        	foodStatFrame.backgroundTransparency = 0f;
+        	foodStatFrame.setParent(foodsStatFrame);
+        	
+        	UIText foodStat = new UIText(food + "Stat", this);
+        	foodStat.setParent(foodStatFrame);
+        	foodStat.textScaled = true;
+        	foodStat.text = "2";
+        	foodStat.textColor = Color.black;
+        	foodStat.horizontalAlignment = UIText.LEFT;
+            foodStat.backgroundTransparency = 0f;
+            foodStat.backgroundColor = Color.black;
+            foodStat.anchorPoint = new Vector2(0, 0.5);
+            foodStat.position = new Dim2(0.65, 0, 0.52, 0);
+            foodStat.size = new Dim2(0.4, 0, 0.8, 0);
+
+            UIFrame birdFeederFoodContainer = new UIFrame(food + "BirdFeederFoodContainer", this);
+            birdFeederFoodContainer.size = new Dim2(0.122, 0, 1, 0);
+            birdFeederFoodContainer.backgroundTransparency = 0f;
+            birdFeederFoodContainer.setParent(birdFeederChoicesContainer);
+
+            UIFrame birdFeederFoodFrame = new UIFrame(food + "BirdFeederFoodFrame", this);
+            birdFeederFoodFrame.size.full().dilate(0.9);
+            birdFeederFoodFrame.position.center();
+            birdFeederFoodFrame.anchorPoint.center();
+            birdFeederFoodFrame.backgroundTransparency = 1f;
+            birdFeederFoodFrame.backgroundColor = Color.decode("#dfd2c9");
+            birdFeederFoodFrame.borderRadius = new Dim(0.3, 0);
+            birdFeederFoodFrame.strokeColor = Color.white;
+            birdFeederFoodFrame.strokeThickness = new Dim(0.03, 0);
+            birdFeederFoodFrame.strokeTransparency = 1f;
+            birdFeederFoodFrame.setParent(birdFeederFoodContainer);
+
+            UIImage birdFeederFoodIcon = new UIImage(food + "BirdFeederFoodIcon", this);
+            birdFeederFoodIcon.setParent(birdFeederFoodFrame);
+            birdFeederFoodIcon.setImagePath("foods/" + food.toLowerCase() + "_ns.png");
+            birdFeederFoodIcon.setImageFillType(UIImage.FIT_IMAGE);
+            birdFeederFoodIcon.size = new Dim2(0.7, 0, 0.7, 0);
+            birdFeederFoodIcon.position.center();
+            birdFeederFoodIcon.anchorPoint.center();
+            birdFeederFoodIcon.ignore = true;
+            birdFeederFoodIcon.backgroundTransparency = 0f;
+
+            UIFrame birdFeederFoodCover = new UIFrame(food + "BirdFeederFoodCover", this);
+            birdFeederFoodCover.size.full().dilate(1.04);
+            birdFeederFoodCover.position.center();
+            birdFeederFoodCover.anchorPoint.center();
+            birdFeederFoodCover.backgroundTransparency = 0f;
+            birdFeederFoodCover.backgroundColor = Color.black;
+            birdFeederFoodCover.setParent(birdFeederFoodFrame);
+            birdFeederFoodCover.setZIndex(1);
+            birdFeederFoodCover.ignore = true;
+            birdFeederFoodCover.borderRadius = new Dim(0.45, 0);
+
+            animOnHover(birdFeederFoodFrame, birdFeederFoodFrame);
+            animOnPress(birdFeederFoodFrame, birdFeederFoodFrame);
+            pressCover(birdFeederFoodFrame, birdFeederFoodCover);
+        }
     }
+
+    public void choosePlayingScreen(UIElement screen) {
+        if (chosenScreen != null && screen != chosenScreen) {
+            chosenScreen.visible = false;
+            UIElement button = (UIElement)chosenScreen.getAttribute("Button");
+            if (button != null) {
+                if (button.getName().equals("HandButton")) {
+                    UIElement.getByName(button.getName() + "BirdOutline").strokeColor = Color.white;
+                    UIElement.getByName(button.getName() + "BonusOutline").strokeColor = Color.white;
+                } else {
+                    UIElement.getByName(button.getName() + "Outline").strokeColor = Color.white;
+                }
+            }
+            if (chosenScreen == boardScreen) {
+                UIImage currentBoard = (UIImage)(UIFrame.getByName("Boards").getAttribute("Current"));
+                if (currentBoard != null) {
+                    UIFrame.getByName("Player" + currentBoard.getName().split("PlayerBoard")[1] + "Button").strokeColor = Color.white;
+                }
+            }
+        }
+        screen.visible = true;
+        chosenScreen = screen;
+        UIElement button = (UIElement)screen.getAttribute("Button");
+        if (button != null) {
+            if (button.getName().equals("HandButton")) {
+                UIElement.getByName(button.getName() + "BirdOutline").strokeColor = Color.black;
+                UIElement.getByName(button.getName() + "BonusOutline").strokeColor = Color.black;
+            } else {
+                UIElement.getByName(button.getName() + "Outline").strokeColor = Color.black;
+            }
+        }
+    }
+
 
     public void createFoodChoice(String foodName) {
         UIElement choosableFoodsContainer = UIElement.getByName("ChoosableFoodsContainer");
@@ -824,6 +1708,76 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             choiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
             choiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
             choiceIcon.tweenSize(newSize, 0.1, Tween.QUAD_IN_OUT);
+        });
+    }
+
+    private UIFrame createRow(int p) {
+        UIFrame playerCardsContainer = (UIFrame)UIElement.getByName("Player" + p + "CardsContainer");
+        UIFrame row = new UIFrame("Row" + p + "_" + playerCardsContainer.getChildren().size(), this);
+        row.backgroundTransparency = 0f;
+        row.size = new Dim2(1, 0, 0.6, 0);
+        row.setParent(playerCardsContainer);
+
+        ListLayout rowLayout = new ListLayout();
+        rowLayout.direction = ListLayout.HORIZONTAL;
+        rowLayout.horizontalAlignment = ListLayout.CENTER;
+        rowLayout.verticalAlignment = ListLayout.CENTER;
+        rowLayout.spacing = new Dim(0.02, 0);
+        row.layout = rowLayout;
+
+        return row;
+    }
+
+    private UIFrame createPlayerCardsContainer(int p) {
+        UIFrame playerCardsContainer = new UIFrame("Player" + p + "CardsContainer", this);
+        playerCardsContainer.backgroundTransparency = 0f;
+        playerCardsContainer.size.full();
+        playerCardsContainer.position.center();
+        playerCardsContainer.anchorPoint.center();
+        playerCardsContainer.visible = false;
+        playerCardsContainer.setParent(UIFrame.getByName("HandCardsContainer"));
+
+        ListLayout playerCardsRowsLayout = new ListLayout();
+        playerCardsRowsLayout.direction = ListLayout.VERTICAL;
+        playerCardsRowsLayout.horizontalAlignment = ListLayout.CENTER;
+        playerCardsRowsLayout.verticalAlignment = ListLayout.CENTER;
+        playerCardsContainer.layout = playerCardsRowsLayout;
+
+        System.out.println("Creating player " + p + " cards container");
+
+        createRow(p);
+
+        return playerCardsContainer;
+    }
+
+    public void addToPlayerHand(int p, Card card) {
+        UIFrame playerCardsContainer = UIFrame.getByName("Player" + p + "CardsContainer");
+        System.out.println("Adding card: " + card + " to player " + p + " hand. Container? " + (playerCardsContainer != null));
+        if (playerCardsContainer == null) playerCardsContainer = createPlayerCardsContainer(p);
+        ArrayList<UIElement> rows = playerCardsContainer.getChildren();
+        UIElement lastRow = rows.get(rows.size() - 1);
+        UIFrame cardContainer = new UIFrame("HandCard" + p + "_" + rows.size() + "_" + lastRow.getChildren().size(), this);
+        cardContainer.size = new Dim2(0.22, 0, 1, 0);
+        cardContainer.backgroundTransparency = 0f;
+        if (lastRow.getChildren().size() >= 5) lastRow = createRow(p);
+        cardContainer.setParent(lastRow);
+        UIImage cardImage = new UIImage("HandCardImage" + p + "_" + rows.size() + "_" + lastRow.getChildren().size(), this);
+        cardImage.size.full();
+        cardImage.position.center();
+        cardImage.anchorPoint.center();
+        cardImage.backgroundTransparency = 0f;
+        cardImage.setImagePath(card.getImage());
+        cardImage.setImageFillType(UIImage.FIT_IMAGE);
+        cardImage.setParent(cardContainer);
+        animOnHover(cardImage, cardImage);
+        animOnPress(cardImage, cardImage);
+        cardImage.setAttribute("Card", card);
+        cardImage.addReleaseListener(e -> {
+            Player player = currentGame.getPlayers().get(p);
+            ArrayList<Card> all = new ArrayList<>(player.getBirdHand()); all.addAll(player.getBonusHand());
+            cyclingView.setAttribute("Items", all);
+            cyclingView.setAttribute("Index", all.indexOf(cardImage.getAttribute("Card")));
+            ((Runnable)cyclingView.getAttribute("Run")).run();
         });
     }
 

@@ -62,6 +62,10 @@ class Vector2 {
         y = 0.5;
         return this;
     }
+
+    public Vector2 clone() {
+        return new Vector2(x, y);
+    }
 }
 
 class Dim2 {
@@ -218,6 +222,10 @@ class Dim {
         double scale = start.scale + (goal.scale - start.scale) * a;
         double offset = start.offset + (goal.offset - start.offset) * a;
         return new Dim(scale, (int) offset);
+    }
+
+    public Dim clone() {
+        return new Dim(scale, offset);
     }
 }
 
@@ -386,6 +394,7 @@ class Tween {
     // if user wants to do something when the animation is finished they can set that here
     public void onFinish(TweenEvent e) {
         onFinishEvent = e;
+        if (UIElement.performanceMode) e.run();
     }
 
     // easing types
@@ -660,17 +669,43 @@ class UIElement {
     private boolean resort = false; // used whenever we need to resort the drawing order based on z-index
     protected AffineTransform mostRecentTransform; // used to check if mouse is inside an element
     private HashMap<String, Object> attributes = new HashMap<>();
-    private static HashMap<String, UIElement> byName = new HashMap<>();
+    protected static HashMap<String, UIElement> byName = new HashMap<>();
     private String name;
     public boolean ignore = false;
     public ListLayout layout;
     public int layoutOrder;
+    public static boolean performanceMode = false;
 
     // animation related stuff
     protected static HashSet<UIImage> sprites = new HashSet<>();
     private static ArrayList<Tween> tweens = new ArrayList<>();
     private static Timer timer;
     private static boolean isTweening = false;
+
+    protected UIElement cloneCustom(String name) {
+        return new UIElement(name, panel);
+    }
+
+    public UIElement clone(String name) {
+        UIElement clone = cloneCustom(name);
+        clone.position = this.position.clone();
+        clone.size = this.size.clone();
+        clone.rotation = this.rotation;
+        clone.backgroundColor = this.backgroundColor;
+        clone.backgroundTransparency = this.backgroundTransparency;
+        clone.borderRadius = this.borderRadius.clone();
+        clone.strokeThickness = this.strokeThickness.clone();
+        clone.strokeTransparency = this.strokeTransparency;
+        clone.strokeColor = this.strokeColor;
+        clone.zIndex = this.zIndex;
+        clone.visible = this.visible;
+        clone.keepAspectRatio = this.keepAspectRatio;
+        clone.cropOverflow = this.cropOverflow;
+        clone.anchorPoint = this.anchorPoint.clone();
+        clone.ignore = this.ignore;
+        clone.setParent(this.parent);
+        return clone;
+    }
 
     public UIElement(String name, JPanel panel) {
         UIElement old = byName.put(name, this);
@@ -709,7 +744,7 @@ class UIElement {
     }
 
     public void setZIndex(int zIndex) {
-        resort = true;
+        if (this.parent != null) this.parent.resort = true;
         this.zIndex = zIndex;
     }
 
@@ -1000,7 +1035,7 @@ class UIElement {
         g2d.setTransform(transform);
         mostRecentTransform = new AffineTransform(transform);
         
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        if (!performanceMode) g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         //g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         if (backgroundTransparency > 0) {
@@ -1017,7 +1052,10 @@ class UIElement {
         }
 
         if (resort) {
+            System.out.println("Resorting children of " + name);
+            System.out.println( children );
             children.sort((a, b) -> Integer.compare(a.zIndex, b.zIndex));
+            System.out.println("now" + children );
             resort = false;
         }
 
@@ -1207,7 +1245,7 @@ class UIElement {
         long duration = (long) (time * 1000); // duration is calculated by multiplying time (in seconds) by 1000 to get milliseconds
         Tween tween = new Tween(this, startValue, endValue, duration, property, propertyType, animationStyle); // creates a new tween object
         tweens.add(tween); // we add it to arraylist of all tweens to keep track of them
-
+        if (performanceMode) tween.skipTween = true;
         startTimer(); // then make a new "loop" or timer. we only want one timer globally. if we make a new timer for every tween then it can lag
         return tween;
     }
@@ -1216,8 +1254,12 @@ class UIElement {
         if (isTweening) {
             return;
         }
+        if (performanceMode) { updateAllTweens(); return; }
         timer = new Timer(8, e -> {
             updateAllTweens();
+            if (performanceMode) {
+                timer.stop();
+            }
         }); // create timer, every 8 miliseconds we progress the animation. 8 ms is around 120 fps
         timer.start(); // start timer
         isTweening = true;
@@ -1230,6 +1272,7 @@ class UIElement {
         HashSet<JPanel> rootPanels = new HashSet<>();
 
         if (!tweens.isEmpty()) {
+                
             for (int i = 0; i < tweens.size(); i++) {
                 Tween tween = tweens.get(i);
                 if (!tween.complete) { // if tween is not complete
@@ -1457,6 +1500,18 @@ class UIFrame extends UIElement {
     public UIFrame(String name, JPanel p) {
         super(name, p);
     }
+
+    protected UIElement cloneCustom(String name) {
+        return new UIFrame(name, panel);
+    }
+
+    public UIFrame clone(String name) {
+        return (UIFrame) super.clone(name);
+    }
+
+    public static UIFrame getByName(String name) {
+        return (UIFrame)byName.get(name);
+    }
 }
 
 class UIImage extends UIElement {
@@ -1679,6 +1734,35 @@ class UIImage extends UIElement {
         playing = false;
         sprites.remove(this);
     }
+
+    protected UIImage cloneCustom(String name) {
+        UIImage c = new UIImage(name, panel);
+        c.imageTransparency = this.imageTransparency;
+        c.imagePath = this.imagePath;
+        c.image = this.image;
+        c.toDraw = this.toDraw;
+        c.brightness = this.brightness;
+        c.dirtyBrightness = this.dirtyBrightness;
+        c.dirtyImagePath = this.dirtyImagePath;
+        c.imageFillType = this.imageFillType;
+        c.frameWidth = this.frameWidth;
+        c.frameHeight = this.frameHeight;
+        c.currentFrame = this.currentFrame;
+        c.totalFrames = this.totalFrames;
+        c.frameDuration = this.frameDuration;
+        c.loopAnimation = this.loopAnimation;
+        c.playing = this.playing;
+        c.lastFrame = this.lastFrame;
+        return c;
+    }
+
+    public UIImage clone(String name) {
+        return (UIImage) super.clone(name);
+    }
+
+    public static UIImage getByName(String name) {
+        return (UIImage)byName.get(name);
+    }
 }
 
 class UIText extends UIElement {
@@ -1720,7 +1804,7 @@ class UIText extends UIElement {
     }
 
     protected void drawCustom(Graphics2D g2d) {
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        if (!performanceMode) g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         if (textScaled) textWrapped = true;
 
@@ -1804,6 +1888,32 @@ class UIText extends UIElement {
 
             y += lineHeight;
         }
+    }
+
+    protected UIText cloneCustom(String name) {
+        UIText c = new UIText(name, panel);
+        c.fontName = this.fontName;
+        c.fontStyle = this.fontStyle;
+        c.fontSize = this.fontSize;
+        c.textTransparency = this.textTransparency;
+        c.textColor = this.textColor;
+        c.text = this.text;
+        c.textStrokeTransparency = this.textStrokeTransparency;
+        c.textStrokeColor = this.textStrokeColor;
+        c.textStrokeThickness = this.textStrokeThickness.clone();
+        c.textScaled = this.textScaled;
+        c.textWrapped = this.textWrapped;
+        c.horizontalAlignment = this.horizontalAlignment;
+        c.verticialAlignment = this.verticialAlignment;
+        return c;
+    }
+
+    public UIText clone(String name) {
+        return (UIText) super.clone(name);
+    }
+
+    public static UIText getByName(String name) {
+        return (UIText)byName.get(name);
     }
 
     private ArrayList<String> wrapText(Graphics2D g2d) {

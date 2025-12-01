@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 
-public enum BonusCard implements BonusCardInterface
+public enum BonusCard implements Card, BonusCardInterface
 {
 
     ANATOMIST("anatomist.png", (player) -> {
