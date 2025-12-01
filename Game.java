@@ -1,3 +1,4 @@
+
 import java.util.*;
 
 public class Game {
@@ -39,6 +40,32 @@ public class Game {
 
     // GAME | VOID METHODS
 
+	// end of game computing
+	// this method will tick at roundEnd() if roundsPlayed >= 4
+	public void gameEnd()
+	{
+		// once again, should allow the whole game to be viewed while showing the final scoring so the teacher can grade for points
+		// not sure how UI will display the final scores but the final scoring method returns a hashmap of the scoring sources while adding to a final score so use that
+		for(Player p : playerList)
+			p.setFinalScoreMap(calculateFinalScores(p)); // variable in player than has the final map scoring so all scores can be accessed at once to put on scoring source visual
+	}
+
+	// end of round computing
+	// this method will tick at increment player turn if actionCubes = 0 && startingPlayerTurn == playerTurn
+	public void roundEnd()
+	{	
+		// think we need to allow the whole game to be viewed while showing the goal board so teacher can grade; he took off points if you didn't do so last project
+		goalBoard.get(roundsPlayed).determineRankings(playerList, roundsPlayed, isCompetitive); // has the player's rankings determined
+		this.roundsPlayed ++; // increments the amount of rounds played
+		if(roundsPlayed >= 4) this.gameEnd(); // since rounds played begins at 0 and increments right before, when it hits 4 is when game ends
+		// since game hasn't ended yet, game now will begin clearing things that require to do so
+		this.clearAndRegenerateFaceUpTray(); // end of rounds has the tray cleared and regenerated
+		this.resetAllBirdsStatus(); // makes sure all pink birds are reset just in case
+		this.startingPlayerTurn = this.startingPlayerTurn % playerList.size() + 1; // shouldn't need to reset back to 1 but keep it just in case
+		for(Player p : this.playerList)
+			p.setActionCubes(8 - this.roundsPlayed); // 8 is beginning amount and players lose 1 action cube at the end of each round
+	}
+
 	// not sure we need to keep this; i think we should imo
 	// acts to begin each player turn
 	public void playActions()
@@ -47,15 +74,22 @@ public class Game {
 		// ui will return which choice they pick, should just return a string
 		// for now, it'll be just lay eggs
 		// string returns should be playBird, getFood, layEggs, drawBirds
-		Player p = this.playerList.get(playerTurn);
-		String choice = "layEggs";
-		if(choice.equals("playBird")) this.playBird(p);
-		else if(choice.equals("getFood")) this.getFood(p);
-		else if(choice.equals("layEggs")) this.layEggs(p);
-		else if(choice.equals("drawBirds")) this.drawBirds(p);
-		else System.out.println("ERROR IN PLAYACTIONS, CAN'T FIND ACTION");
+		Player p = this.playerList.get(playerTurn-1);
+		// while loop is basically only for playBird which is the only one that can end up in failure if the player doesn't have enough eggs or even a bird to play
+		while(true)
+		{
+			String choice = "layEggs";
+			// playing a bird does not have brown bird abilities activate
+			if(choice.equals("playBird")) if(this.playBird(p)) break; // playBird auto adds it to board and returns true if successfully placed
+			else if(choice.equals("getFood")) { this.getFood(p); this.iterateBirdAbilities(p, "forest"); break; }
+			else if(choice.equals("layEggs")) { this.layEggs(p); this.iterateBirdAbilities(p, "grassland"); break; }
+			else if(choice.equals("drawBirds")) { this.drawBirds(p); this.iterateBirdAbilities(p, "wetland"); break; }
+			else System.out.println("ERROR IN PLAYACTIONS, CAN'T FIND ACTION");
+		}
 
-		this.incrementPlayerTurn();
+		p.decreaseActionCubes(); // player turn has ended and they lose an action cube
+		this.regenerateFaceUpTray(); // regens the tray without removing old cards as player turn has ended
+		this.incrementPlayerTurn(); // increments player turn
 	}
 
 	// method that has the play draw bird cards based on whether they want the face up or random pile
@@ -64,7 +98,7 @@ public class Game {
 		// amount of birds depends on the amount of birds in the wetland habitat
 		// if there is an even amount, there is capability of trading an egg for a bird
 		int birdGet = 0;
-		int birdAmount = p.getBoard().get("forest").size();
+		int birdAmount = p.getBoard().get("wetland").size();
 		if(birdAmount < 2) birdGet = 1;
 		else if (birdAmount < 5) birdGet = 2;
 		else birdGet = 3;
@@ -93,7 +127,6 @@ public class Game {
 			else if(choice == 3) p.addBirdHand(this.pullRandomBirds(1).get(0));
 			else System.out.println("ERROR IN DRAWBIRDS METHOD GAME");
 		}
-		this.regenerateFaceUpTray(); // regens the tray without removing old cards
 	}
 
 	// method that has the player lay eggs on which bird they want
@@ -129,15 +162,17 @@ public class Game {
 			// UI should choose the bird
 			// not sure if it will make sure if the bird has the sufficient space in the UI method or here, for now i implement here in case
 			// have while loop commented to not create errors if called for now
+			/*
 			while(true)
 			{
-				BirdInstance bird = new BirdInstance(Bird.ACORN_WOODPECKER);
+				BirdInstance bird = ;
 				if(bird.addEggs(1)) // auto adds egg and returns true if egg is added
 				{
 					pinkAbilityActivation("eggLaid"); 
 					break; // breaks while loop
 				}
 			}
+			*/
 		}
 	}
 
@@ -173,16 +208,9 @@ public class Game {
 			// for now it's seed
 			String food = "seed";
 			this.grabFood(food, p, 1);
+			if(food.equalsIgnoreCase("rat"))
+				this.pinkAbilityActivation("ratFoodGrabbed");
 		}
-	}
-
-	// method that has the player choose which bird and then play it
-	public void playBird(Player p) 
-	{
-		// UI should be asking the player which bird from their hand to play
-		// for now it'll be the first bird in the hand
-		Bird birdToPlay = p.getBirdHand().get(0);
-		addBirdToBoard(p, birdToPlay);
 	}
 
 	// method that allows the player to choose which birds to remove eggs
@@ -207,25 +235,34 @@ public class Game {
 			case "playWetlandGetFish" -> List.of("BELTED KINGFISHER");
 			case "ifPredatorSucceeds" -> List.of("BLACK VULTURE", "BLACK BILLED MAGPIE", "TURKEY_VULTURE");
 			case "eggLaid" -> List.of("AMERICAN AVOCET", "BARROW'S GOLDENEYE", "BRONZED COWBIRD", "BROWN HEADED COWBIRD", "YELLOW BILLED CUCKOO"); // these can be grouped as even tho diff abilities, same activation
+			case "ratFoodGrabbed" -> List.of("LOGGERHEAD SHRIKE");
 			default -> List.of();
 		};
 		
 		// now directly activates ability after searching through the list
 		for(Player p : playerList)
-			p.getBoard().values().stream()
-			.flatMap(List::stream) // makes into list
-			.filter(b -> birdNames.contains(b.getName().toUpperCase())) // checks each bird of the player if they have the bird
-			// .filter(b -> abilityConfirmation(p, b)). this is a placeholder for the popup method that will ask yes or no question and return a boolean. for now it is just ignored. ignore the method name too
-			.forEach(b -> b.performAction(this, p)); // if player has the bird and confirms then activate ability
+			if(p != playerList.get(playerTurn - 1)) // pink cards only activate on ANOTHER PLAYER's action, cant be your own
+				p.getBoard().values().stream()
+				.flatMap(List::stream) // makes into list
+				.filter(b -> birdNames.contains(b.getName().toUpperCase())) // checks each bird of the player if they have the bird
+				// .filter(b -> abilityConfirmation(p, b)). this is a placeholder for the popup method that will ask yes or no question and return a boolean. for now it is just ignored. ignore the method name too
+				.forEach(b -> b.performAction(this, p)); // if player has the bird and confirms then activate ability
 	}
 
-	// resets all pink birds status to not played yet; used at end of turns
+	// resets all pink birds status to not played yet; used at end of rounds
 	public void resetAllBirdsStatus()
 	{
 		for(Player p : playerList) {
 			List<BirdInstance> birds = p.getBoard().values().stream().flatMap(List::stream).toList();
 			for(BirdInstance b: birds) b.resetPlayed();
 		}
+	}
+
+	// resets all pink birds status to not played yet for this singular player; used at the end of turns
+	public void resetThisPlayersBirdsStatus(Player p)
+	{
+		List<BirdInstance> birds = p.getBoard().values().stream().flatMap(List::stream).toList();
+		for(BirdInstance b : birds) b.resetPlayed();
 	}
 
 	// Simulates randomly choosing goals without repeats
@@ -289,6 +326,22 @@ public class Game {
 		player.addBirdHand(faceUpBirds.remove(index));
 	}
 
+	// resets all the bonus cards to 1 in deck (allows for redraw)
+	public void resetBonusDeckCount()
+	{
+		List<BonusCard> bonusCards = Arrays.asList(BonusCard.values());
+		for(BonusCard b : bonusCards)
+			b.resetCardDeckCount();
+	}
+
+	// resets all the bird cards to 1 in deck (allows for redraw)
+	public void resetBirdDeckCount()
+	{
+		List<Bird> birdCards = Arrays.asList(Bird.values());
+		for(Bird b : birdCards)
+			b.resetCardDeckCount();
+	}
+
     // RETURN METHODS
     public ArrayList<Player> getPlayers() {
         return playerList;
@@ -304,17 +357,30 @@ public class Game {
 
 		// makes sure there are cards available
 		int availableCards = deck.size();
+		/* no longer doing this comment and limit prevention, just gonna reset all cards to back in deck, commented to keep it here in case we want to use this way instead
 		// just sends a message in case we're testing and wondering what went wrong
 		if (amount > availableCards) System.out.println("Ran out of bird cards");
 		amount = Math.min(amount, availableCards);
+		*/
 
 		Collections.shuffle(deck);
+		ArrayList<Bird> returning;
+		if(availableCards >= amount)
+		{
+			returning = new ArrayList<>(deck.subList(0, amount));
+			for(Bird c : returning)
+				c.removeCardFromDeck();
+		}
+		else
+		{
+			returning = new ArrayList<>(deck.subList(0, availableCards));
+			for(Bird c : returning)
+				c.removeCardFromDeck();
+			int newAmt = amount - availableCards; // since above grabs the last cards left in deck, this finds the amount left to grab
+			this.resetBirdDeckCount(); // resets all bird cards deck count
+			returning.addAll(pullRandomBirds(newAmt)); // recursion to do this method again but after resetting all bird cards
+		}
 
-		ArrayList<Bird> returning = new ArrayList<>(deck.subList(0, amount));
-
-		for(Bird c : returning)
-			c.removeCardFromDeck();
-			
 		return returning;
 	}
 
@@ -360,8 +426,19 @@ public class Game {
 		for (Map.Entry<String, Integer> en : scores.entrySet())
 			total += en.getValue();
 		scores.put("total", total);
+		player.setPoints(total);
 
 		return scores;
+	}
+
+	// method that has the player choose which bird and then play it
+	public boolean playBird(Player p) 
+	{
+		if(p.getBirdHand().isEmpty()) return false; // just checks if the hand is empty first before asking which to play
+		// UI should be asking the player which bird from their hand to play
+		// for now it'll be the first bird in the hand
+		Bird birdToPlay = p.getBirdHand().get(0);
+		return addBirdToBoard(p, birdToPlay);
 	}
 
 	//adds the specified bird to the board if the player has enough food and the bird is in their hand
@@ -370,7 +447,19 @@ public class Game {
     public boolean addBirdToBoard(Player p, Bird bird) {
         if(!p.getBirdHand().contains(bird)) return false; // checks if the player acc has the bird; idk how this goes off
         if(!p.hasEnoughFood(bird)) return false; // checks if the player has enough food
-
+		boolean habitatSizeCheck = false; // boolean used to check all habitats for size
+		for(String s : bird.getHabitat()) 
+		{
+			if(p.getBoard().get(s).size() < 5) habitatSizeCheck = true; // if at least one of the possible habitats isn't full then the bird can be played
+			// repetition of bottom logic, must be done up here in case it's truly impossible to add the bird and stop the action before food is used up
+			// this tests all possible habitats to be placed
+			int eggsReq = 0;
+			if(p.getBoard().get(s).isEmpty()) eggsReq = 0;
+			else if(p.getBoard().get(s).size() < 4) eggsReq = 1;
+			else eggsReq = 2;
+			if(p.getBoard().values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() < eggsReq) return false; // checks if player has enough eggs
+		}
+		if(!habitatSizeCheck) return false;
         // removes the food from the player's food supply
         if(bird.getFoodRequired().contains("and")) {
             p.removeAndFoodToAddBird(bird); // this method removes all food but the any
@@ -386,24 +475,37 @@ public class Game {
         }
 
         String habitat = "";
+		int eggsReq = 0;
         if(bird.getHabitat().length > 1) {
             //UI will ask which habitat to place the bird in
-            habitat = bird.getHabitat()[0]; // TEMPORARY SETTING TO FIRST HABITAT
+			while(true)
+			{
+            	habitat = bird.getHabitat()[0]; // TEMPORARY SETTING TO FIRST HABITAT
+				if(!(p.getBoard().get(habitat).size() >= 5)) break; // makes sure player selects a habitat that isnt full'
+				// determines the eggs required for placing the bird
+				if(p.getBoard().get(habitat).isEmpty()) eggsReq = 0;
+				else if(p.getBoard().get(habitat).size() < 4) eggsReq = 1;
+				else eggsReq = 2;
+				// checks if the player has enough eggs for the habitat chosen
+				// this check is done here to allow for reselection of habitat 
+				if(p.getBoard().values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() >= eggsReq) break;
+			}
         }
         else {
-            habitat = bird.getHabitat()[0];
-           
+            habitat = bird.getHabitat()[0]; // checks are not done here because if there was only one habitat, they would've failed the preliminary tests already
         }
-		int eggsReq = 0;
-		if(p.getBoard().get(habitat).isEmpty()) eggsReq = 0;
-		else if(p.getBoard().get(habitat).size() < 4) eggsReq = 1;
-		else eggsReq = 2;
-		if(!(p.getBoard().values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() == eggsReq)) return false; // checks if player has enough eggs
+		
         BirdInstance birdInstance = new BirdInstance(bird); // new bird instance
 		birdInstance.setCurrentHabitat(habitat);
         p.getBoard().get(habitat).add(birdInstance); // adds to board
         p.getBirdHand().remove(bird); // removes from hand
 		this.removeEggs(p, eggsReq); // removes eggs from birds
+		if(birdInstance.getActionColor().equalsIgnoreCase("WHITE"))
+		{
+			// ui should have a prompt that asks whether the player wants to activate the bird's ability and return a boolean; for now it's true
+			boolean activate = true;
+			if(activate) birdInstance.performAction(this, p);
+		}
 		if(habitat.equals("forest"))
 			pinkAbilityActivation("playForestAndGetWorm");
 		else if(habitat.equals("grassland"))
@@ -425,15 +527,29 @@ public class Game {
 
 		// makes sure there are cards available
 		int availableCards = deck.size();
+		/* no longer doing this comment and limit prevention, just gonna reset all cards to back in deck, commented to keep it here in case we want to use this way instead
 		// just sends a message in case we're testing and wondering what went wrong
 		if (amount > availableCards) System.out.println("Ran out of bonus cards");
 		amount = Math.min(amount, availableCards);
+		*/
 
 		Collections.shuffle(deck);
-
-		ArrayList<BonusCard> returning = new ArrayList<>(deck.subList(0, amount));
-		for(BonusCard c : returning)
-			c.removeCardFromDeck();
+		ArrayList<BonusCard> returning;
+		if(availableCards >= amount)
+		{
+			returning = new ArrayList<>(deck.subList(0, amount));
+			for(BonusCard c : returning)
+				c.removeCardFromDeck();
+		}
+		else
+		{
+			returning = new ArrayList<>(deck.subList(0, availableCards));
+			for(BonusCard c : returning)
+				c.removeCardFromDeck();
+			int newAmt = amount - availableCards; // since above grabs the last cards left in deck, this finds the amount left to grab
+			this.resetBonusDeckCount(); // resets all bonus cards deck count
+			returning.addAll(pullRandomBonusCards(newAmt)); // recursion to do this method again but after resetting all bonus cards
+		}
 
 		return returning;
 	}
@@ -460,8 +576,9 @@ public class Game {
 				birdFeeder.remove("seed/worm");
 				atLeast1Grabbed = true;
 			}
+			if(this.birdFeeder.isEmpty()) this.rollBirdFeeder(); // checks if the feeder is empty and rerolls it if so
 		}
-		if(this.birdFeeder.isEmpty()) this.rollBirdFeeder(); // checks if the feeder is empty and rerolls it if so
+		
 		return atLeast1Grabbed;
 	}
 
@@ -480,6 +597,24 @@ public class Game {
 
 		return true;
 	}
+
+	public boolean canContinueResources() { return selectionPhase == 1 ? selected.size() == 5 : selected.size() == 1; }
+
+	public int getSelectionPhase() { return selectionPhase; }
+
+	public void incrementPlayerTurn() 
+	{ 
+		playerTurn = playerTurn % playerList.size() + 1;  
+		Player p = this.playerList.get(playerTurn - 1);
+		// pink birds are reset on every rotation back to your own turn, thus it
+		this.resetThisPlayersBirdsStatus(p); // resets the player's pink birds to not played for whoevers turn it now is
+		// end of round check : if the next player's action cubes is 0 and the beginning player is the next player, then the round ends
+		if(p.getActionCubes() == 0 && this.startingPlayerTurn == this.playerTurn) roundEnd();
+	}
+
+	public int getPlayerTurn() { return playerTurn; }
+
+	public void setCompetitiveType(boolean isCompetitive) {this.isCompetitive = isCompetitive;}
 
 	public void UIMouseReleased(RootMouseEvent event, UIElement released)
 	{
@@ -588,8 +723,6 @@ public class Game {
         }
 	}
 
-	public void setCompetitiveType(boolean isCompetitive) {this.isCompetitive = isCompetitive;}
-
 	private void handleSelected() { // if the user selected more than 5 things deselect the least recent thing selected (could be bird or food token)
 		if (selectionPhase == 1 ? selected.size() > 5 : selected.size() > 1) { // if selected amounts went over limit (5 for birds/foods, 1 for bonus cards)
 			Selectable first = selected.first(); // remove the least recent selection
@@ -634,16 +767,6 @@ public class Game {
 			select(element);
 		}
 	}
-
-	public boolean canContinueResources() { return selectionPhase == 1 ? selected.size() == 5 : selected.size() == 1; }
-
-	public int getSelectionPhase() { return selectionPhase; }
-
-	public void incrementPlayerTurn() { playerTurn = playerTurn % 5 + 1; }
-
-	
-
-	public int getPlayerTurn() { return playerTurn; }
 }
 
 class Selectable implements Comparable<Selectable> {

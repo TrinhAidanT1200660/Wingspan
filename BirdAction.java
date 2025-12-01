@@ -598,6 +598,13 @@ public enum BirdAction implements BirdActionInterface
 		}
 		*/
 		birdInstance.played();
+	}),
+	// when another player takes the grab food action and grabs a rat, cache a rat from supply on this bird
+	// ticks at game getFood method
+	// LOGGERHEAD_SHRIKE
+	GETRATTHENCACHERAT((gameContext, player, birdInstance) -> {
+		birdInstance.cacheFood(1);
+		birdInstance.played();
 	})
 	;
 

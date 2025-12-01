@@ -274,6 +274,8 @@ public enum Bird
 
 	public void removeCardFromDeck() { deckCount -= 1; }
 
+	public void resetCardDeckCount() { deckCount = 1; }
+
 	//For BonusCard: returns all the birdEnums applicable to a name-based bonus card (photographer, anatomist, cartographer)
 	public static HashSet<Bird> getBonusName(String type)
 	{

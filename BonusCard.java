@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 
 
 public enum BonusCard implements BonusCardInterface
@@ -148,6 +147,13 @@ public enum BonusCard implements BonusCardInterface
     		player.addPoints(3);
     	if(count >= 4)
     		player.addPoints(7);
+    }),
+
+    // finds the habitat with the least amount of birds and adds 2 points for each bird in that habitat
+    ECOLOGIST("ecologist.png", (player) -> {
+        int count = player.getBoard().values().stream().mapToInt(List::size).min().orElse(0);
+
+        player.addPoints(count * 2);
     }),
 
     //checks for all birds on board with Ground or Wild nest type, adds 4 points if 4-5 birds or adds 7 points if 6+ birds 
@@ -640,6 +646,8 @@ public enum BonusCard implements BonusCardInterface
 
     // VOID METHODS / MUTATOR METHODS:
     public void removeCardFromDeck() { deckCount -= 1; }
+
+    public void resetCardDeckCount() { deckCount = 1; }
 
     //carries out the card's scoring
     @Override
