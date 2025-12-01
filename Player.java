@@ -1,7 +1,7 @@
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
+
 
 public class Player {
     //VARIABLES:
@@ -22,6 +22,10 @@ public class Player {
     // competitive goes from 1-4 (best to worst) | non-competitive goes from (5-0) (best to worst)
     // keep in mind when having UI place action cubes on board based on rankings
     private ArrayList<Integer> goalRankings;
+    // stores the final scoring distribution/sources from the end of game score calculation
+    // stored here to allow for access after going through all players
+    // this format can be changed if wanted later
+    private HashMap<String, Integer> finalScoreMap;
 
     //CONSTRUCTOR:
     public Player() {
@@ -40,6 +44,7 @@ public class Player {
         food.put("worm", 0);
         this.actionCubes = 8;
         this.goalRankings = new ArrayList<>();
+        this.finalScoreMap = new HashMap<>();
     }
 
     //RETURN METHODS:
@@ -88,10 +93,55 @@ public class Player {
         return false;
     }
 
+    public HashMap<String, Integer> getFinalScoringMap()
+    {
+        return this.finalScoreMap;
+    }
+
+    //checks if the player has enough food to play the specified bird
+    public boolean hasEnoughFood(Bird bird) {
+        String foodRequired = bird.getFoodRequired();
+        String[] split = foodRequired.split(" ");
+        String type = split[0];
+        boolean result = type.equals("and");
+        int sumOfAny = 0;
+        int sumOfFoodRequired = 0;
+        for (int v : food.values()) sumOfAny += v;
+        for (int i = 1; i < split.length; i++) {
+            sumOfFoodRequired += Integer.parseInt(split[i].substring(0, 1));
+        }
+        if (sumOfFoodRequired < sumOfAny) return false;
+        for (int i = 1; i < split.length; i++) {
+            int amount = Integer.parseInt(split[i].substring(0, 1));
+            String foodType = split[i].substring(1);
+            if (foodType.equals("any")) {
+                if (sumOfAny > amount) result = true;
+            }
+            if (type.contains("and")) {
+                if (!foodType.equals("any") && food.get(foodType) < amount) result = false;
+                if (!result) break;
+            } else if (type.equals("or")) {
+                if (!foodType.equals("any") && food.get(foodType) > amount) result = true;
+                if (result) break;
+            }
+        }
+        return result;
+    }
+
     //MUTATOR METHOD:
     //adds the specified amount of points
     public void addPoints(int points) {
         this.points += points;
+    }
+
+    // sets the points to the amount of points specified; done so for final game scoring so it's just easier for me to do setPoints
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    //removes the bird card from hand specified
+    public void removeBirdCard(Bird card) {
+        this.birdHand.remove(card);
     }
 
     //adds the specified Bonus card to the bonusHand
@@ -125,32 +175,21 @@ public class Player {
         goalRankings.add(ranking);
     }
 
-    public boolean hasEnoughFood(Bird bird) {
+    // sets the final scoring map to the given map
+    public void setFinalScoreMap(HashMap<String, Integer> map)
+    {
+        this.finalScoreMap = map;
+    }
+
+    public void removeAndFoodToAddBird(Bird bird) {
         String foodRequired = bird.getFoodRequired();
         String[] split = foodRequired.split(" ");
-        String type = split[0];
-        boolean result = type.equals("and");
-        int sumOfAny = 0;
-        int sumOfFoodRequired = 0;
-        for (int v : food.values()) sumOfAny += v;
-        for (int i = 1; i < split.length; i++) {
-            sumOfFoodRequired += Integer.parseInt(split[i].substring(0, 1));
-        }
-        if (sumOfFoodRequired < sumOfAny) return false;
         for (int i = 1; i < split.length; i++) {
             int amount = Integer.parseInt(split[i].substring(0, 1));
             String foodType = split[i].substring(1);
-            if (foodType.equals("any")) {
-                if (sumOfAny > amount) result = true;
-            }
-            if (type.contains("and")) {
-                if (!foodType.equals("any") && food.get(foodType) < amount) result = false;
-                if (!result) break;
-            } else if (type.equals("or")) {
-                if (!foodType.equals("any") && food.get(foodType) > amount) result = true;
-                if (result) break;
+            if (!foodType.equals("any")) {
+                removeFood(foodType, amount);
             }
         }
-        return result;
     }
 }

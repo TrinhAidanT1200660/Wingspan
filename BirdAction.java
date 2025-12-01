@@ -128,22 +128,28 @@ public enum BirdAction implements BirdActionInterface
 	// GREATER_ROADRUNNER
 	DRAW1BIRDANDTUCKIF50CM((gameContext, player, birdInstance) -> {
 		Bird card = gameContext.pullRandomBirds(1).get(0);
-		if(card.getWingspan() < 50)
+		if(card.getWingspan() < 50) {
 			birdInstance.tuckCard(1);
+			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
+		}
 	}),
 	// Look at a bird card from deck (face down pile) and if less than 75 cm wingpsan, tuck it behind card, if not discard
 	// BARRED_OWL | COOPERS_HAWK | NORTHERN_HARRIER | RED_SHOULDERED_HAWK | RED_TAILED_HAWK | SWAINSONS_HAWK
 	DRAW1BIRDANDTUCKIF75CM((gameContext, player, birdInstance) -> {
 		Bird card = gameContext.pullRandomBirds(1).get(0);
-		if(card.getWingspan() < 75)
+		if(card.getWingspan() < 75) {
 			birdInstance.tuckCard(1);
+			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
+		}
 	}),
 	// Look at a bird card from deck (face down pile) and if less than 100 cm wingpsan, tuck it behind card, if not discard
 	// GOLDEN_EAGLE | GREAT_HORNED_OWL | PEREGRINE_FALCON
 	DRAW1BIRDANDTUCKIF100CM((gameContext, player, birdInstance) -> {
 		Bird card = gameContext.pullRandomBirds(1).get(0);
-		if(card.getWingspan() < 100)
+		if(card.getWingspan() < 100) {
 			birdInstance.tuckCard(1);
+			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
+		}
 	}),
 	// Draw the 3 face up bird cards in the bird tray
 	// BRANT
@@ -338,10 +344,12 @@ public enum BirdAction implements BirdActionInterface
 		ArrayList<BirdInstance> birdInstances = player.getBoard().get(habitat);
 		if(birdInstances.get(birdInstances.size()-1) == birdInstance)
 		{
-			// Has the UI ask which habitat the player would like the bird to move in; for now it will just not move the bird
+			// Has the UI ask which habitat the player would like the bird to move in; for now it will just not move the bird i hope or it might break idk
 			String newHabitat = "";
-			// player.getBoard().get(newHabitat).add(birdInstance);
-			// birdInstances.remove(birdInstance);
+			BirdInstance bird = birdInstances.get(birdInstances.size() - 1);
+			player.getBoard().get(newHabitat).add(bird);
+			bird.setCurrentHabitat(newHabitat);
+			birdInstances.remove(birdInstance);
 		}
 	}),
 	// This ability is for birds with no ability. My favourite.
@@ -349,6 +357,16 @@ public enum BirdAction implements BirdActionInterface
 	NONE((gameContext, player, birdInstance) -> {
 
 	}),
+	// Play an additional bird in forest
+	// DOWNY_WOODPECKER
+
+	// Play an additional bird in grassland
+	// EASTERN_BLUEBIRD
+
+	// Play an additional bird in wetland
+
+	// Repeats a brown ability in the same habitat
+	
 	// Rolls all the dice not in the birdFeeder and if any are fish, cache 1 fish into the supply of the bird
 	// ANHINGA | BLACK_SKIMMER | COMMON_MERGANSER | SNOWY_EGRET | WHITE_FACED_IBIS | WILLET
 	ROLLDICEANDFINDFISH((gameContext, player, birdInstance) -> {
@@ -360,7 +378,10 @@ public enum BirdAction implements BirdActionInterface
 			rolledFoods.add(foods[randFood]);
 		}
 		if(rolledFoods.contains("fish"))
+		{
 			birdInstance.cacheFood(1);
+			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
+		}
 	}),
 	// Rolls all the dice not in the birdFeeder and if any are rat, cache 1 rat into the supply of the bird
 	// AMERICAN_KESTREL | BARN_OWL | BROAD_WINGED_HAWK | BURROWING_OWL | EASTERN_SCREECH_OWL | FERRUGINOUS_HAWK | MISSISSIPPI_KITE
@@ -372,8 +393,10 @@ public enum BirdAction implements BirdActionInterface
 			int randFood = (int) (Math.random() * foods.length);
 			rolledFoods.add(foods[randFood]);
 		}
-		if(rolledFoods.contains("rat"))
+		if(rolledFoods.contains("rat")) {
 			birdInstance.cacheFood(1);
+			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
+		}
 	}),
 	// trade 1 of any type of food for any other type from the supply
 	// GREEN_HERON
@@ -392,7 +415,7 @@ public enum BirdAction implements BirdActionInterface
 		boolean tuck = false;
 		if(tuck && !player.getBirdHand().isEmpty())
 		{
-			Bird card = player.getBirdHand().remove(0);
+			Bird card = player.getBirdHand().remove(0); // these lines are iffy will need to look over when ui good
 			birdInstance.tuckCard(1);
 			player.addBirdHand(gameContext.pullRandomBirds(1).get(0));
 		}
@@ -458,6 +481,141 @@ public enum BirdAction implements BirdActionInterface
 			birdInstance.tuckCard(1);
 			birdInstance.addEggs(1);
 		}
+	}),
+	// FROM NOW ON ARE PINK BIRD ABILITIES
+	// when player plays a bird in the forest, gain 1 worm from supply
+	// ticks at game addBirdToBoard method
+	// EASTERN_KINGBIRD
+	PLAYFORESTANDGAIN1WORM((gameContext, player, birdInstance) -> {
+		if(!birdInstance.checkPlayedThisTurn())
+			player.addFood("worm", 1);
+		birdInstance.played();
+	}),
+	// when player plays a bird in the grassland, tuck 1 bird from hand
+	// ticks at game addBirdToBoard method
+	// HORNED_LARK
+	PLAYGRASSLANDANDTUCK((gameContext, player, birdInstance) -> {
+		if(!birdInstance.checkPlayedThisTurn())
+		{
+			// UI will have to ask the player to choose a bird card from their hand; for now, empty as if they declined ability
+			gameContext.showHand(player);
+			Bird card = null;
+			if(card == null) return; // returns to not activate ability
+			birdInstance.tuckCard(1);
+			player.removeBirdCard(card);
+		}
+		birdInstance.played();
+	}),
+	// when player plays a bird in the wetland, gain 1 fish from supply
+	// ticks at game addBirdToBoard method
+	// BELTED_KINGFISHER
+	PLAYWETLANDANDGAIN1FISH((gameContext, player, birdInstance) -> {
+		if(!birdInstance.checkPlayedThisTurn())
+			player.addFood("fish", 1);
+		birdInstance.played();
+	}),
+	// when another player's predator ability succeeds, gain 1 food from birdfeeder
+	// ticks at birdAction ROLLDICEANDFINDFISH, ROLLDICEANDFINDRAT, and DRAW1BIRDANDTUCKIF___CM; so 5 methods in total
+	// BLACK_VULTURE | BLACK_BILLED_MAGPIE | TURKEY_VULTURE
+	IFPREDATORSUCCESSGAIN1FOOD((gameContext, player, birdInstance) -> {
+		// UI will have to have a prompt that asks the player for which food they want from feeder; for now it'll be rat
+		String food = "rat";
+		gameContext.grabFood("rat", player, 1);
+		birdInstance.played();
+	}),
+	// when another player takes the lay egg action, lay an egg on another bird with Bowl nest
+	// ticks at game layEggs method
+	// BRONZED_COWBIRD | BROWN_HEADED_COWBIRD | YELLOW_BILLED_CUCKOO
+	LAYEGGTHENLAYBOWL((gameContext, player, birdInstance) -> {
+		// first need to check if the player even has a bird with the correct nest
+		boolean containsNest = false;
+		List<BirdInstance> birds = player.getBoard().values().stream().flatMap(List::stream).toList();
+		for(BirdInstance b : birds)
+			if(b.getNest().equalsIgnoreCase("Bowl"))
+				containsNest = true;
+
+		if(!containsNest) return; // if no nest then just stop the method
+
+		// UI should have the player select a bird with the habitat
+		// unsure whether the UI will ensure it is the correct habitat or not but i will check here too
+		// completely commented out for now so no inf loop 
+		/*
+		while (true) 
+		{ 
+			BirdInstance bird = ;
+			if(bird.getNest().equalsIgnoreCase("Bowl"))
+			{
+				bird.addEggs(1);
+				break;
+			}
+		}
+		*/
+		birdInstance.played();
+	}),
+	// when another player takes the lay egg action, lay an egg on another bird with Cavity nest
+	// ticks at game layEggs method
+	// BARROW'S_GOLDENEYE
+	LAYEGGTHENLAYCAVITY((gameContext, player, birdInstance) -> {
+		// first need to check if the player even has a bird with the correct nest
+		boolean containsNest = false;
+		List<BirdInstance> birds = player.getBoard().values().stream().flatMap(List::stream).toList();
+		for(BirdInstance b : birds)
+			if(b.getNest().equalsIgnoreCase("Cavity"))
+				containsNest = true;
+
+		if(!containsNest) return; // if no nest then just stop the method
+
+		// UI should have the player select a bird with the habitat
+		// unsure whether the UI will ensure it is the correct habitat or not but i will check here too
+		// completely commented out for now so no inf loop 
+		/*
+		while (true) 
+		{ 
+			BirdInstance bird = ;
+			if(bird.getNest().equalsIgnoreCase("Cavity"))
+			{
+				bird.addEggs(1);
+				break;
+			}
+		}
+		*/
+		birdInstance.played();
+	}),
+	// when another player takes the lay egg action, lay an egg on another bird with ground nest
+	// ticks at game layEggs method
+	// AMERICAN_AVOCET
+	LAYEGGTHENLAYGROUND((gameContext, player, birdInstance) -> {
+		// first need to check if the player even has a bird with the correct nest
+		boolean containsNest = false;
+		List<BirdInstance> birds = player.getBoard().values().stream().flatMap(List::stream).toList();
+		for(BirdInstance b : birds)
+			if(b.getNest().equalsIgnoreCase("Ground"))
+				containsNest = true;
+
+		if(!containsNest) return; // if no nest then just stop the method
+
+		// UI should have the player select a bird with the habitat
+		// unsure whether the UI will ensure it is the correct habitat or not but i will check here too
+		// completely commented out for now so no inf loop 
+		/*
+		while (true) 
+		{ 
+			BirdInstance bird = ;
+			if(bird.getNest().equalsIgnoreCase("Ground"))
+			{
+				bird.addEggs(1);
+				break;
+			}
+		}
+		*/
+		birdInstance.played();
+	}),
+	// when another player takes the grab food action and grabs a rat, cache a rat from supply on this bird
+	// ticks at game getFood method
+	// LOGGERHEAD_SHRIKE
+	GETRATTHENCACHERAT((gameContext, player, birdInstance) -> {
+		birdInstance.cacheFood(1);
+		birdInstance.played();
 	})
 	;
 

@@ -4,6 +4,7 @@ public class BirdInstance {
     private int heldEggs;
     private int tuckedCards;
     private int cachedFood;
+	private String currentHabitat;
     private boolean playedThisTurn;
 
 	public BirdInstance(Bird bird) {
@@ -61,6 +62,9 @@ public class BirdInstance {
 
 	// returns a String with the bird's nest type
 	public String getNest() { return birdEnum.getNest(); }
+
+	// returns a String with the bird's current habitat
+	public String getCurrentHabitat() { return currentHabitat; }
 	
 	// VOID METHODS
 
@@ -88,6 +92,9 @@ public class BirdInstance {
 
 	// caches a food. Doesn't matter what type as the class that called it will remove it from the player to make the logic easier
 	public void cacheFood(int amt) { cachedFood+=amt; }
+
+	// used to set the current habitat the bird was played in
+	public void setCurrentHabitat(String habitat) { currentHabitat = habitat; }
 
 	// tucks a bird card. Doesn't matter what type or which card as the class that called it will remove it from the player to make the logic easier
 	public void tuckCard(int amt) { tuckedCards+=amt; }
