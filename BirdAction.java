@@ -357,6 +357,16 @@ public enum BirdAction implements BirdActionInterface
 	NONE((gameContext, player, birdInstance) -> {
 
 	}),
+	// Play an additional bird in forest
+	// DOWNY_WOODPECKER
+
+	// Play an additional bird in grassland
+	// EASTERN_BLUEBIRD
+
+	// Play an additional bird in wetland
+
+	// Repeats a brown ability in the same habitat
+	
 	// Rolls all the dice not in the birdFeeder and if any are fish, cache 1 fish into the supply of the bird
 	// ANHINGA | BLACK_SKIMMER | COMMON_MERGANSER | SNOWY_EGRET | WHITE_FACED_IBIS | WILLET
 	ROLLDICEANDFINDFISH((gameContext, player, birdInstance) -> {
@@ -472,7 +482,7 @@ public enum BirdAction implements BirdActionInterface
 			birdInstance.addEggs(1);
 		}
 	}),
-	// FROM NOW ON ARE PINK BIRD ABILITIES -------------------------------------------------------------------
+	// FROM NOW ON ARE PINK BIRD ABILITIES
 	// when player plays a bird in the forest, gain 1 worm from supply
 	// ticks at game addBirdToBoard method
 	// EASTERN_KINGBIRD

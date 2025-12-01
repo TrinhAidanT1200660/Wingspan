@@ -624,6 +624,16 @@ public class Game {
 			releasedPhase1(event, released);
 	}
 
+	public void showHand(Player player)
+    {
+        //create method: panel.displayHand(blah blah)
+        
+        //panel.playTransition((Runnable)() -> {
+				//need to fix and modify to be more usable -> giveUIBirds();
+				//panel.displayHand();
+			//});
+    }
+
 	public void releasedPhase0(RootMouseEvent event, UIElement released)
 	{
         if (released.getAttribute("startButton") != null)
