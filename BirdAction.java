@@ -497,7 +497,8 @@ public enum BirdAction implements BirdActionInterface
 	PLAYGRASSLANDANDTUCK((gameContext, player, birdInstance) -> {
 		if(!birdInstance.checkPlayedThisTurn())
 		{
-			// UI will have to ask the player to choose a bird card from their deck; for now, empty as if they declined ability
+			// UI will have to ask the player to choose a bird card from their hand; for now, empty as if they declined ability
+			gameContext.showHand(player)
 			Bird card = null;
 			if(card == null) return; // returns to not activate ability
 			birdInstance.tuckCard(1);
