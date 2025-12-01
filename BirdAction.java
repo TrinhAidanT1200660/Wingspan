@@ -472,7 +472,7 @@ public enum BirdAction implements BirdActionInterface
 			birdInstance.addEggs(1);
 		}
 	}),
-	// FROM NOW ON ARE PINK BIRD ABILITIES
+	// FROM NOW ON ARE PINK BIRD ABILITIES -------------------------------------------------------------------
 	// when player plays a bird in the forest, gain 1 worm from supply
 	// ticks at game addBirdToBoard method
 	// EASTERN_KINGBIRD
