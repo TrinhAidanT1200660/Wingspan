@@ -436,6 +436,7 @@ public class Game {
 	{
 		if(p.getBirdHand().isEmpty()) return false; // just checks if the hand is empty first before asking which to play
 		// UI should be asking the player which bird from their hand to play
+		this.showHand(p);
 		// for now it'll be the first bird in the hand
 		Bird birdToPlay = p.getBirdHand().get(0);
 		return addBirdToBoard(p, birdToPlay);
@@ -466,6 +467,7 @@ public class Game {
             if(bird.getFoodRequired().contains("any")) {
                 // UI will ask which food to use
 				// Realized there are birds with multiple any. Either can just not put them in game or have a big method we can see
+            	// use a for loop instead that keeps asking for foods
             }
         }
         else {
