@@ -20,7 +20,7 @@ public enum Bird
 	// action: directly type in from birdAction
 	// ACTUAL BIRD ENUMS, NO IMAGES IMPORTED YET
 	ACORN_WOODPECKER("ACORN WOODPECKER", "birds/acorn_woodpecker.png", 4, 46, 5, new String[] {"forest"}, "BROWN", "Other", "and 3seed", "Cavity", BirdAction.GAIN1SEEDANDCACHE),
-	AMERICAN_AVOCET("AMERICAN AVOCET", "birds/american_avocet", 2, 79, 6, new String[] {"wetland"}, "PINK", "Other", "and 1seed 2worm", "Ground", BirdAction.LAYEGGTHENLAYGROUND),
+	AMERICAN_AVOCET("AMERICAN AVOCET", "birds/american_avocet.png", 2, 79, 6, new String[] {"wetland"}, "PINK", "Other", "and 1seed 2worm", "Ground", BirdAction.LAYEGGTHENLAYGROUND),
 	AMERICAN_BITTERN("AMERICAN BITTERN", "birds/american_bittern.png", 2, 107, 7, new String[] {"wetland"}, "BROWN", "CardDrawing", "and 1fish 1rat 1worm", "Platform", BirdAction.DRAW1BIRDIFLEASTWETLAND),
 	AMERICAN_COOT("AMERICAN COOT", "birds/american_coot.png", 5, 61, 3, new String[] {"wetland"}, "BROWN", "Flocking", "and 1any 1seed", "Platform", BirdAction.TUCK1BIRDANDDRAW1BIRD),
 	AMERICAN_CROW("AMERICAN CROW", "birds/american_crow.png", 2, 99, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1any", "Platform", BirdAction.DISCARDEGGANDGAIN1FOOD),
@@ -56,7 +56,7 @@ public enum Bird
 	BLUE_GROSBEAK("BLUE GROSBEAK", "birds/blue_grosbeak.png", 3, 28, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 2seed 1worm", "Bowl", BirdAction.MOVEIFATVERYRIGHT),
 	BLUE_JAY("BLUE JAY", "birds/blue_jay.png", 2, 41, 3, new String[] {"forest"}, "BROWN", "Other", "and 1any 1seed", "Bowl", BirdAction.GAIN1SEEDANDCACHE),
 	BLUE_GRAY_GNATCATCHER("BLUE GRAY GNATCATCHER", "birds/blue-gray_gnatcatcher.png", 3, 15, 1, new String[] {"forest"}, "BROWN", "Other", "and 1worm", "Bowl", BirdAction.GET1WORM),
-	BLUE_WINGED_WARBLER("BLUE WINGED WARBLER", "blue-winged_warbler.png", 2, 20, 8, new String[] {"forest", "grassland"}, "NONE", "Other", "and 2worm", "Bowl", BirdAction.NONE),
+	BLUE_WINGED_WARBLER("BLUE WINGED WARBLER", "birds/blue-winged_warbler.png", 2, 20, 8, new String[] {"forest", "grassland"}, "NONE", "Other", "and 2worm", "Bowl", BirdAction.NONE),
 	BOBOLINK("BOBOLINK", "birds/bobolink.png", 3, 30, 4, new String[] {"grassland"}, "WHITE", "EggLaying", "and 2seed 1worm", "Ground", BirdAction.LAYEGGONALLGROUND),
 	BRANT("BRANT", "birds/brant.png", 2, 114, 3, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 1any 1seed", "Ground", BirdAction.DRAW3FACEUPBIRD),
 	BREWERS_BLACKBIRD("BREWER'S BLACKBIRD", "birds/brewer's_blackbird.png", 3, 41, 3, new String[] {"grassland"}, "BROWN", "Flocking", "and 1any 1seed", "Bowl", BirdAction.TUCK1BIRDANDLAY1EGG),
