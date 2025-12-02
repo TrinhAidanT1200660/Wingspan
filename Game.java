@@ -1,5 +1,8 @@
 
 import java.util.*;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.TreeSet;
 
 public class Game {
 
@@ -16,6 +19,7 @@ public class Game {
 	private ArrayList<String> birdFeeder; // replicates a bird feeder using a simple arrayList
 	private ArrayList<Bird> faceUpBirds; // replicates the 3 face up bird cards in the bird tray ; not sure when we want to create this, before or after player select resources
 	private ArrayList<Goals> goalBoard; // replicates the 4 goals on the goal board ; should be fine to create at game creation
+	private String[] foods = new String[] {"Berries", "Fish", "Worm", "Seed", "Rat"}; // food types available in the bird feeder, and to set food stats in UI
 
     // CONSTRUCTOR
     public Game(WingspanPanel panel) 
@@ -587,6 +591,15 @@ public class Game {
 	{
 		return birdFeeder;
 	}
+	
+	public void UIKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			UIMouseReleased(null, UIElement.getByName("ContinueResourcesButtonBg"));
+		}
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			incrementPlayerTurn();
+		}
+	}
 
 	// returns a boolean that says whether or not the birdFeeder is eligible for reroll
 	public boolean birdFeederEligibleForReroll()
@@ -604,12 +617,22 @@ public class Game {
 
 	public void incrementPlayerTurn() 
 	{ 
+    int oldPlayer = playerTurn;
 		playerTurn = playerTurn % playerList.size() + 1;  
 		Player p = this.playerList.get(playerTurn - 1);
 		// pink birds are reset on every rotation back to your own turn, thus it
 		this.resetThisPlayersBirdsStatus(p); // resets the player's pink birds to not played for whoevers turn it now is
 		// end of round check : if the next player's action cubes is 0 and the beginning player is the next player, then the round ends
 		if(p.getActionCubes() == 0 && this.startingPlayerTurn == this.playerTurn) roundEnd();
+		if (gamePhase == 1) { 
+			UIFrame.getByName("Player" + (oldPlayer - 1) + "CardsContainer").visible = false;
+			UIFrame.getByName("Player" + (playerTurn - 1) + "CardsContainer").visible = true;
+			UIImage.getByName("ActionCubeIcon").setImagePath("images/p" + playerTurn + "_action_cube.png");
+			UIText.getByName("ActionCubesStat").text = "" + playerList.get(playerTurn - 1).getActionCubes();
+			for (String food : foods) {
+				UIText.getByName(food + "Stat").text = "" + playerList.get(playerTurn - 1).getFood().getOrDefault(food.toLowerCase(), 0);
+			}
+		}
 	}
 
 	public int getPlayerTurn() { return playerTurn; }
@@ -638,12 +661,45 @@ public class Game {
 	{
         if (released.getAttribute("startButton") != null)
 		{
-			panel.playTransition((Runnable)() -> {
+			/* panel.playTransition((Runnable)() -> {
 				setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
 				giveUIBirds(5);
 				panel.clickedStart(event, released);
 			});
 			gamePhase++;
+			}); */
+			// we're just simulating generating 5 random players just for testing actual game play here 
+			setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
+			for (int i = 0; i < 5; i++) {
+				Player p = playerList.get(i);
+				ArrayList<Bird> birds = pullRandomBirds(5);
+				for (int j = 0; j < 5; j++) {
+					int foodOrBird = (int)(Math.random() * 2); // 0 for food, 1 for bird
+					if (foodOrBird == 0) {
+						p.addFood(foods[(int)(Math.random() * 5)].toLowerCase(), 1);
+					} else {
+						Bird b = birds.get(j);
+						p.addBirdHand(b);
+						panel.addToPlayerHand(i, b);
+					}
+				}
+				BonusCard randomBonus = pullRandomBonusCards(1).get(0);
+				p.addBonusHand(randomBonus);
+				panel.addToPlayerHand(i, randomBonus);
+				
+			}
+			gamePhase = 1;
+			for (String food : foods) UIText.getByName(food + "Stat").text = "" + playerList.get(0).getFood().getOrDefault(food.toLowerCase(), 0);
+			UIElement.getByName("StartScreen").visible = false;
+			UIElement.getByName("GameScreen").visible = true;
+			((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
+			regenerateFaceUpTray();
+			for (int i = 0; i < 3; i++) {
+				UIImage.getByName("DeckCard" + (i + 1)).setImagePath(faceUpBirds.get(i).getImage());
+				UIImage.getByName("DeckCard" + (i + 1)).setAttribute("Card", faceUpBirds.get(i));
+			}
+			UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
+			UIFrame.getByName("Player0CardsContainer").visible = true;
     	} 
 	}
 	
@@ -671,7 +727,17 @@ public class Game {
 						current.addBonusHand((BonusCard)selected.first().getValue()); // add previous players bonus card selection
 						deselect(selected.last()); // remove from selected
 						if (playerTurn == 1) { // if new player is back to 1 then
-							gamePhase++;
+							gamePhase = 1;
+							UIElement.getByName("ResourceChoosingScreen").visible = false;
+							UIElement.getByName("GameScreen").visible = true;
+							((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
+							regenerateFaceUpTray();
+							for (int i = 0; i < 3; i++) {
+								UIImage.getByName("DeckCard" + (i + 1)).setImagePath(faceUpBirds.get(i).getImage());
+								UIImage.getByName("DeckCard" + (i + 1)).setAttribute("Card", faceUpBirds.get(i));
+							}
+							UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
+							UIFrame.getByName("Player0CardsContainer").visible = true;
 						} else { // else if we're not done choosing yet
 							// update player title to show the turn
 							UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
@@ -742,8 +808,7 @@ public class Game {
 		}
 	}
 
-	private void deselect(Selectable element) { // deselects a specific selectable item
-		System.out.println(element);
+	private void deselect(Selectable element) { // deselects a specific selectable item\
 		if (element != null) {
 			element.getElement().setAttribute("Selected", false);
 			selected.remove(element);
@@ -777,6 +842,7 @@ public class Game {
 			select(element);
 		}
 	}
+
 }
 
 class Selectable implements Comparable<Selectable> {

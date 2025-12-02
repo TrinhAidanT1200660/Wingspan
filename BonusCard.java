@@ -1,7 +1,7 @@
 import java.util.*;
 
 
-public enum BonusCard implements BonusCardInterface
+public enum BonusCard implements Card, BonusCardInterface
 {
 
     ANATOMIST("anatomist.png", (player) -> {
