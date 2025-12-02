@@ -953,15 +953,44 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         });
 
         for (int i = 0; i < 5; i++) {
-            UIImage playerBoard = new UIImage("PlayerBoard" + (i + 1), this);
-            playerBoard.size = new Dim2(1, 0, 1, 0).dilate(0.85);
+            int p = i + 1;
+            UIImage playerBoard = new UIImage("PlayerBoard" + p, this);
+            playerBoard.size = new Dim2(1, 0, 0.94, 0).dilate(0.85);
             playerBoard.position = new Dim2(0.5, 0, 0.475, 0);
             playerBoard.anchorPoint.center();
-            playerBoard.backgroundTransparency = 0f;
+            playerBoard.backgroundTransparency = 0.5f;
             playerBoard.setImageFillType(UIImage.FIT_IMAGE);
             playerBoard.setImagePath("images/board.jpg");
             playerBoard.setParent(boards);
             playerBoard.visible = false;
+
+            UIFrame playBirdButton = new UIFrame("PlayBirdButton" + p, this);
+            playBirdButton.size = new Dim2(1, 0, 0.045, 0);
+            playBirdButton.position = new Dim2(0.5, 0, 0, 0);
+            playBirdButton.anchorPoint = new Vector2(0.5, 0);
+            playBirdButton.backgroundTransparency = 0.5f;
+            playBirdButton.setParent(playerBoard);
+
+            UIFrame gainFoodButton = new UIFrame("GainFoodButton" + p, this);
+            gainFoodButton.size = new Dim2(1, 0, 0.315, 0);
+            gainFoodButton.position = new Dim2(0.5, 0, 0.045, 0);
+            gainFoodButton.anchorPoint = new Vector2(0.5, 0);
+            gainFoodButton.backgroundTransparency = 0.5f;
+            gainFoodButton.setParent(playerBoard);
+ 
+            UIFrame layEggsButton = new UIFrame("LayEggsButton" + p, this);
+            layEggsButton.size = new Dim2(1, 0, 0.315, 0);
+            layEggsButton.position = new Dim2(0.5, 0, 0.36, 0);
+            layEggsButton.anchorPoint = new Vector2(0.5, 0);
+            layEggsButton.backgroundTransparency = 0.5f;
+            layEggsButton.setParent(playerBoard);
+
+            UIFrame drawBirdsButton = new UIFrame("DrawBirdsButton" + p, this);
+            drawBirdsButton.size = new Dim2(1, 0, 0.32, 0);
+            drawBirdsButton.position = new Dim2(0.5, 0, 0.675, 0);
+            drawBirdsButton.anchorPoint = new Vector2(0.5, 0);
+            drawBirdsButton.backgroundTransparency = 0.5f;
+            drawBirdsButton.setParent(playerBoard);
         }
 
         deckScreen = (UIFrame)boardScreen.clone("DeckScreen");
