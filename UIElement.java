@@ -670,6 +670,8 @@ class UIElement {
     protected AffineTransform mostRecentTransform; // used to check if mouse is inside an element
     private HashMap<String, Object> attributes = new HashMap<>();
     protected static HashMap<String, UIElement> byName = new HashMap<>();
+    protected static HashMap<String, HashSet<UIElement>> byTag = new HashMap<>();
+    public HashSet<String> tags = new HashSet<>();
     private String name;
     public boolean ignore = false;
     public ListLayout layout;
@@ -764,6 +766,29 @@ class UIElement {
 
     public static UIElement getByName(String name) {
         return byName.get(name);
+    }
+
+    private static HashSet<UIElement> getTaggedList(String tag) {
+        HashSet<UIElement> list = byTag.get(tag);
+        if (list == null) {
+            list = new HashSet<>();
+            byTag.put(tag, list);
+        }
+        return list;
+    }
+ 
+    public void addTag(String tag) {
+        HashSet<UIElement> list = getTaggedList(tag);
+        list.add(this);
+        tags.add(tag);
+    }
+
+    public boolean hasTag(String tag) {
+        return tags.contains(tag);
+    }
+
+    public static HashSet<UIElement> getAllTagged(String tag) {
+        return getTaggedList(tag);
     }
 
     // used to add children to element
@@ -988,8 +1013,8 @@ class UIElement {
         absolutePosition.setX(posX);
         absolutePosition.setY(posY);
 
-        absoluteBorderRadius = (int) (borderRadius.getScale() * Math.min(width, height) + borderRadius.getOffset());
-        absoluteStrokeThickness = (int) (strokeThickness.getScale() * Math.min(width, height) + strokeThickness.getOffset());
+        absoluteBorderRadius = (int) (borderRadius.getScale() * Math.min(sizeX, sizeY) + borderRadius.getOffset());
+        absoluteStrokeThickness = (int) (strokeThickness.getScale() * Math.min(sizeX, sizeY) + strokeThickness.getOffset());
 
         customUpdateAbsolute(width, height);
     }
@@ -1052,10 +1077,10 @@ class UIElement {
         }
 
         if (resort) {
-            System.out.println("Resorting children of " + name);
-            System.out.println( children );
+            //System.out.println("Resorting children of " + name);
+            //System.out.println( children );
             children.sort((a, b) -> Integer.compare(a.zIndex, b.zIndex));
-            System.out.println("now" + children );
+            //System.out.println("now" + children );
             resort = false;
         }
 
@@ -1468,8 +1493,12 @@ class UIElement {
 
     //////////////// attributes
     
-    public Object getAttribute(String key) {
-        return attributes.get(key);
+    public <T>T getAttribute(String key) {
+        return (T)attributes.get(key);
+    }
+
+    public <T>T getAttributeOrDefault(String key, T defaultValue) {
+        return getAttribute(key) != null ? (T) getAttribute(key) : defaultValue;
     }
 
     public Object removeAttribute(String key) {
@@ -1539,6 +1568,8 @@ class UIImage extends UIElement {
     protected boolean playing = false;
     protected long lastFrame = 0;
 
+    private HashMap<Float, BufferedImage> brightnessCache = new HashMap<>();
+
     public UIImage(String name, JPanel panel) {
         super(name, panel);
     }
@@ -1554,9 +1585,13 @@ class UIImage extends UIElement {
     private BufferedImage updateBrightness() {
         if (image == null) return null;
         try {
+            if (brightnessCache.containsKey(brightness)) {
+                return brightnessCache.get(brightness);
+            }
             RescaleOp op = new RescaleOp(brightness, 0, null);
             BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
             op.filter(image, out);
+            brightnessCache.put(brightness, out);
             return out;
         } catch (Exception e) {
             e.printStackTrace();

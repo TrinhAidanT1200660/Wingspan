@@ -28,9 +28,9 @@ public interface ImageHandler {
                     imgObj = new ImageObject(image, group);
                     cache.put(imagePath, imgObj);
                     getGroup(group).add(originalImage);
-                } 
+                } else return get("images/temp.png");
                 return image;
-            } else return null;
+            } else return get("images/temp.png");
         } catch (IOException e) {
             System.out.println("Couldn't load image from " + imagePath + ": " + e.getMessage());
             return null;

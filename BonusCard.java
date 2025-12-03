@@ -641,7 +641,7 @@ public enum BonusCard implements Card, BonusCardInterface
 
     // returns a BufferedImage with the bonus' image file
     public String getImage() { 
-        return imageFileString; 
+        return "bonus/" + imageFileString; 
     }
 
     // VOID METHODS / MUTATOR METHODS:

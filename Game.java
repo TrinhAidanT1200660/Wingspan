@@ -1,8 +1,6 @@
 
-import java.util.*;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Game {
 
@@ -19,7 +17,7 @@ public class Game {
 	private ArrayList<String> birdFeeder; // replicates a bird feeder using a simple arrayList
 	private ArrayList<Bird> faceUpBirds; // replicates the 3 face up bird cards in the bird tray ; not sure when we want to create this, before or after player select resources
 	private ArrayList<Goals> goalBoard; // replicates the 4 goals on the goal board ; should be fine to create at game creation
-	private String[] foods = new String[] {"Berries", "Fish", "Worm", "Seed", "Rat"}; // food types available in the bird feeder, and to set food stats in UI
+	private String[] foods = new String[] {"Berry", "Fish", "Worm", "Seed", "Rat"}; // food types available in the bird feeder, and to set food stats in UI
 
     // CONSTRUCTOR
     public Game(WingspanPanel panel) 
@@ -72,7 +70,7 @@ public class Game {
 
 	// not sure we need to keep this; i think we should imo
 	// acts to begin each player turn
-	public void playActions()
+	public void playActions(String choice)
 	{
 		// player has four choices here, the play bird, food, eggs, or draw birds
 		// ui will return which choice they pick, should just return a string
@@ -80,17 +78,11 @@ public class Game {
 		// string returns should be playBird, getFood, layEggs, drawBirds
 		Player p = this.playerList.get(playerTurn-1);
 		// while loop is basically only for playBird which is the only one that can end up in failure if the player doesn't have enough eggs or even a bird to play
-		while(true)
-		{
-			String choice = "layEggs";
-			// playing a bird does not have brown bird abilities activate
-			if(choice.equals("playBird")) if(this.playBird(p)) break; // playBird auto adds it to board and returns true if successfully placed
-			else if(choice.equals("getFood")) { this.getFood(p); this.iterateBirdAbilities(p, "forest"); break; }
-			else if(choice.equals("layEggs")) { this.layEggs(p); this.iterateBirdAbilities(p, "grassland"); break; }
-			else if(choice.equals("drawBirds")) { this.drawBirds(p); this.iterateBirdAbilities(p, "wetland"); break; }
-			else System.out.println("ERROR IN PLAYACTIONS, CAN'T FIND ACTION");
-		}
-
+		if(choice.equals("playBird")) if(this.playBird(p)); // playBird auto adds it to board and returns true if successfully placed
+		else if(choice.equals("getFood")) { this.getFood(p); this.iterateBirdAbilities(p, "forest"); }
+		else if(choice.equals("layEggs")) { this.layEggs(p); this.iterateBirdAbilities(p, "grassland"); }
+		else if(choice.equals("drawBirds")) { this.drawBirds(p); this.iterateBirdAbilities(p, "wetland"); }
+		else { System.out.println("ERROR IN PLAYACTIONS, CAN'T FIND ACTION"); return; }
 		p.decreaseActionCubes(); // player turn has ended and they lose an action cube
 		this.regenerateFaceUpTray(); // regens the tray without removing old cards as player turn has ended
 		this.incrementPlayerTurn(); // increments player turn
@@ -676,12 +668,13 @@ public class Game {
 				for (int j = 0; j < 5; j++) {
 					int foodOrBird = (int)(Math.random() * 2); // 0 for food, 1 for bird
 					if (foodOrBird == 0) {
-						p.addFood(foods[(int)(Math.random() * 5)].toLowerCase(), 1);
+						//p.addFood(foods[(int)(Math.random() * 5)].toLowerCase(), 1);
 					} else {
 						Bird b = birds.get(j);
 						p.addBirdHand(b);
 						panel.addToPlayerHand(i, b);
 					}
+					p.addFood(foods[j].toLowerCase(), 5);
 				}
 				BonusCard randomBonus = pullRandomBonusCards(1).get(0);
 				p.addBonusHand(randomBonus);
@@ -860,5 +853,11 @@ class Selectable implements Comparable<Selectable> {
 
 	public UIElement getElement() { return element; }
 
+	public void setValue(Object value) { this.value = value; }
+
+	public void setElement(UIElement element) { this.element = element; }
+
     public int compareTo(Selectable o) { return Long.compare(added, o.added); }
+
+	public String toString() { return value != null ? value.toString() : (element != null ? element.getName() : ""); }
 }

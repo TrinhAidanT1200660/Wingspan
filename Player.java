@@ -110,7 +110,7 @@ public class Player {
         for (int i = 1; i < split.length; i++) {
             sumOfFoodRequired += Integer.parseInt(split[i].substring(0, 1));
         }
-        if (sumOfFoodRequired < sumOfAny) return false;
+        if (sumOfAny < sumOfFoodRequired) return false;
         for (int i = 1; i < split.length; i++) {
             int amount = Integer.parseInt(split[i].substring(0, 1));
             String foodType = split[i].substring(1);
@@ -121,7 +121,7 @@ public class Player {
                 if (!foodType.equals("any") && food.get(foodType) < amount) result = false;
                 if (!result) break;
             } else if (type.equals("or")) {
-                if (!foodType.equals("any") && food.get(foodType) > amount) result = true;
+                if (!foodType.equals("any") && food.get(foodType) >= amount) result = true;
                 if (result) break;
             }
         }
