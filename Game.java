@@ -78,7 +78,8 @@ public class Game {
 		// string returns should be playBird, getFood, layEggs, drawBirds
 		Player p = this.playerList.get(playerTurn-1);
 		// while loop is basically only for playBird which is the only one that can end up in failure if the player doesn't have enough eggs or even a bird to play
-		if(choice.equals("playBird")) if(this.playBird(p)); // playBird auto adds it to board and returns true if successfully placed
+		System.out.println(choice + " - current player is player " + playerTurn);
+		if(choice.equals("playBird")) { if(this.playBird(p)); } // playBird auto adds it to board and returns true if successfully placed
 		else if(choice.equals("getFood")) { this.getFood(p); this.iterateBirdAbilities(p, "forest"); }
 		else if(choice.equals("layEggs")) { this.layEggs(p); this.iterateBirdAbilities(p, "grassland"); }
 		else if(choice.equals("drawBirds")) { this.drawBirds(p); this.iterateBirdAbilities(p, "wetland"); }
@@ -102,8 +103,8 @@ public class Game {
 		{
 			// UI asks player if they would like to trade
 			// for now the trade will be false
-			boolean trade = false;
-			if(trade)
+			boolean trade = UIFrame.getByName("GameScreen").getAttributeOrDefault("TradingEgg", false);
+			if(trade && p.hasEnoughEggs(1))
 			{
 				// UI has the player remove an egg from a bird using removeEgg
 				this.removeEggs(p, 1);
@@ -111,6 +112,7 @@ public class Game {
 			}
 		}
 		// will grab one bird at a time to be sequential and have different choices
+		ArrayList<UIElement> selected = new ArrayList<>(UIElement.getAllTagged("Selected"));
 		for (int i = 0 ; i < birdGet; ++i)
 		{
 			// UI should have the player pick the bird they want
@@ -118,11 +120,13 @@ public class Game {
 			// if they pick up a face up card, can just return 0-2 for the index, make sure to not allow choosing indices without cards
 			// 3 index can be for random faceup pile
 			// this logic can be changed ; for now they will only be able to get a random bird
-			int choice = 3;
+			int choice = selected.get(i).getAttributeOrDefault("ChoiceIndex", -1);
+			System.out.println("drawing bird: " + (choice == 3 ? "Random" : faceUpBirds.get(choice)));
 			if(choice >= 0 && choice <=2) this.grabFaceUpCard(choice, p); // ranges from 0 - 2: the ui method shouldnt return index 2 if there was only 2 cards
 			else if(choice == 3) p.addBirdHand(this.pullRandomBirds(1).get(0));
 			else System.out.println("ERROR IN DRAWBIRDS METHOD GAME");
 		}
+		UIElement.removeAllTagged("Selected");
 	}
 
 	// method that has the player lay eggs on which bird they want
@@ -306,6 +310,7 @@ public class Game {
 		ArrayList<Bird> cards = pullRandomBirds(amount);
 		for(Bird b: cards)
 			faceUpBirds.add(b);
+		updateUIFaceUpTray();
 	}
 
 	// Clears the faceup pile completely before adding 3 new bird cards
@@ -314,6 +319,14 @@ public class Game {
 		ArrayList<Bird> cards = pullRandomBirds(3);
 		for(Bird b: cards)
 			faceUpBirds.add(b);
+		updateUIFaceUpTray();
+	}
+
+	public void updateUIFaceUpTray() {
+		for (int i = 0; i < 3; i++) {
+			UIImage.getByName("DeckCard" + (i + 1)).setImagePath(faceUpBirds.get(i).getImage());
+			UIImage.getByName("DeckCard" + (i + 1)).setAttribute("Card", faceUpBirds.get(i));
+		}
 	}
 
 	// Directly removes card from faceup pile and adds to the player
@@ -624,6 +637,8 @@ public class Game {
 			for (String food : foods) {
 				UIText.getByName(food + "Stat").text = "" + playerList.get(playerTurn - 1).getFood().getOrDefault(food.toLowerCase(), 0);
 			}
+			UIFrame.getByName("Boards").setAttribute("Index", playerTurn);
+			((Runnable)UIFrame.getByName("Boards").getAttribute("ViewBoard")).run();
 		}
 	}
 
@@ -687,10 +702,6 @@ public class Game {
 			UIElement.getByName("GameScreen").visible = true;
 			((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
 			regenerateFaceUpTray();
-			for (int i = 0; i < 3; i++) {
-				UIImage.getByName("DeckCard" + (i + 1)).setImagePath(faceUpBirds.get(i).getImage());
-				UIImage.getByName("DeckCard" + (i + 1)).setAttribute("Card", faceUpBirds.get(i));
-			}
 			UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
 			UIFrame.getByName("Player0CardsContainer").visible = true;
     	} 
@@ -725,10 +736,6 @@ public class Game {
 							UIElement.getByName("GameScreen").visible = true;
 							((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
 							regenerateFaceUpTray();
-							for (int i = 0; i < 3; i++) {
-								UIImage.getByName("DeckCard" + (i + 1)).setImagePath(faceUpBirds.get(i).getImage());
-								UIImage.getByName("DeckCard" + (i + 1)).setAttribute("Card", faceUpBirds.get(i));
-							}
 							UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
 							UIFrame.getByName("Player0CardsContainer").visible = true;
 						} else { // else if we're not done choosing yet

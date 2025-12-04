@@ -783,12 +783,28 @@ class UIElement {
         tags.add(tag);
     }
 
+    public void removeTag(String tag) {
+        HashSet<UIElement> list = getTaggedList(tag);
+        list.remove(this);
+        tags.remove(tag);
+    }
+
     public boolean hasTag(String tag) {
         return tags.contains(tag);
     }
 
     public static HashSet<UIElement> getAllTagged(String tag) {
         return getTaggedList(tag);
+    }
+
+    public static void removeAllTagged(String tag) {
+        HashSet<UIElement> list = getTaggedList(tag);
+        Iterator<UIElement> listIterator = list.iterator();
+        while (listIterator.hasNext()) {
+            UIElement n = listIterator.next();
+            n.removeTag(tag);
+        }
+        list.clear();
     }
 
     // used to add children to element

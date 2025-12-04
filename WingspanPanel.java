@@ -13,15 +13,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.TreeSet;
-import java.util.function.BiConsumer;
-
+import java.util.function.Consumer;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class WingspanPanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
     public Game currentGame;
-    private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, chosenScreen, boardScreen, deckScreen, birdFeederScreen, handScreen, birdContainer, cyclingView;
-    private UIText loadingTitle;
+    private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, chosenScreen, boardScreen, deckScreen, birdFeederScreen, handScreen, birdContainer, cyclingView, popupBackground, popupContainer, popupChoice1Frame, popupChoice2Frame;
+    private UIText loadingTitle, popupPrompt, popupChoice1, popupChoice2;
 
     public WingspanPanel() {
         currentGame = new Game(this);
@@ -1018,8 +1017,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             });
         }
 
-        gameScreen.setAttribute("PickAction", (Runnable)() -> {
-            String action = (String)gameScreen.getAttributeOrDefault("Action", "");
+        gameScreen.setAttribute("ResetSelected", (Runnable)() -> {
             UIImage.getByName("Item1Check").visible = false;
             UIImage.getByName("Item2Check").visible = false;
             UIImage.getByName("Item3Check").visible = false;
@@ -1027,6 +1025,16 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             UIImage.getByName("DeckCard2Check").visible = false;
             UIImage.getByName("DeckCard3Check").visible = false;
             UIImage.getByName("FaceDownCardCheck").visible = false;
+            UIElement.removeAllTagged("Selected");
+            gameScreen.setAttribute("TradingEgg", false);
+            selected.clear();
+            UIFrame.getByName("ConfirmDrawFrame").setAttribute("Clickable", false);
+            ((Runnable)UIFrame.getByName("ConfirmDrawFrame").getAttribute("Update")).run();
+        });
+
+        gameScreen.setAttribute("PickAction", (Runnable)() -> {
+            ((Runnable)gameScreen.getAttribute("ResetSelected")).run();
+            String action = (String)gameScreen.getAttributeOrDefault("Action", "");
             this.selected.clear();
             if (action.equals("playBird")) {
                 choosePlayingScreen(handScreen);
@@ -1036,23 +1044,39 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                 
             } else if (action.equals("drawBirds")) {
                 choosePlayingScreen(deckScreen);
-            }
+                Player p = currentGame.getPlayers().get(currentGame.getPlayerTurn() - 1);
+                int birdGet = 0;
+                int birdAmount = p.getBoard().get("wetland").size();
+                if(birdAmount < 2) birdGet = 1;
+                else if (birdAmount < 5) birdGet = 2;
+                else birdGet = 3;
+                gameScreen.setAttribute("CanSelectAmount", birdGet);
+                //System.out.println(p.hasEnoughEggs(1)); 
+                promptPlayer("Would you like to spend an egg to be able to draw one extra card?", "Yes", "No", (b) -> {
+                    gameScreen.setAttribute("TradingEgg", b);
+                });
+                ((Runnable)(UIElement.getByName("ConfirmDrawFrame").getAttribute("Update"))).run();
+            } else choosePlayingScreen(boardScreen);
             this.repaint();
         });
 
-        /* UIFrame cancelChoiceFrame = new UIFrame("CancelChoiceFrame", this);
-        cancelChoiceFrame.size = new Dim2(0.3, 0, 0.12, 0);
-        cancelChoiceFrame.keepAspectRatio = true;
-        cancelChoiceFrame.position = new Dim2(0.025, 0, 0.95, 0);
-        cancelChoiceFrame.anchorPoint = new Vector2(0, 1);
-        cancelChoiceFrame.backgroundTransparency = 1f;
-        cancelChoiceFrame.backgroundColor = Color.decode("#faf4f4");
-        cancelChoiceFrame.strokeColor = Color.decode("#818181");
-        cancelChoiceFrame.strokeThickness = new Dim(0.005, 0);
-        cancelChoiceFrame.strokeTransparency = 1f;
-        cancelChoiceFrame.borderRadius = new Dim(0.05, 0);
-        cancelChoiceFrame.setZIndex(80);
-        cancelChoiceFrame.setParent(gameScreen); */
+        /* UIFrame selectedInfoFrame = new UIFrame("SelectedInfoFrame", this);
+        selectedInfoFrame.size = new Dim2(0.3, 0, 0.08, 0);
+        selectedInfoFrame.keepAspectRatio = true;
+        selectedInfoFrame.position = new Dim2(0.975, 0, 0.05, 0);
+        selectedInfoFrame.anchorPoint = new Vector2(1, 0);
+        selectedInfoFrame.backgroundTransparency = 1f;
+        selectedInfoFrame.backgroundColor = Color.decode("#ffffff");
+        selectedInfoFrame.strokeColor = Color.decode("#2c2c2c");
+        selectedInfoFrame.strokeThickness = new Dim(0.05, 0);
+        selectedInfoFrame.strokeTransparency = 1f;
+        selectedInfoFrame.borderRadius = new Dim(0.15, 0);
+        selectedInfoFrame.setZIndex(80);
+        selectedInfoFrame.setParent(gameScreen);
+
+        UIText selectedAmountStat = new UIText("SelectedAmountStat", this);
+        selectedAmountStat.backgroundTransparency = 0f;
+        selectedAmountStat.text = "You selected 0/1 cards"; */
 
         /* UIFrame bfbInfoContainer = new UIFrame("BFBInfoContainer", this);
         bfbInfoContainer.keepAspectRatio = true;
@@ -1092,19 +1116,70 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         deckScreenContent.setParent(deckScreen);
         deckScreenContent.keepAspectRatio = true;
 
+        UIFrame deckTopBar = new UIFrame("DeckTopBar", this);
+        deckTopBar.backgroundTransparency = 0f;
+        deckTopBar.position = new Dim2(0.5, 0, 0, 0);
+        deckTopBar.size = new Dim2(0.9, 0, 0.15, 0);
+        deckTopBar.anchorPoint.center();
+        deckTopBar.setParent(deckScreenContent);
+
+        ListLayout deckTopBarLayout = new ListLayout();
+        deckTopBarLayout.direction = ListLayout.HORIZONTAL;
+        deckTopBarLayout.verticalAlignment = ListLayout.CENTER;
+        deckTopBarLayout.horizontalAlignment = ListLayout.MIDDLE;
+        deckTopBarLayout.spacing = new Dim(0.02, 0);
+        deckTopBar.layout = deckTopBarLayout;
+
         UIText deckTitle = new UIText("DeckTitle", this);
         deckTitle.backgroundTransparency = 0f;
         deckTitle.textColor = Color.white;
         deckTitle.textScaled = true;
-        deckTitle.position = new Dim2(0.5, 0, 0, 0);
-        deckTitle.size = new Dim2(0.9, 0, 0.15, 0);
+        deckTitle.size = new Dim2(0.2, 0, 1, 0);
         deckTitle.textStrokeColor = Color.black;
         deckTitle.textStrokeTransparency = 1f;
-        deckTitle.textStrokeThickness = new Dim(0.01, 0);
+        deckTitle.textStrokeThickness = new Dim(0.05, 0);
         deckTitle.horizontalAlignment = UIText.CENTER;
-        deckTitle.anchorPoint .center();
         deckTitle.text = "Deck";
-        deckTitle.setParent(deckScreenContent);
+        deckTitle.setParent(deckTopBar);
+
+        UIFrame confirmDrawContainer = new UIFrame("ConfirmDrawContainer", this);
+        confirmDrawContainer.size = new Dim2(0.2, 0, 1, 0);
+        confirmDrawContainer.backgroundTransparency = 0f;
+        confirmDrawContainer.setParent(deckTopBar);
+
+        UIFrame confirmDrawFrame = new UIFrame("ConfirmDrawFrame", this);
+        confirmDrawFrame.size = new Dim2(1, 0, 0.65, 0);
+        confirmDrawFrame.position.center();
+        confirmDrawFrame.anchorPoint.center();
+        confirmDrawFrame.backgroundColor = Color.decode("#4ccc47");
+        confirmDrawFrame.borderRadius = new Dim(0.3, 0);
+        confirmDrawFrame.setParent(confirmDrawContainer);
+
+        UIText confirmDraw = new UIText("ConfirmDraw", this);
+        confirmDraw.size.full().dilate(0.7);
+        confirmDraw.position.center();
+        confirmDraw.anchorPoint.center();
+        confirmDraw.textScaled = true;
+        confirmDraw.ignore = true;
+        confirmDraw.backgroundTransparency = 0f;
+        confirmDraw.text = "Confirm";
+        confirmDraw.setParent(confirmDrawFrame);
+        animOnHover(confirmDrawFrame, confirmDrawFrame);
+        animOnPress(confirmDrawFrame, confirmDrawFrame);
+        confirmDrawFrame.setAttribute("Update", (Runnable)() -> {
+            confirmDrawContainer.visible = gameScreen.getAttributeOrDefault("Action", "").equals("drawBirds");
+            boolean clickable = confirmDrawFrame.getAttributeOrDefault("Clickable", false);
+            confirmDrawFrame.backgroundColor = clickable ? Color.decode("#4ccc47") : Color.lightGray;
+        });
+        confirmDrawFrame.addReleaseListener((e) -> {
+            boolean clickable = confirmDrawFrame.getAttributeOrDefault("Clickable", false);
+            if (clickable) {
+                currentGame.playActions("drawBirds");
+                gameScreen.setAttribute("Action", "");
+                ((Runnable)gameScreen.getAttribute("PickAction")).run();
+            }
+        });
+        ((Runnable)(confirmDrawFrame.getAttribute("Update"))).run();
 
         UIFrame deckCardsContainer = new UIFrame("DeckCardsContainer", this);
         deckCardsContainer.backgroundTransparency = 0f;
@@ -1125,6 +1200,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         deckCard1.position.center();
         deckCard1.anchorPoint.center();
         deckCard1.backgroundTransparency = 0f;
+        deckCard1.setAttribute("ChoiceIndex", 0);
         deckCard1.setImageFillType(UIImage.FIT_IMAGE);
         deckCard1.setParent(deckCard1Frame);
         animOnHover(deckCard1, deckCard1);
@@ -1152,6 +1228,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         deckCard2Frame.setParent(deckCardsContainer);
 
         UIImage deckCard2 = deckCard1.clone("DeckCard2");
+        deckCard2.setAttribute("ChoiceIndex", 1);
         deckCard2.setParent(deckCard2Frame);
         animOnHover(deckCard2, deckCard2);
         animOnPress(deckCard2, deckCard2);
@@ -1170,6 +1247,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         deckCard3Frame.setParent(deckCardsContainer);
 
         UIImage deckCard3 = deckCard1.clone("DeckCard3");
+        deckCard3.setAttribute("ChoiceIndex", 2);
         deckCard3.setParent(deckCard3Frame);
         animOnHover(deckCard3, deckCard3);
         animOnPress(deckCard3, deckCard3);
@@ -1215,6 +1293,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         faceDownCard.setImageFillType(UIImage.FIT_IMAGE);
         faceDownCard.setParent(faceDownCardFrame);
         faceDownCard.addTag("FaceDown");
+        faceDownCard.setAttribute("ChoiceIndex", 3);
         animOnHover(faceDownCard, faceDownCard);
         animOnPress(faceDownCard, faceDownCard);
         faceDownCard.addReleaseListener((e) -> {
@@ -1223,15 +1302,18 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                 if (selected != null) {
                     this.selected.remove(selected);
                     UIImage.getByName("FaceDownCardCheck").visible = false;
+                    faceDownCard.removeTag("Selected");
                     faceDownCard.setAttribute("Selected", null);
                 } else {
                     Selectable a = new Selectable(null, faceDownCard);
+                    faceDownCard.addTag("Selected");
                     this.selected.add(a);
                     UIImage.getByName("FaceDownCardCheck").visible = true;
                     faceDownCard.setAttribute("Selected", a);
-                    if (this.selected.size() > 1) {
+                    if (this.selected.size() > gameScreen.getAttributeOrDefault("CanSelectAmount", 0)) {
                         Selectable old = this.selected.getFirst();
                         ArrayList<Card> items = (ArrayList<Card>)cyclingView.getAttribute("Items");
+                        if (old.getElement() != null) old.getElement().removeTag("Selected");
                         if (items != null) {
                             Card c = (Card)old.getValue();
                             UIImage oldItem = null;
@@ -1251,6 +1333,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                         }
                     }
                 }
+                confirmDrawFrame.setAttribute("Clickable", this.selected.size() >= gameScreen.getAttributeOrDefault("CanSelectAmount", 0));
+                ((Runnable)confirmDrawFrame.getAttribute("Update")).run();
                 System.out.println(this.selected);
             }
         });
@@ -1528,12 +1612,17 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                 Card card = items.get(i);
                 if (act.equals("drawBirds")) {
                     Selectable selected = toggleSelectCard(card);
+                    if (selected != null) {
+                        selected.setElement(UIImage.getByName("DeckCard" + (i + 1)));
+                        UIImage.getByName("DeckCard" + (i + 1)).addTag("Selected");
+                    }
                     UIImage item = (UIImage)cyclingView.getAttribute("CurrentImage");
                     UIImage.getByName("DeckCard" + (i + 1) + "Check").visible = selected != null;
                     UIImage.getByName(item.getName() + "Check").visible = selected != null;
                     selectButton.text = selected != null ? "Deselect" : "Select";
-                    if (this.selected.size() > 1) {
+                    if (this.selected.size() > gameScreen.getAttributeOrDefault("CanSelectAmount", 0)) {
                         Selectable old = this.selected.getFirst();
+                        if (old.getElement() != null) old.getElement().removeTag("Selected");
                         if (old.getElement() != null && old.getElement().hasTag("FaceDown")) {
                             faceDownCardCheck.visible = false;
                         } else {
@@ -1551,6 +1640,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                         }
                         this.selected.remove(old);
                     }
+                    confirmDrawFrame.setAttribute("Clickable", this.selected.size() >= gameScreen.getAttributeOrDefault("CanSelectAmount", 0));
+                    ((Runnable)confirmDrawFrame.getAttribute("Update")).run();
                     System.out.println(this.selected);
                 } else if (act.equals("playBird")) {
                     
@@ -1846,7 +1937,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
 
         ((Runnable)boards.getAttribute("ViewBoard")).run();
         
-        UIFrame popupBackground = new UIFrame("PopupBackground", this);
+        popupBackground = new UIFrame("PopupBackground", this);
         popupBackground.backgroundColor = Color.black;
         popupBackground.backgroundTransparency = 0.5f;
         popupBackground.size.full();
@@ -1854,8 +1945,31 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupBackground.anchorPoint.center();
         popupBackground.setZIndex(100);
         popupBackground.visible = false;
+        popupBackground.addReleaseListener((e) -> {
+            Consumer<Boolean> done = popupBackground.getAttributeOrDefault("Done", null);
+            if (done != null) {
+                ((Runnable)popupBackground.getAttribute("Reset")).run();
+                done.accept(false);
+            }
+        });
+        popupBackground.setAttribute("Reset", (Runnable)() -> {
+            popupBackground.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupContainer.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice1Frame.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice2Frame.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice1.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice2.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice1Frame.tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice2Frame.tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupPrompt.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            Timer t = new Timer(300, (e) -> {
+                popupBackground.visible = false;
+            });
+            t.setRepeats(false);
+            t.start();
+        });
         
-        UIFrame popupContainer = new UIFrame("PopupContainer", this);
+        popupContainer = new UIFrame("PopupContainer", this);
         popupContainer.borderRadius = new Dim(0.07, 0);
         //popupContainer.strokeColor = Color.lightGray;
         popupContainer.backgroundColor = Color.decode("#faf4f4");
@@ -1867,7 +1981,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupContainer.keepAspectRatio = true;
         popupContainer.size = new Dim2(0.5, 0, 0.4, 0);
         
-        UIText popupPrompt = new UIText("PopupTitle", this);
+        popupPrompt = new UIText("PopupPrompt", this);
         popupPrompt.backgroundTransparency = 0f;
         popupPrompt.textColor = Color.black;
         popupPrompt.size = new Dim2(0.9, 0, 0.5, 0);
@@ -1875,7 +1989,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupPrompt.horizontalAlignment = UIText.CENTER;
         popupPrompt.position = new Dim2(0.5, 0, 0.35, 0);
         popupPrompt.textScaled = true;
-        popupPrompt.text = "hi guys do you wanna pick this card or this card idk cus lowk u have just two choices but it can change a lot";
+        popupPrompt.text = "Popup";
         popupPrompt.setParent(popupContainer);
 
         UIFrame popupChoices = new UIFrame("PopupChoices", this);
@@ -1898,7 +2012,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupChoice1Container.backgroundTransparency = 0f;
         popupChoice1Container.setParent(popupChoices);
 
-        UIFrame popupChoice1Frame = new UIFrame("PopupChoice1Frame", this);
+        popupChoice1Frame = new UIFrame("PopupChoice1Frame", this);
         popupChoice1Frame.size.full();
         popupChoice1Frame.position.center();
         popupChoice1Frame.anchorPoint.center();
@@ -1907,10 +2021,18 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupChoice1Frame.strokeTransparency = 1f;
         popupChoice1Frame.strokeThickness = new Dim(0.075, 0);
         popupChoice1Frame.setParent(popupChoice1Container);
+        popupChoice1Frame.addReleaseListener((e) -> {
+            Consumer<Boolean> done = popupBackground.getAttributeOrDefault("Done", null);
+            if (done != null) {
+                ((Runnable)popupBackground.getAttribute("Reset")).run();
+                done.accept(true);
+            }
+        });
 
-        UIText popupChoice1 = new UIText("PopupChoice1", this);
+        popupChoice1 = new UIText("PopupChoice1", this);
         popupChoice1.size.full().dilate(0.8);
         popupChoice1.position.center();
+        popupChoice1.backgroundTransparency = 0f;
         popupChoice1.anchorPoint.center();
         popupChoice1.setParent(popupChoice1Frame);
         popupChoice1.textScaled = true;
@@ -1922,10 +2044,17 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         UIFrame popupChoice2Container = popupChoice1Container.clone("PopupChoice2Container");
         popupChoice2Container.setParent(popupChoices);
 
-        UIFrame popupChoice2Frame = popupChoice1Frame.clone("PopupChoice2Frame");
+        popupChoice2Frame = popupChoice1Frame.clone("PopupChoice2Frame");
         popupChoice2Frame.setParent(popupChoice2Container);
+        popupChoice2Frame.addReleaseListener((e) -> {
+            Consumer<Boolean> done = popupBackground.getAttributeOrDefault("Done", null);
+            if (done != null) {
+                ((Runnable)popupBackground.getAttribute("Reset")).run();
+                done.accept(false);
+            }
+        });
 
-        UIText popupChoice2 = popupChoice1.clone("PopupChoice2");
+        popupChoice2 = popupChoice1.clone("PopupChoice2");
         popupChoice2.text = "No";
         popupChoice2.setParent(popupChoice2Frame);
         animOnHover(popupChoice2Frame, popupChoice2Frame);
@@ -2162,8 +2291,31 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         element.setAttribute("drop", toAnimate);
     }
 
-    public void promptPlayer(String question, String option1, String option2, Runnable callback) {
-
+    public void promptPlayer(String question, String option1, String option2, Consumer<Boolean> callback) {
+        popupBackground.setAttribute("Done", callback);
+        popupPrompt.text = question;
+        popupChoice1.text = option1;
+        popupChoice2.text = option2;
+        popupBackground.backgroundTransparency = 0f;
+        popupContainer.backgroundTransparency = 0f;
+        popupChoice1Frame.backgroundTransparency = 0f;
+        popupChoice2Frame.backgroundTransparency = 0f;
+        popupChoice1.textTransparency = 0f;
+        popupChoice2.textTransparency = 0f;
+        popupChoice1Frame.strokeTransparency = 0f;
+        popupChoice2Frame.strokeTransparency = 0f;
+        popupPrompt.textTransparency = 0f;
+        popupPrompt.text = question;
+        popupChoice1.text = option1;
+        popupChoice2.text = option2;
+        popupBackground.visible = true;
+        popupBackground.tweenBackgroundTransparency(0.5f, 0.3, Tween.QUAD_IN_OUT);
+        popupContainer.tweenBackgroundTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+        popupChoice1.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+        popupChoice2.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+        popupChoice1Frame.tweenStrokeTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+        popupChoice2Frame.tweenStrokeTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+        popupPrompt.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
     }
 
     private TreeSet<Selectable> selected = new TreeSet<>();

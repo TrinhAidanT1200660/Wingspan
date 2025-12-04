@@ -128,6 +128,11 @@ public class Player {
         return result;
     }
 
+    public boolean hasEnoughEggs(int eggs) {
+        return board.values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() >= eggs;
+    }
+
+
     //MUTATOR METHOD:
     //adds the specified amount of points
     public void addPoints(int points) {
