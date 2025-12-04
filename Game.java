@@ -446,7 +446,7 @@ public class Game {
 		if(p.getBirdHand().isEmpty()) return false; // just checks if the hand is empty first before asking which to play
 		// UI should be asking the player which bird from their hand to play
 		// for now it'll be the first bird in the hand
-		Bird birdToPlay = p.getBirdHand().get(0);
+		Bird birdToPlay = UIElement.getAllTagged("Selected").stream().toList().getFirst().getAttributeOrDefault("Card", null);
 		return addBirdToBoard(p, birdToPlay);
 	}
 
@@ -497,7 +497,7 @@ public class Game {
 				else eggsReq = 2;
 				// checks if the player has enough eggs for the habitat chosen
 				// this check is done here to allow for reselection of habitat 
-				if(p.getBoard().values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() >= eggsReq) break;
+				if(p.hasEnoughEggs(eggsReq)) break;
 			}
         }
         else {

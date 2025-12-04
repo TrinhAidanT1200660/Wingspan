@@ -1018,13 +1018,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         }
 
         gameScreen.setAttribute("ResetSelected", (Runnable)() -> {
-            UIImage.getByName("Item1Check").visible = false;
-            UIImage.getByName("Item2Check").visible = false;
-            UIImage.getByName("Item3Check").visible = false;
-            UIImage.getByName("DeckCard1Check").visible = false;
-            UIImage.getByName("DeckCard2Check").visible = false;
-            UIImage.getByName("DeckCard3Check").visible = false;
-            UIImage.getByName("FaceDownCardCheck").visible = false;
+            for(UIElement tagged : UIElement.getAllTagged("Check")) tagged.visible = false;
             UIElement.removeAllTagged("Selected");
             gameScreen.setAttribute("TradingEgg", false);
             selected.clear();
@@ -1216,6 +1210,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         deckCard1Check.position = new Dim2(0.99, 0, 0.01, 0);
         deckCard1Check.anchorPoint.center();
         deckCard1Check.backgroundTransparency = 0f;
+        deckCard1Check.addTag("Check");
         deckCard1Check.setImageFillType(UIImage.FIT_IMAGE);
         deckCard1Check.setImagePath("images/check_mark.png");
         deckCard1Check.setParent(deckCard1);
@@ -2010,6 +2005,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         UIFrame popupChoice1Container = new UIFrame("PopupChoice1Container", this);
         popupChoice1Container.size = new Dim2(0.3, 0, 0.9, 0);
         popupChoice1Container.backgroundTransparency = 0f;
+        popupChoice1Container.visible = false;
         popupChoice1Container.setParent(popupChoices);
 
         popupChoice1Frame = new UIFrame("PopupChoice1Frame", this);
@@ -2117,7 +2113,61 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             birdFeederFoodCover.setParent(birdFeederFoodFrame);
             birdFeederFoodCover.setZIndex(1);
             birdFeederFoodCover.ignore = true;
-            birdFeederFoodCover.borderRadius = new Dim(0.45, 0);
+            birdFeederFoodCover.borderRadius = new Dim(0.3, 0);
+
+            UIImage birdFeederFoodCheck = deckCard1Check.clone(food + "BirdFeederFoodCheck");
+            birdFeederFoodCheck.setParent(birdFeederFoodFrame);
+            birdFeederFoodCheck.visible = true;
+            birdFeederFoodCheck.size = new Dim2(0.2, 0, 0.2, 0);
+            birdFeederFoodCheck.position = new Dim2(1, 0, 0, 0);
+
+            animOnHover(birdFeederFoodFrame, birdFeederFoodFrame);
+            animOnPress(birdFeederFoodFrame, birdFeederFoodFrame);
+            pressCover(birdFeederFoodFrame, birdFeederFoodCover);
+
+            UIFrame birdFeederFoodContainer = new UIFrame(food + "BirdFeederFoodContainer", this);
+            birdFeederFoodContainer.size = new Dim2(0.122, 0, 1, 0);
+            birdFeederFoodContainer.backgroundTransparency = 0f;
+            birdFeederFoodContainer.setParent(birdFeederChoicesContainer);
+
+            UIFrame birdFeederFoodFrame = new UIFrame(food + "BirdFeederFoodFrame", this);
+            birdFeederFoodFrame.size.full().dilate(0.9);
+            birdFeederFoodFrame.position.center();
+            birdFeederFoodFrame.anchorPoint.center();
+            birdFeederFoodFrame.backgroundTransparency = 1f;
+            birdFeederFoodFrame.backgroundColor = Color.decode("#dfd2c9");
+            birdFeederFoodFrame.borderRadius = new Dim(0.3, 0);
+            birdFeederFoodFrame.strokeColor = Color.white;
+            birdFeederFoodFrame.strokeThickness = new Dim(0.03, 0);
+            birdFeederFoodFrame.strokeTransparency = 1f;
+            birdFeederFoodFrame.setParent(birdFeederFoodContainer);
+
+            UIImage birdFeederFoodIcon = new UIImage(food + "BirdFeederFoodIcon", this);
+            birdFeederFoodIcon.setParent(birdFeederFoodFrame);
+            birdFeederFoodIcon.setImagePath("foods/" + food.toLowerCase() + "_ns.png");
+            birdFeederFoodIcon.setImageFillType(UIImage.FIT_IMAGE);
+            birdFeederFoodIcon.size = new Dim2(0.7, 0, 0.7, 0);
+            birdFeederFoodIcon.position.center();
+            birdFeederFoodIcon.anchorPoint.center();
+            birdFeederFoodIcon.ignore = true;
+            birdFeederFoodIcon.backgroundTransparency = 0f;
+
+            UIFrame birdFeederFoodCover = new UIFrame(food + "BirdFeederFoodCover", this);
+            birdFeederFoodCover.size.full().dilate(1.04);
+            birdFeederFoodCover.position.center();
+            birdFeederFoodCover.anchorPoint.center();
+            birdFeederFoodCover.backgroundTransparency = 0f;
+            birdFeederFoodCover.backgroundColor = Color.black;
+            birdFeederFoodCover.setParent(birdFeederFoodFrame);
+            birdFeederFoodCover.setZIndex(1);
+            birdFeederFoodCover.ignore = true;
+            birdFeederFoodCover.borderRadius = new Dim(0.3, 0);
+
+            UIImage birdFeederFoodCheck = deckCard1Check.clone(food + "BirdFeederFoodCheck");
+            birdFeederFoodCheck.setParent(birdFeederFoodFrame);
+            birdFeederFoodCheck.visible = true;
+            birdFeederFoodCheck.size = new Dim2(0.2, 0, 0.2, 0);
+            birdFeederFoodCheck.position = new Dim2(1, 0, 0, 0);
 
             animOnHover(birdFeederFoodFrame, birdFeederFoodFrame);
             animOnPress(birdFeederFoodFrame, birdFeederFoodFrame);

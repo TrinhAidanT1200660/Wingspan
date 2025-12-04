@@ -706,6 +706,7 @@ class UIElement {
         clone.anchorPoint = this.anchorPoint.clone();
         clone.ignore = this.ignore;
         clone.setParent(this.parent);
+        for (String tag : this.tags) clone.addTag(tag);
         return clone;
     }
 

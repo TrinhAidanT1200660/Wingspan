@@ -26,7 +26,7 @@ public enum Bird implements Card
 	AMERICAN_CROW("AMERICAN CROW", "birds/american_crow.png", 2, 99, 4, new String[] {"forest", "grassland", "wetland"}, "BROWN", "Other", "and 1any", "Platform", BirdAction.DISCARDEGGANDGAIN1FOOD),
 	AMERICAN_GOLDFINCH("AMERICAN GOLDFINCH", "birds/american_goldfinch.png", 3, 23, 3, new String[] {"grassland"}, "WHITE", "Other", "and 2seed", "Bowl", BirdAction.GET3SEED),
 	AMERICAN_KESTREL("AMERICAN KESTREL", "birds/american_kestrel.png", 3, 56, 5, new String[] {"grassland"}, "BROWN", "Predator", "and 1rat 1worm", "Cavity", BirdAction.ROLLDICEANDFINDRAT),
-	AMERICAN_OYSTERCATCHER("AMERICAN OYSTERCATCHER", "birds/american_oystercatcher.png", 2, 81, 5, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 2worm", "Ground", BirdAction.DRAWBIRDEQUALTOPLAYERANDCLOCKWISEDISTRIBUTE),
+	// AMERICAN_OYSTERCATCHER("AMERICAN OYSTERCATCHER", "birds/american_oystercatcher.png", 2, 81, 5, new String[] {"wetland"}, "WHITE", "CardDrawing", "and 2worm", "Ground", BirdAction.DRAWBIRDEQUALTOPLAYERANDCLOCKWISEDISTRIBUTE), not adding
 	AMERICAN_REDSTART("AMERICAN REDSTART", "birds/american_redstart.png", 2, 20, 4, new String[] {"forest"}, "BROWN", "Other", "and 1berry 1worm", "Bowl", BirdAction.GET1FOODBIRDFEEDER),
 	AMERICAN_ROBIN("AMERICAN ROBIN", "birds/american_robin.png", 4, 43, 1, new String[] {"grassland", "forest"}, "BROWN", "Flocking", "or 1berry 1worm", "Bowl", BirdAction.TUCK1BIRDANDDRAW1BIRD),
 	AMERICAN_WHITE_PELICAN("AMERICAN WHITE PELICAN", "birds/american_white_pelican.png", 1, 274, 5, new String[] {"wetland"}, "BROWN", "Flocking", "and 2fish", "Ground", BirdAction.DISCARDFISHANDTUCK2BIRDS),
