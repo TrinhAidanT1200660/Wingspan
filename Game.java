@@ -87,7 +87,7 @@ public class Game {
 		else { System.out.println("ERROR IN PLAYACTIONS, CAN'T FIND ACTION"); return; }
 		p.decreaseActionCubes(); // player turn has ended and they lose an action cube
 		this.regenerateFaceUpTray(); // regens the tray without removing old cards as player turn has ended
-		this.incrementPlayerTurn(); // increments player turn
+		if (!choice.equals("playBird")) this.incrementPlayerTurn(); // increments player turn
 	}
 
 	// method that has the play draw bird cards based on whether they want the face up or random pile
@@ -442,13 +442,13 @@ public class Game {
 	}
 
 	// method that has the player choose which bird and then play it
-	public boolean playBird(Player p) 
+	public void playBird(Player p)
 	{
-		if(p.getBirdHand().isEmpty()) return false; // just checks if the hand is empty first before asking which to play
+		if(p.getBirdHand().isEmpty()) return; // just checks if the hand is empty first before asking which to play
 		// UI should be asking the player which bird from their hand to play
 		// for now it'll be the first bird in the hand
 		Bird birdToPlay = UIElement.getAllTagged("Selected").stream().toList().getFirst().getAttributeOrDefault("Card", null);
-		return addBirdToBoard(p, birdToPlay);
+		addBirdToBoard(p, birdToPlay);
 	}
 
 	public void recursivelyAskForAnyFoodAndRemove(Player p, Bird bird, int times) {
@@ -470,9 +470,9 @@ public class Game {
 	//adds the specified bird to the board if the player has enough food and the bird is in their hand
     //if it has any food type, UI will ask player to choose which food to use
     //returns true if successful, false otherwise
-    public boolean addBirdToBoard(Player p, Bird bird) {
-        if(!p.getBirdHand().contains(bird)) return false; // checks if the player acc has the bird; idk how this goes off
-        if(!p.hasEnoughFood(bird)) return false; // checks if the player has enough food
+    public void addBirdToBoard(Player p, Bird bird) {
+        if(!p.getBirdHand().contains(bird)) return; // checks if the player acc has the bird; idk how this goes off
+        if(!p.hasEnoughFood(bird)) return; // checks if the player has enough food
 		boolean habitatSizeCheck = false; // boolean used to check all habitats for size
 		for(String s : bird.getHabitat()) 
 		{
@@ -483,9 +483,9 @@ public class Game {
 			if(p.getBoard().get(s).isEmpty()) eggsReq = 0;
 			else if(p.getBoard().get(s).size() < 4) eggsReq = 1;
 			else eggsReq = 2;
-			if(p.getBoard().values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() < eggsReq) return false; // checks if player has enough eggs
+			if(p.getBoard().values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() < eggsReq) return; // checks if player has enough eggs
 		}
-		if(!habitatSizeCheck) return false;
+		if(!habitatSizeCheck) return;
         // removes the food from the player's food supply
         if(bird.getFoodRequired().contains("and")) {
             p.removeAndFoodToAddBird(bird); // this method removes all food but the any
@@ -511,11 +511,9 @@ public class Game {
 			}, bird.getFoodRequired().contains("any") ? p.getFood().entrySet().stream().filter((v) -> v.getValue() > 0).map(Map.Entry::getKey).toList() : bird.getFoodRequiredAsList().stream().filter((f) -> p.getFood().getOrDefault(f, 0) > 0).toList()); 
 			//}, p.getFood().entrySet().stream().filter((v) -> v.getValue() > 0).map(Map.Entry::getKey).toList()); 
         }
-
-        return true;
     }
 
-	public boolean continueAddBirdToBoardAfterPrompts(Player p, Bird bird, String habitat) {
+	public void continueAddBirdToBoardAfterPrompts(Player p, Bird bird, String habitat) {
 		int eggsReq = 0;
         if(bird.getHabitat().length > 1) {
             //UI will ask which habitat to place the bird in
@@ -540,7 +538,9 @@ public class Game {
         BirdInstance birdInstance = new BirdInstance(bird); // new bird instance
 		birdInstance.setCurrentHabitat(habitat);
         p.getBoard().get(habitat).add(birdInstance); // adds to board
+        System.out.println(p.getBoard());
         p.getBirdHand().remove(bird); // removes from hand
+        //panel.removeFirstFromPlayerHand();
 		this.removeEggs(p, eggsReq); // removes eggs from birds
 		if(birdInstance.getActionColor().equalsIgnoreCase("WHITE"))
 		{
@@ -555,7 +555,7 @@ public class Game {
 		else if(habitat.equals("wetland"))
 			pinkAbilityActivation("playWetlandGetFish");
 
-        return true;
+        this.incrementPlayerTurn();
     }
 
 	// Randomly draws bonus cards to simulate the random drawing.
@@ -718,13 +718,13 @@ public class Game {
 				for (int j = 0; j < 5; j++) {
 					int foodOrBird = (int)(Math.random() * 2); // 0 for food, 1 for bird
 					if (foodOrBird == 0) {
-						//p.addFood(foods[(int)(Math.random() * 5)].toLowerCase(), 1);
+						p.addFood(foods[(int)(Math.random() * 5)].toLowerCase(), 1);
 					} else {
 						Bird b = birds.get(j);
 						p.addBirdHand(b);
 						panel.addToPlayerHand(i, b);
 					}
-					p.addFood(foods[j].toLowerCase(), 5);
+					//p.addFood(foods[j].toLowerCase(), 5);
 				}
 				BonusCard randomBonus = pullRandomBonusCards(1).get(0);
 				p.addBonusHand(randomBonus);

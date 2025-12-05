@@ -107,4 +107,6 @@ public class BirdInstance {
 	
 	// performs this bird's stored BirdAction ability on the given player
 	public void performAction(Game gameContext, Player player) { birdEnum.performAction(gameContext, player, this); }
+
+    public String toString() { return getName(); }
 }

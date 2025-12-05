@@ -1704,6 +1704,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                     if (item != null) {
                         item.addTag("Selected");
                         currentGame.playActions("playBird");
+                        item.removeTag("Selected");
+                        ((Runnable)cyclingView.getAttribute("Stop")).run();
                     }
                 }
             }
@@ -2373,12 +2375,14 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         if (playerCardsContainer == null) playerCardsContainer = createPlayerCardsContainer(p);
         ArrayList<UIElement> rows = playerCardsContainer.getChildren();
         UIElement lastRow = rows.get(rows.size() - 1);
-        UIFrame cardContainer = new UIFrame("HandCard" + p + "_" + rows.size() + "_" + lastRow.getChildren().size(), this);
+        //UIFrame cardContainer = new UIFrame("HandCard" + p + "_" + rows.size() + "_" + lastRow.getChildren().size(), this);
+        UIFrame cardContainer = new UIFrame(card.getName() + "HandCard", this);
         cardContainer.size = new Dim2(0.22, 0, 1, 0);
         cardContainer.backgroundTransparency = 0f;
         if (lastRow.getChildren().size() >= 5) lastRow = createRow(p);
         cardContainer.setParent(lastRow);
-        UIImage cardImage = new UIImage("HandCardImage" + p + "_" + rows.size() + "_" + lastRow.getChildren().size(), this);
+        //UIImage cardImage = new UIImage("HandCardImage" + p + "_" + rows.size() + "_" + lastRow.getChildren().size(), this);
+        UIImage cardImage = new UIImage(card.getName() + "HandCardImage", this);
         cardImage.size.full();
         cardImage.position.center();
         cardImage.anchorPoint.center();
@@ -2396,6 +2400,21 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             cyclingView.setAttribute("Index", all.indexOf(cardImage.getAttribute("Card")));
             ((Runnable)cyclingView.getAttribute("Run")).run();
         });
+    }
+
+    public void removeFirstFromPlayerHand(Card card) {
+        UIFrame frame = UIFrame.getByName(card.getName() + "HandCard");
+        UIElement row = frame.getParent();
+        ArrayList<UIElement> allRows = row.getParent().getChildren();
+        int nextI = allRows.indexOf(row) + 1;
+        if (allRows.size() > nextI - 1) {
+            UIElement nextRow = allRows.get(nextI);
+            if (nextRow != null && !nextRow.getChildren().isEmpty()) {
+                nextRow.getChildren().getFirst().setParent(row);
+                if (nextRow.getChildren().isEmpty()) nextRow.destroy();
+            } else if (row.getChildren().isEmpty()) row.destroy();
+        }
+        frame.destroy();
     }
 
     public void animOnHover(UIElement element, UIElement toAnimate) {

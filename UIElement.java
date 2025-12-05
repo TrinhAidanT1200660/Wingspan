@@ -669,7 +669,7 @@ class UIElement {
     private boolean resort = false; // used whenever we need to resort the drawing order based on z-index
     protected AffineTransform mostRecentTransform; // used to check if mouse is inside an element
     private HashMap<String, Object> attributes = new HashMap<>();
-    protected static HashMap<String, UIElement> byName = new HashMap<>();
+    protected static HashMap<String, ArrayList<UIElement>> byName = new HashMap<>();
     protected static HashMap<String, HashSet<UIElement>> byTag = new HashMap<>();
     public HashSet<String> tags = new HashSet<>();
     private String name;
@@ -710,11 +710,21 @@ class UIElement {
         return clone;
     }
 
-    public UIElement(String name, JPanel panel) {
-        UIElement old = byName.put(name, this);
-        if (old != null) {
-            throw new IllegalArgumentException("The name \"" + name + "\" has already been used.");
+    private static ArrayList<UIElement> getListByName(String name) {
+        ArrayList<UIElement> list = byName.get(name);
+        if (list == null) {
+            list = new ArrayList<>();
+            byName.put(name, list);
         }
+        return list;
+    }
+
+    public UIElement getParent() {
+        return parent;
+    }
+
+    public UIElement(String name, JPanel panel) {
+        getListByName(name).add(this);
         this.panel = panel;
         this.name = name;
         // this is making the root element in case there isn't one
@@ -756,9 +766,10 @@ class UIElement {
     }
 
     public void setName(String name) {
-        byName.remove(this.name);
+        ArrayList<UIElement> list = getListByName(name);
+        list.remove(this);
         this.name = name;
-        byName.put(name, this);
+        list.add(this);
     }
 
     public String getName() {
@@ -766,7 +777,7 @@ class UIElement {
     }
 
     public static UIElement getByName(String name) {
-        return byName.get(name);
+        return getListByName(name).getFirst();
     }
 
     private static HashSet<UIElement> getTaggedList(String tag) {
@@ -1536,7 +1547,7 @@ class UIElement {
         }
         children.clear();
         attributes.clear();
-        byName.remove(name);
+        getListByName(name).remove(this);
     }
 }
 
@@ -1556,7 +1567,7 @@ class UIFrame extends UIElement {
     }
 
     public static UIFrame getByName(String name) {
-        return (UIFrame)byName.get(name);
+        return (UIFrame)getByName(name);
     }
 }
 
@@ -1813,7 +1824,7 @@ class UIImage extends UIElement {
     }
 
     public static UIImage getByName(String name) {
-        return (UIImage)byName.get(name);
+        return (UIImage)getByName(name);
     }
 }
 
@@ -1965,7 +1976,7 @@ class UIText extends UIElement {
     }
 
     public static UIText getByName(String name) {
-        return (UIText)byName.get(name);
+        return (UIText)getByName(name);
     }
 
     private ArrayList<String> wrapText(Graphics2D g2d) {

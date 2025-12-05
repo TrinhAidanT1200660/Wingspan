@@ -644,6 +644,9 @@ public enum BonusCard implements Card, BonusCardInterface
         return "bonus/" + imageFileString; 
     }
 
+    // returns name
+    public String getName() { return imageFileString.split("\\.")[0]; }
+
     // VOID METHODS / MUTATOR METHODS:
     public void removeCardFromDeck() { deckCount -= 1; }
 
