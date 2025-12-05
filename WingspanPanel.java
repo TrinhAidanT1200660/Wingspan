@@ -1941,10 +1941,21 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupBackground.setZIndex(100);
         popupBackground.visible = false;
         popupBackground.addReleaseListener((e) -> {
-            Consumer<Boolean> done = popupBackground.getAttributeOrDefault("Done", null);
-            if (done != null) {
-                ((Runnable)popupBackground.getAttribute("Reset")).run();
-                done.accept(false);
+            String type = popupBackground.getAttributeOrDefault("Type", null);
+            if (type != null) {
+                if (type.equals("yesno")) {
+                    Consumer<Boolean> done = popupBackground.getAttributeOrDefault("Done", null);
+                    if (done != null) {
+                        ((Runnable)popupBackground.getAttribute("Reset")).run();
+                        done.accept(false);
+                    }
+                } else if (type.equals("food")) {
+                    Consumer<String> done = popupBackground.getAttributeOrDefault("Done", null);
+                    if (done != null) {
+                        ((Runnable)popupBackground.getAttribute("Reset")).run();
+                        done.accept(null);
+                    }
+                }
             }
         });
         popupBackground.setAttribute("Reset", (Runnable)() -> {
@@ -1957,6 +1968,12 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             popupChoice1Frame.tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             popupChoice2Frame.tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             popupPrompt.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            for (UIElement f : UIElement.getByName("PopupFoodChoices").getChildren()) {
+                String name = f.getName().substring(0, f.getName().length() - 9);
+                UIFrame.getByName(name + "Frame").tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+                UIFrame.getByName(name + "Frame").tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+                UIImage.getByName(name + "Icon").tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            }
             Timer t = new Timer(300, (e) -> {
                 popupBackground.visible = false;
             });
@@ -1995,6 +2012,10 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupChoices.anchorPoint = new Vector2(0.5, 1);
         popupChoices.setParent(popupContainer);
 
+        UIFrame popupFoodChoices = popupChoices.clone("PopupFoodChoices");
+        popupFoodChoices.visible = false;
+        popupFoodChoices.setParent(popupContainer);
+
         ListLayout popupChoicesLayout = new ListLayout();
         popupChoicesLayout.direction = ListLayout.HORIZONTAL;
         popupChoicesLayout.horizontalAlignment = ListLayout.CENTER;
@@ -2002,10 +2023,16 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupChoicesLayout.spacing = new Dim(0.05, 0);
         popupChoices.layout = popupChoicesLayout;
 
+        ListLayout popupFoodChoicesLayout = new ListLayout();
+        popupFoodChoicesLayout.direction = ListLayout.HORIZONTAL;
+        popupFoodChoicesLayout.horizontalAlignment = ListLayout.CENTER;
+        popupFoodChoicesLayout.verticalAlignment = ListLayout.MIDDLE;
+        popupFoodChoicesLayout.spacing = new Dim(0.05, 0);
+        popupFoodChoices.layout = popupFoodChoicesLayout;
+
         UIFrame popupChoice1Container = new UIFrame("PopupChoice1Container", this);
         popupChoice1Container.size = new Dim2(0.3, 0, 0.9, 0);
         popupChoice1Container.backgroundTransparency = 0f;
-        popupChoice1Container.visible = false;
         popupChoice1Container.setParent(popupChoices);
 
         popupChoice1Frame = new UIFrame("PopupChoice1Frame", this);
@@ -2125,54 +2152,57 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             animOnPress(birdFeederFoodFrame, birdFeederFoodFrame);
             pressCover(birdFeederFoodFrame, birdFeederFoodCover);
 
-            UIFrame birdFeederFoodContainer = new UIFrame(food + "BirdFeederFoodContainer", this);
-            birdFeederFoodContainer.size = new Dim2(0.122, 0, 1, 0);
-            birdFeederFoodContainer.backgroundTransparency = 0f;
-            birdFeederFoodContainer.setParent(birdFeederChoicesContainer);
+            UIFrame popupFoodChoiceContainer = new UIFrame(food + "PopupFoodChoiceContainer", this);
+            popupFoodChoiceContainer.size = new Dim2(0.14, 0, 1, 0);
+            popupFoodChoiceContainer.backgroundTransparency = 0f;
+            popupFoodChoiceContainer.setParent(popupFoodChoices);
 
-            UIFrame birdFeederFoodFrame = new UIFrame(food + "BirdFeederFoodFrame", this);
-            birdFeederFoodFrame.size.full().dilate(0.9);
-            birdFeederFoodFrame.position.center();
-            birdFeederFoodFrame.anchorPoint.center();
-            birdFeederFoodFrame.backgroundTransparency = 1f;
-            birdFeederFoodFrame.backgroundColor = Color.decode("#dfd2c9");
-            birdFeederFoodFrame.borderRadius = new Dim(0.3, 0);
-            birdFeederFoodFrame.strokeColor = Color.white;
-            birdFeederFoodFrame.strokeThickness = new Dim(0.03, 0);
-            birdFeederFoodFrame.strokeTransparency = 1f;
-            birdFeederFoodFrame.setParent(birdFeederFoodContainer);
+            UIFrame popupFoodChoiceFrame = new UIFrame(food + "PopupFoodChoiceFrame", this);
+            popupFoodChoiceFrame.size.full().dilate(0.9);
+            popupFoodChoiceFrame.position.center();
+            popupFoodChoiceFrame.anchorPoint.center();
+            popupFoodChoiceFrame.backgroundTransparency = 1f;
+            popupFoodChoiceFrame.backgroundColor = Color.decode("#dfd2c9");
+            popupFoodChoiceFrame.borderRadius = new Dim(0.3, 0);
+            popupFoodChoiceFrame.strokeColor = Color.white;
+            popupFoodChoiceFrame.strokeThickness = new Dim(0.03, 0);
+            popupFoodChoiceFrame.strokeTransparency = 1f;
+            popupFoodChoiceFrame.setParent(popupFoodChoiceContainer);
+            popupFoodChoiceFrame.addReleaseListener((e) -> {
+                Consumer<String> done = popupBackground.getAttributeOrDefault("Done", null);
+                if (done != null) {
+                    ((Runnable)popupBackground.getAttribute("Reset")).run();
+                    done.accept(food);
+                }
+            });
 
-            UIImage birdFeederFoodIcon = new UIImage(food + "BirdFeederFoodIcon", this);
-            birdFeederFoodIcon.setParent(birdFeederFoodFrame);
-            birdFeederFoodIcon.setImagePath("foods/" + food.toLowerCase() + "_ns.png");
-            birdFeederFoodIcon.setImageFillType(UIImage.FIT_IMAGE);
-            birdFeederFoodIcon.size = new Dim2(0.7, 0, 0.7, 0);
-            birdFeederFoodIcon.position.center();
-            birdFeederFoodIcon.anchorPoint.center();
-            birdFeederFoodIcon.ignore = true;
-            birdFeederFoodIcon.backgroundTransparency = 0f;
+            UIImage popupFoodChoiceIcon = new UIImage(food + "PopupFoodChoiceIcon", this);
+            popupFoodChoiceIcon.setParent(popupFoodChoiceFrame);
+            popupFoodChoiceIcon.setImagePath("foods/" + food.toLowerCase() + "_ns.png");
+            popupFoodChoiceIcon.setImageFillType(UIImage.FIT_IMAGE);
+            popupFoodChoiceIcon.size = new Dim2(0.7, 0, 0.7, 0);
+            popupFoodChoiceIcon.position.center();
+            popupFoodChoiceIcon.anchorPoint.center();
+            popupFoodChoiceIcon.ignore = true;
+            popupFoodChoiceIcon.backgroundTransparency = 0f;
 
-            UIFrame birdFeederFoodCover = new UIFrame(food + "BirdFeederFoodCover", this);
-            birdFeederFoodCover.size.full().dilate(1.04);
-            birdFeederFoodCover.position.center();
-            birdFeederFoodCover.anchorPoint.center();
-            birdFeederFoodCover.backgroundTransparency = 0f;
-            birdFeederFoodCover.backgroundColor = Color.black;
-            birdFeederFoodCover.setParent(birdFeederFoodFrame);
-            birdFeederFoodCover.setZIndex(1);
-            birdFeederFoodCover.ignore = true;
-            birdFeederFoodCover.borderRadius = new Dim(0.3, 0);
+            UIFrame popupFoodChoiceCover = new UIFrame(food + "PopupFoodChoiceCover", this);
+            popupFoodChoiceCover.size.full().dilate(1.04);
+            popupFoodChoiceCover.position.center();
+            popupFoodChoiceCover.anchorPoint.center();
+            popupFoodChoiceCover.backgroundTransparency = 0f;
+            popupFoodChoiceCover.backgroundColor = Color.black;
+            popupFoodChoiceCover.setParent(popupFoodChoiceFrame);
+            popupFoodChoiceCover.setZIndex(1);
+            popupFoodChoiceCover.ignore = true;
+            popupFoodChoiceCover.borderRadius = new Dim(0.3, 0);
 
-            UIImage birdFeederFoodCheck = deckCard1Check.clone(food + "BirdFeederFoodCheck");
-            birdFeederFoodCheck.setParent(birdFeederFoodFrame);
-            birdFeederFoodCheck.visible = true;
-            birdFeederFoodCheck.size = new Dim2(0.2, 0, 0.2, 0);
-            birdFeederFoodCheck.position = new Dim2(1, 0, 0, 0);
-
-            animOnHover(birdFeederFoodFrame, birdFeederFoodFrame);
-            animOnPress(birdFeederFoodFrame, birdFeederFoodFrame);
-            pressCover(birdFeederFoodFrame, birdFeederFoodCover);
+            animOnHover(popupFoodChoiceFrame, popupFoodChoiceFrame);
+            animOnPress(popupFoodChoiceFrame, popupFoodChoiceFrame);
+            pressCover(popupFoodChoiceFrame, popupFoodChoiceCover);
         }
+
+        promptPlayerFood("please", (a) -> System.out.println("clicked on " + a));
     }
 
     public void choosePlayingScreen(UIElement screen) {
@@ -2342,7 +2372,10 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
     }
 
     public void promptPlayer(String question, String option1, String option2, Consumer<Boolean> callback) {
+        popupBackground.setAttribute("Type", "yesno");
         popupBackground.setAttribute("Done", callback);
+        UIElement.getByName("PopupFoodChoices").visible = false;
+        UIElement.getByName("PopupChoices").visible = true;
         popupPrompt.text = question;
         popupChoice1.text = option1;
         popupChoice2.text = option2;
@@ -2365,6 +2398,34 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupChoice2.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
         popupChoice1Frame.tweenStrokeTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
         popupChoice2Frame.tweenStrokeTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+        popupPrompt.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+    }
+
+    public void promptPlayerFood(String question, Consumer<String> callback) {
+        popupBackground.setAttribute("Type", "food");
+        popupBackground.setAttribute("Done", callback);
+        UIElement.getByName("PopupFoodChoices").visible = true;
+        UIElement.getByName("PopupChoices").visible = false;
+        popupPrompt.text = question;
+        popupBackground.backgroundTransparency = 0f;
+        popupContainer.backgroundTransparency = 0f;
+        popupPrompt.textTransparency = 0f;
+        popupPrompt.text = question;
+        for (UIElement f : UIElement.getByName("PopupFoodChoices").getChildren()) {
+            String name = f.getName().substring(0, f.getName().length() - 9);
+            UIFrame.getByName(name + "Frame").backgroundTransparency = 0f;
+            UIFrame.getByName(name + "Frame").strokeTransparency = 0f;
+            UIImage.getByName(name + "Icon").imageTransparency = 0f;
+        }
+        popupBackground.visible = true;
+        popupBackground.tweenBackgroundTransparency(0.5f, 0.3, Tween.QUAD_IN_OUT);
+        popupContainer.tweenBackgroundTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+        for (UIElement f : UIElement.getByName("PopupFoodChoices").getChildren()) {
+            String name = f.getName().substring(0, f.getName().length() - 9);
+            UIFrame.getByName(name + "Frame").tweenBackgroundTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            UIFrame.getByName(name + "Frame").tweenStrokeTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            UIImage.getByName(name + "Icon").tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+        }
         popupPrompt.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
     }
 
