@@ -1,6 +1,7 @@
 
 import java.awt.event.KeyEvent;
 import java.util.*;
+import javax.swing.Timer;
 
 public class Game {
 
@@ -79,7 +80,7 @@ public class Game {
 		Player p = this.playerList.get(playerTurn-1);
 		// while loop is basically only for playBird which is the only one that can end up in failure if the player doesn't have enough eggs or even a bird to play
 		System.out.println(choice + " - current player is player " + playerTurn);
-		if(choice.equals("playBird")) { if(this.playBird(p)); } // playBird auto adds it to board and returns true if successfully placed
+		if(choice.equals("playBird")) { this.playBird(p); } // playBird auto adds it to board and returns true if successfully placed
 		else if(choice.equals("getFood")) { this.getFood(p); this.iterateBirdAbilities(p, "forest"); }
 		else if(choice.equals("layEggs")) { this.layEggs(p); this.iterateBirdAbilities(p, "grassland"); }
 		else if(choice.equals("drawBirds")) { this.drawBirds(p); this.iterateBirdAbilities(p, "wetland"); }
@@ -450,6 +451,22 @@ public class Game {
 		return addBirdToBoard(p, birdToPlay);
 	}
 
+	public void recursivelyAskForAnyFoodAndRemove(Player p, Bird bird, int times) {
+		if (times <= 0) {
+			// if we're done asking about all the any choices, ask the ui about the habitat and then continue
+			panel.promptPlayerHabitat("Which habitat would you like to place this bird in?", (habitat) -> {
+				continueAddBirdToBoardAfterPrompts(p, bird, habitat);
+			}, List.of(bird.getHabitat()));
+			return; 
+		}
+        panel.promptPlayerFood("Which food would you like to use as your any?", (food) -> {
+			System.out.println(food);
+			p.removeFood(food.toLowerCase(), 1);
+			// wait 300 ms for fade out animation to finish then ask again
+			Timer t = new Timer(300, (e) -> recursivelyAskForAnyFoodAndRemove(p, bird, times - 1)); t.setRepeats(false); t.start();
+		}, p.getFood().entrySet().stream().filter((v) -> v.getValue() > 0).map(Map.Entry::getKey).toList()); 
+    }
+
 	//adds the specified bird to the board if the player has enough food and the bird is in their hand
     //if it has any food type, UI will ask player to choose which food to use
     //returns true if successful, false otherwise
@@ -475,21 +492,36 @@ public class Game {
             if(bird.getFoodRequired().contains("any")) {
                 // UI will ask which food to use
 				// Realized there are birds with multiple any. Either can just not put them in game or have a big method we can see
+				// so you call this recursive method and itll repeatedly ask ui which food... to get the number of any foods i just filtered out the ones that were of type any and thats how many times itll ask 
+				// we dont even need to get the food they select as a value, we can just remove them from the player once they select it
+				// after theyre done selecting, the method below will continue
+				recursivelyAskForAnyFoodAndRemove(p, bird, List.of(bird.getFoodRequired().split(" ")).stream().filter((v) -> v.contains("any")).mapToInt((v) -> Integer.parseInt(v.replace("any", ""))).sum());
             }
         }
         else {
-            //UI will ask which food to use; or foods should only have 1 food to remove so directly do it
-            String food = ""; // UI METHOD HERE that returns the food type
-            p.removeFood(food, 1);
+			// prompt the player but only show foods that the bird has listed and exclude those that the player doesn't have
+			panel.promptPlayerFood("Which food would you like to use for this bird?", (food) -> {
+				p.removeFood(food.toLowerCase(), 1);
+				// wait 300 ms, then ask the player for the habitat to place the card. after they make their choice, continue the adding to the board action
+				Timer t = new Timer(300, (e) -> {
+					panel.promptPlayerHabitat("Which habitat would you like to place this bird in?", (habitat) -> {
+						continueAddBirdToBoardAfterPrompts(p, bird, habitat);
+					}, List.of(bird.getHabitat()));
+				}); t.setRepeats(false); t.start();
+			}, bird.getFoodRequired().contains("any") ? p.getFood().entrySet().stream().filter((v) -> v.getValue() > 0).map(Map.Entry::getKey).toList() : bird.getFoodRequiredAsList().stream().filter((f) -> p.getFood().getOrDefault(f, 0) > 0).toList()); 
+			//}, p.getFood().entrySet().stream().filter((v) -> v.getValue() > 0).map(Map.Entry::getKey).toList()); 
         }
 
-        String habitat = "";
+        return true;
+    }
+
+	public boolean continueAddBirdToBoardAfterPrompts(Player p, Bird bird, String habitat) {
 		int eggsReq = 0;
         if(bird.getHabitat().length > 1) {
             //UI will ask which habitat to place the bird in
 			while(true)
 			{
-            	habitat = bird.getHabitat()[0]; // TEMPORARY SETTING TO FIRST HABITAT
+            	//habitat = bird.getHabitat()[0]; // TEMPORARY SETTING TO FIRST HABITAT
 				if(!(p.getBoard().get(habitat).size() >= 5)) break; // makes sure player selects a habitat that isnt full'
 				// determines the eggs required for placing the bird
 				if(p.getBoard().get(habitat).isEmpty()) eggsReq = 0;
@@ -502,6 +534,7 @@ public class Game {
         }
         else {
             habitat = bird.getHabitat()[0]; // checks are not done here because if there was only one habitat, they would've failed the preliminary tests already
+			// what does preliminary mean
         }
 		
         BirdInstance birdInstance = new BirdInstance(bird); // new bird instance
@@ -679,6 +712,8 @@ public class Game {
 			setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
 			for (int i = 0; i < 5; i++) {
 				Player p = playerList.get(i);
+				p.addBirdHand(Bird.WHOOPING_CRANE);
+				panel.addToPlayerHand(i, Bird.WHOOPING_CRANE);
 				ArrayList<Bird> birds = pullRandomBirds(5);
 				for (int j = 0; j < 5; j++) {
 					int foodOrBird = (int)(Math.random() * 2); // 0 for food, 1 for bird

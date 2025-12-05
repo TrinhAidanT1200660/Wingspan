@@ -12,6 +12,7 @@ import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import javax.swing.JPanel;
@@ -19,7 +20,7 @@ import javax.swing.Timer;
 
 public class WingspanPanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
     public Game currentGame;
-    private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, chosenScreen, boardScreen, deckScreen, birdFeederScreen, handScreen, birdContainer, cyclingView, popupBackground, popupContainer, popupChoice1Frame, popupChoice2Frame;
+    private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, promptBoardScreen, chosenScreen, boardScreen, deckScreen, birdFeederScreen, handScreen, birdContainer, cyclingView, popupBackground, popupContainer, popupChoice1Frame, popupChoice2Frame;
     private UIText loadingTitle, popupPrompt, popupChoice1, popupChoice2;
 
     public WingspanPanel() {
@@ -48,6 +49,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             Timer t = new Timer(1000, (e) -> {
                 resourceChoosingScreen.visible = false;
                 gameScreen.visible = false;
+                promptBoardScreen.visible = false;
                 UIElement.getByName("StartScreen").visible = true;
                 boardScreen.visible = true;
                 deckScreen.visible = false;
@@ -700,6 +702,32 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         gameScreen.position.center(); // center in middle
         gameScreen.size.full(); // entire screen
         gameScreen.backgroundTransparency = 0; // invisible
+
+        promptBoardScreen = gameScreen.clone("PromptBoardScreen");
+        promptBoardScreen.keepAspectRatio = true;
+
+        UIFrame playerBoardPromptContainer = new UIFrame("PlayerBoardPromptContainer", this);
+        playerBoardPromptContainer.anchorPoint.center();
+        playerBoardPromptContainer.position = new Dim2(0.5, 0, 0.45, 0);
+        playerBoardPromptContainer.size = new Dim2(0.68, 0, 0.8, 0).dilate(1.15);
+        playerBoardPromptContainer.backgroundTransparency = 0f;
+        playerBoardPromptContainer.setParent(promptBoardScreen);
+
+        promptBoardScreen.setAttribute("Choose", (Consumer<UIElement>)(UIElement choice) -> {
+            Consumer<String> done = promptBoardScreen.getAttributeOrDefault("Done", null);
+            UIElement playerBoard = playerBoardPromptContainer.getChildren().getFirst();
+            playerBoard.setParent(UIFrame.getByName("Boards"));
+            int playerIndex = playerBoard.getAttribute("PlayerIndex");
+            UIFrame.getByName("GetFoodButton" + playerIndex).backgroundTransparency = 0f;
+            UIFrame.getByName("LayEggsButton" + playerIndex).backgroundTransparency = 0f;
+            UIFrame.getByName("DrawBirdsButton" + playerIndex).backgroundTransparency = 0f;
+            if (done != null) {
+                done.accept(choice.getAttributeOrDefault("Habitat", null));
+            }
+            promptBoardScreen.setAttribute("Active", false);
+            promptBoardScreen.visible = false;
+            gameScreen.visible = true;
+        });
         
         UIFrame infoCorner = new UIFrame("GameInfoCorner", this);
         infoCorner.backgroundTransparency = 0f;
@@ -959,6 +987,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         for (int i = 0; i < 5; i++) {
             int p = i + 1;
             UIImage playerBoard = new UIImage("PlayerBoard" + p, this);
+            playerBoard.setAttribute("PlayerIndex", p);
             playerBoard.size = new Dim2(1, 0, 0.94, 0).dilate(0.85);
             playerBoard.position = new Dim2(0.5, 0, 0.475, 0);
             playerBoard.anchorPoint.center();
@@ -969,51 +998,82 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             playerBoard.visible = false;
 
             UIFrame playBirdButton = new UIFrame("PlayBirdButton" + p, this);
+            playBirdButton.backgroundColor = Color.black;
             playBirdButton.size = new Dim2(1, 0, 0.045, 0);
             playBirdButton.position = new Dim2(0.5, 0, 0, 0);
             playBirdButton.anchorPoint = new Vector2(0.5, 0);
             playBirdButton.backgroundTransparency = 0f;
             playBirdButton.setParent(playerBoard);
             playBirdButton.addClickListener((e) -> {
-                if (currentGame.getPlayerTurn() != p) return;
-                gameScreen.setAttribute("Action", "playBird");
-               ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                boolean prompting = promptBoardScreen.getAttributeOrDefault("Active", false);
+                if (!prompting) {
+                    if (currentGame.getPlayerTurn() != p) return;
+                    gameScreen.setAttribute("Action", "playBird");
+                    ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                }
             });
 
             UIFrame getFoodButton = new UIFrame("GetFoodButton" + p, this);
+            getFoodButton.backgroundColor = Color.black;
+            getFoodButton.setAttribute("Habitat", "forest");
             getFoodButton.size = new Dim2(1, 0, 0.315, 0);
             getFoodButton.position = new Dim2(0.5, 0, 0.045, 0);
             getFoodButton.anchorPoint = new Vector2(0.5, 0);
             getFoodButton.backgroundTransparency = 0f;
             getFoodButton.setParent(playerBoard);
             getFoodButton.addClickListener((e) -> {
-                if (currentGame.getPlayerTurn() != p) return;
-                gameScreen.setAttribute("Action", "getFood");
-               ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                boolean prompting = promptBoardScreen.getAttributeOrDefault("Active", false);
+                if (!prompting) {
+                    if (currentGame.getPlayerTurn() != p) return;
+                    gameScreen.setAttribute("Action", "getFood");
+                    ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                } else {
+                    if (getFoodButton.getAttributeOrDefault("Clickable", false)) {
+                        ((Consumer<UIElement>)promptBoardScreen.getAttribute("Choose")).accept(getFoodButton);
+                    }
+                }
             });
  
             UIFrame layEggsButton = new UIFrame("LayEggsButton" + p, this);
+            layEggsButton.backgroundColor = Color.black;
+            layEggsButton.setAttribute("Habitat", "grassland");
             layEggsButton.size = new Dim2(1, 0, 0.315, 0);
             layEggsButton.position = new Dim2(0.5, 0, 0.36, 0);
             layEggsButton.anchorPoint = new Vector2(0.5, 0);
             layEggsButton.backgroundTransparency = 0f;
             layEggsButton.setParent(playerBoard);
             layEggsButton.addClickListener((e) -> {
-                if (currentGame.getPlayerTurn() != p) return;
-                gameScreen.setAttribute("Action", "layEggs");
-               ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                boolean prompting = promptBoardScreen.getAttributeOrDefault("Active", false);
+                if (!prompting) {
+                    if (currentGame.getPlayerTurn() != p) return;
+                    gameScreen.setAttribute("Action", "layEggs");
+                    ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                } else {
+                    if (layEggsButton.getAttributeOrDefault("Clickable", false)) {
+                        ((Consumer<UIElement>)promptBoardScreen.getAttribute("Choose")).accept(layEggsButton);
+                    }
+                }
             });
 
             UIFrame drawBirdsButton = new UIFrame("DrawBirdsButton" + p, this);
-            drawBirdsButton.size = new Dim2(1, 0, 0.32, 0);
+            drawBirdsButton.backgroundColor = Color.black;
+            drawBirdsButton.setAttribute("Habitat", "wetland");
+            drawBirdsButton.size = new Dim2(1, 0, 0.325, 0);
             drawBirdsButton.position = new Dim2(0.5, 0, 0.675, 0);
             drawBirdsButton.anchorPoint = new Vector2(0.5, 0);
             drawBirdsButton.backgroundTransparency = 0f;
             drawBirdsButton.setParent(playerBoard);
             drawBirdsButton.addClickListener((e) -> {
-                if (currentGame.getPlayerTurn() != p) return;
-                gameScreen.setAttribute("Action", "drawBirds");
-               ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                boolean prompting = promptBoardScreen.getAttributeOrDefault("Active", false);
+                if (!prompting) {
+                    if (currentGame.getPlayerTurn() != p) return;
+                    gameScreen.setAttribute("Action", "drawBirds");
+                    ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                } else {
+                    if (drawBirdsButton.getAttributeOrDefault("Clickable", false)) {
+                        ((Consumer<UIElement>)promptBoardScreen.getAttribute("Choose")).accept(drawBirdsButton);
+                    }
+                }
             });
         }
 
@@ -1605,6 +1665,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                 if (items == null) return;
                 int i = (int)cyclingView.getAttribute("Index");
                 Card card = items.get(i);
+                if (card == null) return;
                 if (act.equals("drawBirds")) {
                     Selectable selected = toggleSelectCard(card);
                     if (selected != null) {
@@ -1639,7 +1700,11 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                     ((Runnable)confirmDrawFrame.getAttribute("Update")).run();
                     System.out.println(this.selected);
                 } else if (act.equals("playBird")) {
-                    
+                    UIImage item = cyclingView.getAttributeOrDefault("CurrentImage", null);
+                    if (item != null) {
+                        item.addTag("Selected");
+                        currentGame.playActions("playBird");
+                    }
                 }
             }
         });
@@ -1940,7 +2005,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupBackground.anchorPoint.center();
         popupBackground.setZIndex(100);
         popupBackground.visible = false;
-        popupBackground.addReleaseListener((e) -> {
+        /* popupBackground.addReleaseListener((e) -> {
             String type = popupBackground.getAttributeOrDefault("Type", null);
             if (type != null) {
                 if (type.equals("yesno")) {
@@ -1957,7 +2022,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                     }
                 }
             }
-        });
+        }); */
         popupBackground.setAttribute("Reset", (Runnable)() -> {
             popupBackground.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             popupContainer.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
@@ -2186,23 +2251,11 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             popupFoodChoiceIcon.ignore = true;
             popupFoodChoiceIcon.backgroundTransparency = 0f;
 
-            UIFrame popupFoodChoiceCover = new UIFrame(food + "PopupFoodChoiceCover", this);
-            popupFoodChoiceCover.size.full().dilate(1.04);
-            popupFoodChoiceCover.position.center();
-            popupFoodChoiceCover.anchorPoint.center();
-            popupFoodChoiceCover.backgroundTransparency = 0f;
-            popupFoodChoiceCover.backgroundColor = Color.black;
-            popupFoodChoiceCover.setParent(popupFoodChoiceFrame);
-            popupFoodChoiceCover.setZIndex(1);
-            popupFoodChoiceCover.ignore = true;
-            popupFoodChoiceCover.borderRadius = new Dim(0.3, 0);
-
             animOnHover(popupFoodChoiceFrame, popupFoodChoiceFrame);
             animOnPress(popupFoodChoiceFrame, popupFoodChoiceFrame);
-            pressCover(popupFoodChoiceFrame, popupFoodChoiceCover);
         }
 
-        promptPlayerFood("please", (a) -> System.out.println("clicked on " + a));
+        //promptPlayerFood("please", (a) -> System.out.println("clicked on " + a), Arrays.asList(new String[]{"berry", "worm"}));
     }
 
     public void choosePlayingScreen(UIElement screen) {
@@ -2412,6 +2465,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupPrompt.textTransparency = 0f;
         popupPrompt.text = question;
         for (UIElement f : UIElement.getByName("PopupFoodChoices").getChildren()) {
+            f.visible = true;
             String name = f.getName().substring(0, f.getName().length() - 9);
             UIFrame.getByName(name + "Frame").backgroundTransparency = 0f;
             UIFrame.getByName(name + "Frame").strokeTransparency = 0f;
@@ -2427,6 +2481,29 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             UIImage.getByName(name + "Icon").tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
         }
         popupPrompt.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+    }
+
+    public void promptPlayerFood(String question, Consumer<String> callback, List<String> show) {
+        promptPlayerFood(question, callback);
+        for (UIElement f : UIElement.getByName("PopupFoodChoices").getChildren()) {
+            f.visible = show.contains(f.getName().substring(0, f.getName().length() - 24).toLowerCase());
+        }
+    }
+
+    public void promptPlayerHabitat(String question, Consumer<String> callback, List<String> show) {
+        gameScreen.visible = false;
+        UIImage playerBoard = UIImage.getByName("PlayerBoard" + currentGame.getPlayerTurn());
+        playerBoard.setParent(UIFrame.getByName("PlayerBoardPromptContainer"));
+        playerBoard.visible = true;
+        UIFrame.getByName("GetFoodButton" + currentGame.getPlayerTurn()).setAttribute("Clickable", show.contains("forest"));
+        UIFrame.getByName("LayEggsButton" + currentGame.getPlayerTurn()).setAttribute("Clickable", show.contains("grassland"));
+        UIFrame.getByName("DrawBirdsButton" + currentGame.getPlayerTurn()).setAttribute("Clickable", show.contains("wetland"));
+        UIFrame.getByName("GetFoodButton" + currentGame.getPlayerTurn()).backgroundTransparency = show.contains("forest") ? 0f : 0.5f;
+        UIFrame.getByName("LayEggsButton" + currentGame.getPlayerTurn()).backgroundTransparency = show.contains("grassland") ? 0f : 0.5f;
+        UIFrame.getByName("DrawBirdsButton" + currentGame.getPlayerTurn()).backgroundTransparency = show.contains("wetland") ? 0f : 0.5f;
+        promptBoardScreen.setAttribute("Active", true);
+        promptBoardScreen.setAttribute("Done", callback);
+        promptBoardScreen.visible = true;
     }
 
     private TreeSet<Selectable> selected = new TreeSet<>();

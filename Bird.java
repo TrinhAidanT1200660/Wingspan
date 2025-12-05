@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -263,6 +264,17 @@ public enum Bird implements Card
 
 	// returns a String with the food required for this bird
 	public String getFoodRequired() { return foodRequired; }
+
+	public ArrayList<String> getFoodRequiredAsList() {
+		ArrayList<String> result = new ArrayList<>();
+		String[] split = foodRequired.split(" ");
+		for (String v : split) {
+			if (!v.equals("and") && !v.equals("or")) {
+				result.add(v.substring(1));
+			}
+		}
+		return result;
+	}
 
 	// returns a String with the bird's nest type
 	public String getNest() { return nest; }
