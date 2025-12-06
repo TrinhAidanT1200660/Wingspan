@@ -65,6 +65,7 @@ public class Game {
 		this.clearAndRegenerateFaceUpTray(); // end of rounds has the tray cleared and regenerated
 		this.resetAllBirdsStatus(); // makes sure all pink birds are reset just in case
 		this.startingPlayerTurn = this.startingPlayerTurn % playerList.size() + 1; // shouldn't need to reset back to 1 but keep it just in case
+        this.playerTurn = this.startingPlayerTurn; // sets player turn to the startingPlayerToken
 		for(Player p : this.playerList)
 			p.setActionCubes(8 - this.roundsPlayed); // 8 is beginning amount and players lose 1 action cube at the end of each round
 	}
@@ -270,11 +271,14 @@ public class Game {
 		// now directly activates ability after searching through the list
 		for(Player p : playerList)
 			if(p != playerList.get(playerTurn - 1)) // pink cards only activate on ANOTHER PLAYER's action, cant be your own
+            {
 				p.getBoard().values().stream()
 				.flatMap(List::stream) // makes into list
 				.filter(b -> birdNames.contains(b.getName().toUpperCase())) // checks each bird of the player if they have the bird
-				// .filter(b -> abilityConfirmation(p, b)). this is a placeholder for the popup method that will ask yes or no question and return a boolean. for now it is just ignored. ignore the method name too
-				.forEach(b -> b.performAction(this, p)); // if player has the bird and confirms then activate ability
+				.forEach(b -> panel.promptPlayer("Would you like to activate " + b.getName() + "'s ability?", "Yes", "No", (y) -> {
+                    if(y) b.performAction(this, p); // if player has the bird and confirms desire to activate then activate ability
+                }));
+            }
 	}
 
 	// resets all pink birds status to not played yet; used at end of rounds
@@ -311,10 +315,9 @@ public class Game {
 			if(bird.getActionColor().equalsIgnoreCase("BROWN")) // checks if it's a brown ability
 			{
 				// UI should popup a yes or no asking whether player desires to activate the ability
-				// For now, the boolean will be true and ability will activate
-				boolean activate = true;
-				if(activate)
-					bird.performAction(this, player);
+                panel.promptPlayer("Would you like to activate " + bird.getName() + "'s ability?", "Yes", "No", (y) -> {
+                   if(y) bird.performAction(this, player);
+                });
 			}
 		}
 	}
@@ -364,20 +367,43 @@ public class Game {
 	// resets all the bonus cards to 1 in deck (allows for redraw)
 	public void resetBonusDeckCount()
 	{
+        Set<BonusCard> bonusInUse = new HashSet<>();
+
+        // finds all bonus cards in play
+        for(Player p : playerList)
+            bonusInUse.addAll(p.getBonusHand());
+
+        // goes through all bonus cards and makes sure they're not in play; if they're not, then reset count
 		List<BonusCard> bonusCards = Arrays.asList(BonusCard.values());
 		for(BonusCard b : bonusCards)
-			b.resetCardDeckCount();
+            if(!bonusInUse.contains(b))
+			    b.resetCardDeckCount();
 	}
 
-	// resets all the bird cards to 1 in deck (allows for redraw)
+	// resets all the bird cards that haven't been played or in a hand currently to 1 in deck (allows for redraw)
 	public void resetBirdDeckCount()
 	{
+        Set<Bird> birdsInUse = new HashSet<>();
+
+        // finds all bird cards in use
+        for(Player p: this.playerList)
+        {
+            birdsInUse.addAll(p.getBoard().values().stream().flatMap(List::stream).map(card -> card.getBirdEnum()).toList());
+            birdsInUse.addAll(p.getBirdHand());
+        }
+
+        // goes through all bird cards and makes sure they're not in play; if they're not, then reset count
 		List<Bird> birdCards = Arrays.asList(Bird.values());
 		for(Bird b : birdCards)
-			b.resetCardDeckCount();
+            if(!birdsInUse.contains(b))
+			    b.resetCardDeckCount();
 	}
 
     // RETURN METHODS
+
+    // returns the panel (used probably only by birdAction)
+    public WingspanPanel getPanel() { return this.panel; }
+
     public ArrayList<Player> getPlayers() {
         return playerList;
     }
@@ -603,8 +629,10 @@ public class Game {
 		if(birdInstance.getActionColor().equalsIgnoreCase("WHITE"))
 		{
 			// ui should have a prompt that asks whether the player wants to activate the bird's ability and return a boolean; for now it's true
-			boolean activate = true;
-			if(activate) birdInstance.performAction(this, p);
+
+			panel.promptPlayer("Would you like to activate " + bird.getName() + "'s ability?", "Yes", "No", (y) -> {
+                if (y) birdInstance.performAction(this, p);
+            });
 		}
 		if(habitat.equals("forest"))
 			pinkAbilityActivation("playForestAndGetWorm");
