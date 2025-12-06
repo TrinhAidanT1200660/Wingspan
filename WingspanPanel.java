@@ -46,7 +46,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             deckScreen.visible = true;
             birdFeederScreen.visible = true;
             handScreen.visible = true;
-            Timer t = new Timer(1000, (e) -> {
+            Timer t = new Timer(3000, (e) -> {
                 resourceChoosingScreen.visible = false;
                 gameScreen.visible = false;
                 cyclingView.visible = false;
