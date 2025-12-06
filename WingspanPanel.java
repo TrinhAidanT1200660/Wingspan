@@ -21,7 +21,7 @@ import javax.swing.Timer;
 public class WingspanPanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
     public Game currentGame;
     private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, promptBoardScreen, chosenScreen, boardScreen, deckScreen, birdFeederScreen, handScreen, birdContainer, cyclingView, popupBackground, popupContainer, popupChoice1Frame, popupChoice2Frame;
-    private UIText loadingTitle, popupPrompt, popupChoice1, popupChoice2;
+    private UIText loadingTitle, popupPrompt, playerBoardPrompt, popupChoice1, popupChoice2;
 
     public WingspanPanel() {
         currentGame = new Game(this);
@@ -49,6 +49,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             Timer t = new Timer(1000, (e) -> {
                 resourceChoosingScreen.visible = false;
                 gameScreen.visible = false;
+                cyclingView.visible = false;
                 promptBoardScreen.visible = false;
                 UIElement.getByName("StartScreen").visible = true;
                 boardScreen.visible = true;
@@ -713,20 +714,31 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         playerBoardPromptContainer.backgroundTransparency = 0f;
         playerBoardPromptContainer.setParent(promptBoardScreen);
 
+        playerBoardPrompt = new UIText("PlayerBoardPrompt", this);
+        playerBoardPrompt.setParent(promptBoardScreen);
+        playerBoardPrompt.backgroundTransparency = 0f;
+        playerBoardPrompt.anchorPoint.center();
+        playerBoardPrompt.position = new Dim2(0.5, 0, 0.9, 0);
+        playerBoardPrompt.size = new Dim2(0.9, 0, 0.12, 0);
+        playerBoardPrompt.textScaled = true;
+        playerBoardPrompt.textColor = Color.white;
+        playerBoardPrompt.text = "hi";
+
         promptBoardScreen.setAttribute("Choose", (Consumer<UIElement>)(UIElement choice) -> {
             Consumer<String> done = promptBoardScreen.getAttributeOrDefault("Done", null);
             UIElement playerBoard = playerBoardPromptContainer.getChildren().getFirst();
             playerBoard.setParent(UIFrame.getByName("Boards"));
             int playerIndex = playerBoard.getAttribute("PlayerIndex");
+            UIFrame.getByName("PlayBirdButton" + playerIndex).backgroundTransparency = 0f;
             UIFrame.getByName("GetFoodButton" + playerIndex).backgroundTransparency = 0f;
             UIFrame.getByName("LayEggsButton" + playerIndex).backgroundTransparency = 0f;
             UIFrame.getByName("DrawBirdsButton" + playerIndex).backgroundTransparency = 0f;
-            if (done != null) {
-                done.accept(choice.getAttributeOrDefault("Habitat", null));
-            }
             promptBoardScreen.setAttribute("Active", false);
             promptBoardScreen.visible = false;
             gameScreen.visible = true;
+            if (done != null) {
+                done.accept(choice.getAttributeOrDefault("Habitat", null));
+            }
         });
         
         UIFrame infoCorner = new UIFrame("GameInfoCorner", this);
@@ -965,6 +977,10 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         boards.anchorPoint.center();
         boards.setParent(boardScreen);
         boards.setAttribute("Index", 1);
+        boards.setAttribute("ShowBoardOfCurrent", (Runnable)() -> {
+            boards.setAttribute("Index", currentGame.getPlayerTurn());
+            ((Runnable)boards.getAttribute("ViewBoard")).run();
+        });
         boards.setAttribute("ViewBoard", (Runnable)() -> {
             int index = (int)boards.getAttribute("Index");
             if (index == currentGame.getPlayerTurn()) {
@@ -1105,10 +1121,12 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                 else if (birdAmount < 5) birdGet = 2;
                 else birdGet = 3;
                 gameScreen.setAttribute("CanSelectAmount", birdGet);
-                //System.out.println(p.hasEnoughEggs(1)); 
-                promptPlayer("Would you like to spend an egg to be able to draw one extra card?", "Yes", "No", (b) -> {
-                    gameScreen.setAttribute("TradingEgg", b);
-                });
+                if (p.hasEnoughEggs(1)) {
+                    promptPlayer("Would you like to spend an egg to be able to draw one extra card?", "Yes", "No", (b) -> {
+                        gameScreen.setAttribute("TradingEgg", b);
+                        gameScreen.setAttribute("CanSelectAmount", (int)gameScreen.getAttribute("CanSelectAmount") + (b ? 1 : 0));
+                    });
+                }
                 ((Runnable)(UIElement.getByName("ConfirmDrawFrame").getAttribute("Update"))).run();
             } else choosePlayingScreen(boardScreen);
             this.repaint();
@@ -1522,7 +1540,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         cyclingView.anchorPoint.center();
         cyclingView.backgroundTransparency = 0f;
         cyclingView.keepAspectRatio = true;
-        cyclingView.visible = false;
+        cyclingView.visible = true;
         cyclingView.setParent(gameScreen);
         cyclingView.setZIndex(98);
 
@@ -1570,7 +1588,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         });
 
         UIImage item1 = new UIImage("Item1", this);
-        item1.size = new Dim2(0.15, 0, 0.3, 0).dilate(2);
+        item1.size = new Dim2(0.1265, 0, 0.3, 0).dilate(2);
         item1.position = new Dim2(0.5, 0, 0.45, 0);
         item1.anchorPoint.center();
         item1.backgroundTransparency = 0f;
@@ -1580,7 +1598,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
 
         UIImage item1Check = deckCard1Check.clone("Item1Check");
         item1Check.setParent(item1);
-        item1Check.position = new Dim2(0.925, 0, 0, 0);
+        item1Check.position = new Dim2(0.99, 0, 0.005, 0);
 
         UIImage item2 = (UIImage)item1.clone("Item2");
         item2.size.dilate(0.9);
@@ -1726,7 +1744,10 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                 selectButtonFrame.setAttribute("Clickable", can);
                 selectButtonFrame.backgroundColor = can ? Color.white : Color.gray;
                 selectButton.text = "Play";
-            } else selectButton.text = isSelected(c) ? "Deselect" : "Select";
+            } else {
+                selectButtonFrame.backgroundColor = Color.white;
+                selectButton.text = isSelected(c) ? "Deselect" : "Select";
+            }
         });
 
         cyclingView.setAttribute("CurrentImage", item1);
@@ -1816,13 +1837,13 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             cyclingView.setAttribute("Index", i);
             current.setZIndex(-2);
             current.tweenPosition(new Dim2(0.65, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
-            current.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
+            current.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
             next.setZIndex(0);
             next.tweenPosition(new Dim2(0.5, 0, 0.45, 0), 0.3, Tween.QUAD_IN_OUT);
-            next.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2), 0.3, Tween.QUAD_IN_OUT);
+            next.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
             prev.setZIndex(-2);
             prev.tweenPosition(new Dim2(0.35, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
-            prev.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
+            prev.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
             UIImage temp = (UIImage)cyclingView.getAttribute("CurrentImage");
             cyclingView.setAttribute("CurrentImage", cyclingView.getAttribute("NextImage"));
             cyclingView.setAttribute("NextImage", cyclingView.getAttribute("PrevImage"));
@@ -1849,13 +1870,13 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             cyclingView.setAttribute("Index", i);
             current.setZIndex(-2);
             current.tweenPosition(new Dim2(0.35, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
-            current.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
+            current.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
             prev.setZIndex(0);
             prev.tweenPosition(new Dim2(0.5, 0, 0.45, 0), 0.3, Tween.QUAD_IN_OUT);
-            prev.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2), 0.3, Tween.QUAD_IN_OUT);
+            prev.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2), 0.3, Tween.QUAD_IN_OUT);
             next.setZIndex(-2);
             next.tweenPosition(new Dim2(0.65, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
-            next.tweenSize(new Dim2(0.15, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
+            next.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
             UIImage temp = (UIImage)cyclingView.getAttribute("CurrentImage");
             cyclingView.setAttribute("CurrentImage", cyclingView.getAttribute("PrevImage"));
             cyclingView.setAttribute("PrevImage", cyclingView.getAttribute("NextImage"));
@@ -2376,13 +2397,13 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         ArrayList<UIElement> rows = playerCardsContainer.getChildren();
         UIElement lastRow = rows.get(rows.size() - 1);
         //UIFrame cardContainer = new UIFrame("HandCard" + p + "_" + rows.size() + "_" + lastRow.getChildren().size(), this);
-        UIFrame cardContainer = new UIFrame(card.getName() + "HandCard", this);
+        UIFrame cardContainer = new UIFrame(card.getName() + "HandCard" + p, this);
         cardContainer.size = new Dim2(0.22, 0, 1, 0);
         cardContainer.backgroundTransparency = 0f;
         if (lastRow.getChildren().size() >= 5) lastRow = createRow(p);
         cardContainer.setParent(lastRow);
         //UIImage cardImage = new UIImage("HandCardImage" + p + "_" + rows.size() + "_" + lastRow.getChildren().size(), this);
-        UIImage cardImage = new UIImage(card.getName() + "HandCardImage", this);
+        UIImage cardImage = new UIImage(card.getName() + "HandCardImage" + p, this);
         cardImage.size.full();
         cardImage.position.center();
         cardImage.anchorPoint.center();
@@ -2394,7 +2415,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         animOnPress(cardImage, cardImage);
         cardImage.setAttribute("Card", card);
         cardImage.addReleaseListener(e -> {
-            Player player = currentGame.getPlayers().get(p);
+            Player player = currentGame.getPlayers().get(p - 1);
             ArrayList<Card> all = new ArrayList<>(player.getBirdHand()); all.addAll(player.getBonusHand());
             cyclingView.setAttribute("Items", all);
             cyclingView.setAttribute("Index", all.indexOf(cardImage.getAttribute("Card")));
@@ -2402,12 +2423,12 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         });
     }
 
-    public void removeFirstFromPlayerHand(Card card) {
-        UIFrame frame = UIFrame.getByName(card.getName() + "HandCard");
+    public void removeFirstFromPlayerHand(int p, Card card) {
+        UIFrame frame = UIFrame.getByName(card.getName() + "HandCard" + p);
         UIElement row = frame.getParent();
         ArrayList<UIElement> allRows = row.getParent().getChildren();
         int nextI = allRows.indexOf(row) + 1;
-        if (allRows.size() > nextI - 1) {
+        if (allRows.size() > nextI) {
             UIElement nextRow = allRows.get(nextI);
             if (nextRow != null && !nextRow.getChildren().isEmpty()) {
                 nextRow.getChildren().getFirst().setParent(row);
@@ -2511,12 +2532,14 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
 
     public void promptPlayerHabitat(String question, Consumer<String> callback, List<String> show) {
         gameScreen.visible = false;
+        playerBoardPrompt.text = question;
         UIImage playerBoard = UIImage.getByName("PlayerBoard" + currentGame.getPlayerTurn());
         playerBoard.setParent(UIFrame.getByName("PlayerBoardPromptContainer"));
         playerBoard.visible = true;
         UIFrame.getByName("GetFoodButton" + currentGame.getPlayerTurn()).setAttribute("Clickable", show.contains("forest"));
         UIFrame.getByName("LayEggsButton" + currentGame.getPlayerTurn()).setAttribute("Clickable", show.contains("grassland"));
         UIFrame.getByName("DrawBirdsButton" + currentGame.getPlayerTurn()).setAttribute("Clickable", show.contains("wetland"));
+        UIFrame.getByName("PlayBirdButton" + currentGame.getPlayerTurn()).backgroundTransparency = 0.5f;
         UIFrame.getByName("GetFoodButton" + currentGame.getPlayerTurn()).backgroundTransparency = show.contains("forest") ? 0f : 0.5f;
         UIFrame.getByName("LayEggsButton" + currentGame.getPlayerTurn()).backgroundTransparency = show.contains("grassland") ? 0f : 0.5f;
         UIFrame.getByName("DrawBirdsButton" + currentGame.getPlayerTurn()).backgroundTransparency = show.contains("wetland") ? 0f : 0.5f;

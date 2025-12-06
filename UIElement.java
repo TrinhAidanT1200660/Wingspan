@@ -725,6 +725,7 @@ class UIElement {
 
     public UIElement(String name, JPanel panel) {
         getListByName(name).add(this);
+        System.out.println("adding " + name + ": " + getListByName(name));
         this.panel = panel;
         this.name = name;
         // this is making the root element in case there isn't one
@@ -766,10 +767,11 @@ class UIElement {
     }
 
     public void setName(String name) {
-        ArrayList<UIElement> list = getListByName(name);
-        list.remove(this);
+        ArrayList<UIElement> oldList = getListByName(this.name);
+        ArrayList<UIElement> newList = getListByName(name);
+        oldList.remove(this);
         this.name = name;
-        list.add(this);
+        newList.add(this);
     }
 
     public String getName() {
@@ -777,7 +779,8 @@ class UIElement {
     }
 
     public static UIElement getByName(String name) {
-        return getListByName(name).getFirst();
+        ArrayList<UIElement> list = getListByName(name);
+        return list.isEmpty() ? null : list.getFirst();
     }
 
     private static HashSet<UIElement> getTaggedList(String tag) {
@@ -814,7 +817,8 @@ class UIElement {
         Iterator<UIElement> listIterator = list.iterator();
         while (listIterator.hasNext()) {
             UIElement n = listIterator.next();
-            n.removeTag(tag);
+            n.tags.remove(tag);
+            listIterator.remove();
         }
         list.clear();
     }
@@ -1542,8 +1546,8 @@ class UIElement {
             parent.children.remove(this);
             parent = null;
         }
-        for (UIElement child : children) {
-            child.destroy();
+        while (!children.isEmpty()) {
+            children.get(0).destroy();
         }
         children.clear();
         attributes.clear();
@@ -1567,7 +1571,7 @@ class UIFrame extends UIElement {
     }
 
     public static UIFrame getByName(String name) {
-        return (UIFrame)getByName(name);
+        return (UIFrame)(UIElement.getByName(name));
     }
 }
 
@@ -1824,7 +1828,7 @@ class UIImage extends UIElement {
     }
 
     public static UIImage getByName(String name) {
-        return (UIImage)getByName(name);
+        return (UIImage)(UIElement.getByName(name));
     }
 }
 
@@ -1976,7 +1980,7 @@ class UIText extends UIElement {
     }
 
     public static UIText getByName(String name) {
-        return (UIText)getByName(name);
+        return (UIText)(UIElement.getByName(name));
     }
 
     private ArrayList<String> wrapText(Graphics2D g2d) {
