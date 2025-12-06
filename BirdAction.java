@@ -165,11 +165,12 @@ public enum BirdAction implements BirdActionInterface
 		if(gameContext.grabFood("seed", player, 1)) // this method auto adds the food into player
 		{
 			// need some UI prompt to ask the player whether they want to cache the food or not; false for now
-			boolean cached = false;
-			if(cached && player.removeFood("seed", 1))
-			{
-				birdInstance.cacheFood(1);
-			}
+            gameContext.getPanel().promptPlayer("Would you like to cache the seed on the bird?", "Yes", "No", (y) -> {
+                if (y) {
+                    if(player.removeFood("seed", 1))
+                        birdInstance.cacheFood(1);
+                }
+            });
 		}
 	}),	
 	// This ability allows the player to grab 1 food from the birdFeeder
@@ -411,76 +412,77 @@ public enum BirdAction implements BirdActionInterface
 	// This ability allows a player to tuck a bird card behind the bird and if done, draw 1 bird card
 	// AMERICAN_ROBIN | AMERICAN_COOT | BARN_SWALLOW | HOUSE_FINCH | PURPLE_MARTIN | RING_BILLED_GULL | TREE_SWALLOW | VIOLET_GREEN_SWALLOW | YELLOW_RUMPED_WARBLER
 	TUCK1BIRDANDDRAW1BIRD((gameContext, player, birdInstance) -> {
-		// UI has the player choose which card they want to remove / tuck, for now will be false
-		boolean tuck = false;
-		if(tuck && !player.getBirdHand().isEmpty())
-		{
-			Bird card = player.getBirdHand().remove(0); // these lines are iffy will need to look over when ui good
-			birdInstance.tuckCard(1);
-			player.addBirdHand(gameContext.pullRandomBirds(1).get(0));
-		}
+		// UI has the player choose which card they want to remove / tuck
+        gameContext.getPanel().promptPlayer("Would you like to tuck a bird card behind " + birdInstance.getName() + " and draw a bird afterwards?", "Yes", "No", (y) -> {
+            if(y && !player.getBirdHand().isEmpty())  {
+                // now here has to be more UI asking for which bird card to remove
+                birdInstance.tuckCard(1);
+                player.addBirdHand(gameContext.pullRandomBirds(1).getFirst());
+            }
+        });
 	}),
 	// tuck 1 bird card from your hand behind this bird and if you do gain 1 berry
 	// CEDAR_WAXWING
 	TUCK1BIRDANDGET1BERRY((gameContext, player, birdInstance) -> {
-		// UI has the player choose which card they want to remove / tuck, for now will be false
-		boolean tuck = false;
-		if(tuck && !player.getBirdHand().isEmpty())
-		{
-			Bird card = player.getBirdHand().remove(0);
-			birdInstance.tuckCard(1);
-			player.addFood("berry", 1);
-		}
+		// UI has the player choose which card they want to remove / tuck
+        gameContext.getPanel().promptPlayer("Would you like to tuck a bird card behind " + birdInstance.getName() + " and gain a berry afterwards?", "Yes", "No", (y) -> {
+            if(y && !player.getBirdHand().isEmpty())  {
+                // now here has to be more UI asking for which bird card to remove
+                birdInstance.tuckCard(1);
+                player.addFood("berry", 1);
+            }
+        });
 	}),
 	// tuck 1 bird card from your hand behind this bird and if you do gain 1 seed
 	// DARK_EYED_JUNCO | PINE_SISKIN
 	TUCK1BIRDANDGET1SEED((gameContext, player, birdInstance) -> {
 		// UI has the player choose which card they want to remove / tuck, for now will be false
-		boolean tuck = false;
-		if(tuck && !player.getBirdHand().isEmpty())
-		{
-			Bird card = player.getBirdHand().remove(0);
-			birdInstance.tuckCard(1);
-			player.addFood("seed", 1);
-		}
+        gameContext.getPanel().promptPlayer("Would you like to tuck a bird card behind " + birdInstance.getName() + " and gain a seed afterwards?", "Yes", "No", (y) -> {
+            if(y && !player.getBirdHand().isEmpty())  {
+                // now here has to be more UI asking for which bird card to remove
+                birdInstance.tuckCard(1);
+                player.addFood("seed", 1);
+            }
+        });
 	}),
 	// tuck 1 bird card from your hand behind this bird and if you do gain 1 seed or worm of your choose
 	// PYGMY_NUTHATCH
 	TUCK1BIRDANDGET1SEEDORWORM((gameContext, player, birdInstance) -> {
 		// UI has the player choose which card they want to remove / tuck, for now will be false
-		boolean tuck = false;
-		if(tuck && !player.getBirdHand().isEmpty())
-		{
-			Bird card = player.getBirdHand().remove(0);
-			birdInstance.tuckCard(1);
-			// UI has the player choose which food they want to get, for now will be seed
-			String food = "seed";
-			player.addFood("food", 1);
-		}
+        gameContext.getPanel().promptPlayer("Would you like to tuck a bird card behind " + birdInstance.getName() + " and gain a berry or seed afterwards?", "Yes", "No", (y) -> {
+            if(y && !player.getBirdHand().isEmpty())  {
+                // now here has to be more UI asking for which bird card to remove
+                birdInstance.tuckCard(1);
+                gameContext.getPanel().promptPlayer("Which food would you like?" ,"Seed", "Worm", (z) -> {
+                   if(z) player.addFood("seed", 1);
+                   else player.addFood("worm", 1);
+                });
+            }
+        });
 	}),
-	// tuck 1 bird card from your hand behind this bird and if you do gain 1 seed
+	// tuck 1 bird card from your hand behind this bird and if you do gain 1 worm
 	// VAUXS_SWIFT
 	TUCK1BIRDANDGET1WORM((gameContext, player, birdInstance) -> {
 		// UI has the player choose which card they want to remove / tuck, for now will be false
-		boolean tuck = false;
-		if(tuck && !player.getBirdHand().isEmpty())
-		{
-			Bird card = player.getBirdHand().remove(0);
-			birdInstance.tuckCard(1);
-			player.addFood("seed", 1);
-		}
+        gameContext.getPanel().promptPlayer("Would you like to tuck a bird card behind " + birdInstance.getName() + " and gain a seed afterwards?", "Yes", "No", (y) -> {
+            if(y && !player.getBirdHand().isEmpty())  {
+                // now here has to be more UI asking for which bird card to remove
+                birdInstance.tuckCard(1);
+                player.addFood("worm", 1);
+            }
+        });
 	}),
 	// tuck 1 bird from hand behind the bird and if done, lay 1 egg on this bird
 	// BREWERS_BLACKBIRD | BUSHTIT | COMMON_GRACKLE | DICKCISSEL | RED_WINGED_BLACKBIRD | WHITE_THROATED_SWIFT | YELLOW_HEADED_BLACKBIRD
 	TUCK1BIRDANDLAY1EGG((gameContext, player, birdInstance) -> {
 		// UI has the player choose which card they want to remove / tuck, for now will be false
-		boolean tuck = false;
-		if(tuck && !player.getBirdHand().isEmpty())
-		{
-			Bird card = player.getBirdHand().remove(0);
-			birdInstance.tuckCard(1);
-			birdInstance.addEggs(1);
-		}
+        gameContext.getPanel().promptPlayer("Would you like to tuck a bird card behind " + birdInstance.getName() + " and gain a seed afterwards?", "Yes", "No", (y) -> {
+            if(y && !player.getBirdHand().isEmpty())  {
+                // now here has to be more UI asking for which bird card to remove
+                birdInstance.tuckCard(1);
+                birdInstance.addEggs(1);
+            }
+        });
 	}),
 	// FROM NOW ON ARE PINK BIRD ABILITIES
 	// when player plays a bird in the forest, gain 1 worm from supply
@@ -498,7 +500,6 @@ public enum BirdAction implements BirdActionInterface
 		if(!birdInstance.checkPlayedThisTurn())
 		{
 			// UI will have to ask the player to choose a bird card from their hand; for now, empty as if they declined ability
-			gameContext.showHand(player);
 			Bird card = null;
 			if(card == null) return; // returns to not activate ability
 			birdInstance.tuckCard(1);
