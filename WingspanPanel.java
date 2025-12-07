@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import javax.swing.JPanel;
@@ -20,8 +21,9 @@ import javax.swing.Timer;
 
 public class WingspanPanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
     public Game currentGame;
-    private UIElement root, transition, startMenu, resourceChoosingScreen, gameScreen, promptBoardScreen, promptBonusScreen, chosenScreen, boardScreen, deckScreen, birdFeederScreen, handScreen, birdContainer, cyclingView, popupBackground, popupContainer, popupChoice1Frame, popupChoice2Frame;
-    private UIText loadingTitle, popupPrompt, playerBoardPrompt, playerBonusPrompt, popupChoice1, popupChoice2;
+    private UIElement root, viewingBirdStats, transition, startMenu, resourceChoosingScreen, gameScreen, promptBoardScreen, promptBonusScreen, chosenScreen, boardScreen, deckScreen, birdFeederScreen, handScreen, birdContainer, cyclingView, popupBackground, popupContainer, popupChoice1Frame, popupChoice2Frame;
+    private UIText loadingTitle, popupPrompt, playerBoardPrompt, playerBonusPrompt, popupChoice1, popupChoice2, heldEggsStat, cachedFoodStat, tuckedCardsStat;
+    private UIImage showCardDuringPopup;
 
     public WingspanPanel() {
         currentGame = new Game(this);
@@ -747,6 +749,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             Consumer<BonusCard> done = promptBonusScreen.getAttributeOrDefault("Done", null);
             if (done != null) {
                 done.accept(choice.getAttributeOrDefault("Card", null));
+                promptBonusScreen.setAttribute("Done", null);
             }
             promptBonusScreen.visible = false;
             gameScreen.visible = true;
@@ -783,6 +786,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             promptBoardScreen.visible = false;
             gameScreen.visible = true;
             if (done != null) {
+                promptBoardScreen.setAttribute("Done", null);
                 done.accept(choice.getAttributeOrDefault("Habitat", null));
             }
         });
@@ -1629,7 +1633,6 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         cyclingView.backgroundTransparency = 0f;
         cyclingView.keepAspectRatio = true;
         cyclingView.visible = true;
-        cyclingView.setParent(gameScreen);
         cyclingView.setZIndex(98);
 
         UIFrame cyclingViewContent = new UIFrame("CyclingViewContent", this);
@@ -1638,6 +1641,50 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         cyclingViewContent.anchorPoint.center();
         cyclingViewContent.backgroundTransparency = 0f;
         cyclingViewContent.setParent(cyclingView);
+
+        viewingBirdStats = new UIFrame("ViewingBirdStats", this);
+        viewingBirdStats.size = new Dim2(0.1265*2, 0, 0.12, 0);
+        viewingBirdStats.backgroundTransparency = 0f;
+        viewingBirdStats.anchorPoint.center();
+        viewingBirdStats.position = new Dim2(0.5, 0, 0.09, 0);
+        viewingBirdStats.setParent(cyclingView);
+
+        viewingBirdStats.layout = bonusChoicesLayout.clone();
+        viewingBirdStats.layout.direction = ListLayout.VERTICAL;
+
+        heldEggsStat = new UIText("HeldEggsStat", this);
+        heldEggsStat.backgroundTransparency = 0f;
+        heldEggsStat.textColor = Color.white;
+        heldEggsStat.textStrokeColor = Color.black;
+        heldEggsStat.textStrokeTransparency = 1f;
+        heldEggsStat.textStrokeThickness = new Dim(0.02, 0);
+        heldEggsStat.size = new Dim2(1, 0, 0.3, 0);
+        heldEggsStat.textScaled = true;
+        heldEggsStat.text = "0 Held Eggs";
+        heldEggsStat.setParent(viewingBirdStats);
+
+        tuckedCardsStat = heldEggsStat.clone("TuckedCardsStat");
+        tuckedCardsStat.text = "0 Tucked Cards";
+        tuckedCardsStat.setParent(viewingBirdStats);
+
+        cachedFoodStat = heldEggsStat.clone("CachedFoodStat");
+        cachedFoodStat.text = "0 Cached Food";
+        cachedFoodStat.setParent(viewingBirdStats);
+
+        viewingBirdStats.setAttribute("Update", (Runnable)() -> {
+            UIImage current = cyclingView.getAttributeOrDefault("CurrentImage", null);
+            System.out.println(current);
+            if (current != null) {
+                BirdInstance bird = current.getAttributeOrDefault("BirdInstance", null);
+                System.out.println(bird);
+                if (bird != null) {
+                    heldEggsStat.text = bird.getEggStored() + " Held Eggs";
+                    tuckedCardsStat.text = bird.getTuckedAmount() + " Tucked Cards";
+                    cachedFoodStat.text = bird.getCachedFoodAmount() + " Cached Food";
+                    viewingBirdStats.visible = true;
+                } else viewingBirdStats.visible = false;
+            }
+        });
 
         UIFrame selectButtonFrame = new UIFrame("SelectButtonFrame", this);
         selectButtonFrame.size = new Dim2(0.2, 0, 0.1, 0).dilate(1.2);
@@ -1672,7 +1719,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         cyclingViewBackground.setZIndex(-1);
         cyclingViewBackground.setParent(cyclingView);
         cyclingViewBackground.addReleaseListener((e) -> {
-            ((Runnable)cyclingView.getAttribute("Stop")).run();
+            if (cyclingView.getAttributeOrDefault("Clickoutable", false)) ((Runnable)cyclingView.getAttribute("Stop")).run();
         });
 
         UIImage item1 = new UIImage("Item1", this);
@@ -1768,7 +1815,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                 gameScreen.setAttribute("TradingBird", false);
                 Consumer<Bird> done = gameScreen.getAttributeOrDefault("DoneWithTradingBird", null);
                 if (done != null) {
-                    gameScreen.setAttribute("DoneWithTradingBird", false);
+                    gameScreen.setAttribute("DoneWithTradingBird", null);
                     ArrayList<Card> items = (ArrayList<Card>) cyclingView.getAttribute("Items");
                     if (items == null) return;
                     int i = (int) cyclingView.getAttribute("Index");
@@ -1836,6 +1883,10 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         });
 
         selectButtonFrame.setAttribute("UpdateVisibility", (Runnable)() -> {
+            if (promptBoardScreen.getAttributeOrDefault("Active", false)) {
+                selectButtonFrame.visible = false;
+                return;
+            }
             ArrayList<Card> items = (ArrayList<Card>)cyclingView.getAttribute("Items");
             int i = (int)cyclingView.getAttribute("Index");
             String act = gameScreen.getAttributeOrDefault("Action", "");
@@ -1845,9 +1896,13 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             if (!selectButtonFrame.visible) return;
             Card c = items.get(i).getClass() != BonusCard.class ? items.get(i) : null;
             if (tradingBird) {
+                cyclingView.setAttribute("Clickoutable", false);
+                exitCyclingViewFrame.visible = false;
                 selectButtonFrame.backgroundColor = Color.white;
                 selectButton.text = "Trade";
             } else {
+                cyclingView.setAttribute("Clickoutable", true);
+                exitCyclingViewFrame.visible = true;
                 if (c != null && act.equals("playBird")) {
                     Player p = currentGame.getPlayers().get(currentGame.getPlayerTurn() - 1);
                     Bird bird = (Bird) c;
@@ -1880,6 +1935,12 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             ((UIImage)cyclingView.getAttribute("CurrentImage")).setAttribute("Card", currentCard);
             ((UIImage)cyclingView.getAttribute("NextImage")).setAttribute("Card", nextCard);
             ((UIImage)cyclingView.getAttribute("PrevImage")).setAttribute("Card", prevCard);
+            if (cyclingView.getAttribute("BirdInstanceItems") != null) {
+                ArrayList<BirdInstance> birds = cyclingView.getAttribute("BirdInstanceItems");
+                Optional<BirdInstance> found = birds.stream().filter(b -> b.getBirdEnum() == currentCard).findFirst();
+                ((UIImage)cyclingView.getAttribute("CurrentImage")).setAttribute("BirdInstance", found.isPresent() ? found.get() : null);
+            }
+            ((Runnable)viewingBirdStats.getAttribute("Update")).run();
             cyclingViewBackground.backgroundTransparency = 0f;
             item1.imageTransparency = 0f;
             item2.imageTransparency = 0f;
@@ -1910,17 +1971,26 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             exitCyclingViewButton.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
             selectButtonFrame.tweenBackgroundTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
             selectButton.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
-
+            heldEggsStat.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            cachedFoodStat.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            tuckedCardsStat.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            heldEggsStat.tweenTextStrokeTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            cachedFoodStat.tweenTextStrokeTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+            tuckedCardsStat.tweenTextStrokeTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
         });
 
         cyclingView.setAttribute("Stop", (Runnable) () -> {
             if ((boolean)cyclingView.getAttribute("db")) return;
             cyclingView.setAttribute("db", true);
             cyclingView.setAttribute("Running", false);
+            cyclingView.setAttribute("BirdInstanceItems", null);
             cyclingViewBackground.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             item1.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             item2.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             item3.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            item1.setAttribute("BirdInstance", null);
+            item2.setAttribute("BirdInstance", null);
+            item3.setAttribute("BirdInstance", null);
             item1Check.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             item2Check.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             item3Check.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
@@ -1929,6 +1999,12 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             exitCyclingViewButton.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             selectButtonFrame.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             selectButton.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            heldEggsStat.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            cachedFoodStat.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            tuckedCardsStat.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            heldEggsStat.tweenTextStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            cachedFoodStat.tweenTextStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            tuckedCardsStat.tweenTextStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             Timer t = new Timer(300, e -> {
                 cyclingView.visible = false;
                 exitCyclingViewFrame.visible = false;
@@ -1952,7 +2028,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             current.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
             next.setZIndex(0);
             next.tweenPosition(new Dim2(0.5, 0, 0.45, 0), 0.3, Tween.QUAD_IN_OUT);
-            next.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
+            next.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2), 0.3, Tween.QUAD_IN_OUT);
             prev.setZIndex(-2);
             prev.tweenPosition(new Dim2(0.35, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
             prev.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
@@ -1960,12 +2036,18 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             cyclingView.setAttribute("CurrentImage", cyclingView.getAttribute("NextImage"));
             cyclingView.setAttribute("NextImage", cyclingView.getAttribute("PrevImage"));
             cyclingView.setAttribute("PrevImage", temp);
+            if (cyclingView.getAttribute("BirdInstanceItems") != null) {
+                ArrayList<BirdInstance> birds = cyclingView.getAttribute("BirdInstanceItems");
+                Optional<BirdInstance> found = birds.stream().filter(b -> b.getBirdEnum() == ((UIImage)cyclingView.getAttribute("CurrentImage")).getAttribute("Card")).findFirst();
+                ((UIImage)cyclingView.getAttribute("CurrentImage")).setAttribute("BirdInstance", found.isPresent() ? found.get() : null);
+            }
             ((Runnable)selectButtonFrame.getAttribute("UpdateVisibility")).run();
             Timer t = new Timer(150, e -> {
                 cyclingView.setAttribute("db", false);
                 ((UIImage)cyclingView.getAttribute("NextImage")).setImagePath(items.get((i + 1) % items.size()).getImage());
                 UIImage.getByName(((UIImage)cyclingView.getAttribute("NextImage")).getName() + "Check").visible = isSelected(items.get((i + 1) % items.size()));
                 ((UIImage)cyclingView.getAttribute("NextImage")).setAttribute("Card", items.get((i + 1) % items.size()));
+                ((Runnable)viewingBirdStats.getAttribute("Update")).run();
             });
             t.setRepeats(false);
             t.start();
@@ -1993,12 +2075,18 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             cyclingView.setAttribute("CurrentImage", cyclingView.getAttribute("PrevImage"));
             cyclingView.setAttribute("PrevImage", cyclingView.getAttribute("NextImage"));
             cyclingView.setAttribute("NextImage", temp);
+            if (cyclingView.getAttribute("BirdInstanceItems") != null) {
+                ArrayList<BirdInstance> birds = cyclingView.getAttribute("BirdInstanceItems");
+                Optional<BirdInstance> found = birds.stream().filter(b -> b.getBirdEnum() == ((UIImage)cyclingView.getAttribute("CurrentImage")).getAttribute("Card")).findFirst();
+                ((UIImage)cyclingView.getAttribute("CurrentImage")).setAttribute("BirdInstance", found.isPresent() ? found.get() : null);
+            }
             ((Runnable)selectButtonFrame.getAttribute("UpdateVisibility")).run();
             Timer t = new Timer(150, e -> {
                 cyclingView.setAttribute("db", false);
                 ((UIImage)cyclingView.getAttribute("PrevImage")).setImagePath(items.get((i - 1 + items.size()) % items.size()).getImage());
                 UIImage.getByName(((UIImage)cyclingView.getAttribute("PrevImage")).getName() + "Check").visible = isSelected(items.get((i - 1 + items.size()) % items.size()));
                 ((UIImage)cyclingView.getAttribute("PrevImage")).setAttribute("Card", items.get((i - 1 + items.size()) % items.size()));
+                ((Runnable)viewingBirdStats.getAttribute("Update")).run();
             });
             t.setRepeats(false);
             t.start();
@@ -2134,7 +2222,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         
         popupBackground = new UIFrame("PopupBackground", this);
         popupBackground.backgroundColor = Color.black;
-        popupBackground.backgroundTransparency = 0.5f;
+        popupBackground.backgroundTransparency = 0f;
         popupBackground.size.full();
         popupBackground.position.center();
         popupBackground.anchorPoint.center();
@@ -2158,40 +2246,36 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                 }
             }
         }); */
-        popupBackground.setAttribute("Reset", (Runnable)() -> {
-            popupBackground.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-            popupContainer.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-            popupChoice1Frame.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-            popupChoice2Frame.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-            popupChoice1.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-            popupChoice2.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-            popupChoice1Frame.tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-            popupChoice2Frame.tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-            popupPrompt.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-            for (UIElement f : UIElement.getByName("PopupFoodChoices").getChildren()) {
-                String name = f.getName().substring(0, f.getName().length() - 9);
-                UIFrame.getByName(name + "Frame").tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-                UIFrame.getByName(name + "Frame").tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-                UIImage.getByName(name + "Icon").tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
-            }
-            Timer t = new Timer(300, (e) -> {
-                popupBackground.visible = false;
-            });
-            t.setRepeats(false);
-            t.start();
-        });
-        
+
+        UIFrame popupContent = new UIFrame("PopupContent", this);
+        popupContent.anchorPoint.center();
+        popupContent.size.full();
+        popupContent.position.center();
+        popupContent.keepAspectRatio = true;
+        popupContent.backgroundTransparency = 0f;
+        popupContent.setParent(popupBackground);
+
+        popupContent.layout = bonusChoicesLayout.clone();
+        popupContent.layout.spacing = new Dim(0.05, 0);
+
         popupContainer = new UIFrame("PopupContainer", this);
         popupContainer.borderRadius = new Dim(0.07, 0);
         //popupContainer.strokeColor = Color.lightGray;
         popupContainer.backgroundColor = Color.decode("#faf4f4");
         //popupContainer.strokeTransparency = 1f;
         //popupContainer.strokeThickness = new Dim(0.005, 0);
-        popupContainer.setParent(popupBackground);
+        popupContainer.setParent(popupContent);
         popupContainer.position.center();
-        popupContainer.anchorPoint.center();
-        popupContainer.keepAspectRatio = true;
+        //popupContainer.anchorPoint.center();
         popupContainer.size = new Dim2(0.5, 0, 0.4, 0);
+
+        showCardDuringPopup = new UIImage("ShowCardDuringPopup", this);
+        showCardDuringPopup.setParent(popupContent);
+        showCardDuringPopup.backgroundTransparency = 0f;
+        showCardDuringPopup.visible = false;
+        //showCardDuringPopup.anchorPoint.center();
+        showCardDuringPopup.size = new Dim2(0.1265, 0, 0.3, 0).dilate(2.5);
+        showCardDuringPopup.position = new Dim2(1.5, 0, 0.5, 0);
         
         popupPrompt = new UIText("PopupPrompt", this);
         popupPrompt.backgroundTransparency = 0f;
@@ -2227,8 +2311,33 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupFoodChoicesLayout.direction = ListLayout.HORIZONTAL;
         popupFoodChoicesLayout.horizontalAlignment = ListLayout.CENTER;
         popupFoodChoicesLayout.verticalAlignment = ListLayout.MIDDLE;
-        popupFoodChoicesLayout.spacing = new Dim(0.05, 0);
+        popupFoodChoicesLayout.spacing = new Dim(0.03, 0);
         popupFoodChoices.layout = popupFoodChoicesLayout;
+
+        popupBackground.setAttribute("Reset", (Runnable)() -> {
+            popupFoodChoices.clearAllChildren();
+            showCardDuringPopup.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupBackground.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupContainer.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice1Frame.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice2Frame.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice1.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice2.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice1Frame.tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupChoice2Frame.tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            popupPrompt.tweenTextTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            for (UIElement f : UIElement.getByName("PopupFoodChoices").getChildren()) {
+                String name = f.getName().substring(0, f.getName().length() - 9);
+                UIFrame.getByName(name + "Frame").tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+                UIFrame.getByName(name + "Frame").tweenStrokeTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+                UIImage.getByName(name + "Icon").tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+            }
+            Timer t = new Timer(300, (e) -> {
+                popupBackground.visible = false;
+            });
+            t.setRepeats(false);
+            t.start();
+        });
 
         UIFrame popupChoice1Container = new UIFrame("PopupChoice1Container", this);
         popupChoice1Container.size = new Dim2(0.3, 0, 0.9, 0);
@@ -2249,6 +2358,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             if (done != null) {
                 ((Runnable)popupBackground.getAttribute("Reset")).run();
                 done.accept(true);
+                popupBackground.setAttribute("Done", null);
             }
         });
 
@@ -2274,6 +2384,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             if (done != null) {
                 ((Runnable)popupBackground.getAttribute("Reset")).run();
                 done.accept(false);
+                popupBackground.setAttribute("Done", null);
             }
         });
 
@@ -2351,76 +2462,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             animOnHover(birdFeederFoodFrame, birdFeederFoodFrame);
             animOnPress(birdFeederFoodFrame, birdFeederFoodFrame);
             pressCover(birdFeederFoodFrame, birdFeederFoodCover);
-
-            UIFrame popupFoodChoiceContainer = new UIFrame(food + "PopupFoodChoiceContainer", this);
-            popupFoodChoiceContainer.size = new Dim2(0.14, 0, 1, 0);
-            popupFoodChoiceContainer.backgroundTransparency = 0f;
-            popupFoodChoiceContainer.setParent(popupFoodChoices);
-
-            UIFrame popupFoodChoiceFrame = new UIFrame(food + "PopupFoodChoiceFrame", this);
-            popupFoodChoiceFrame.size.full().dilate(0.9);
-            popupFoodChoiceFrame.position.center();
-            popupFoodChoiceFrame.anchorPoint.center();
-            popupFoodChoiceFrame.backgroundTransparency = 1f;
-            popupFoodChoiceFrame.backgroundColor = Color.decode("#dfd2c9");
-            popupFoodChoiceFrame.borderRadius = new Dim(0.3, 0);
-            popupFoodChoiceFrame.strokeColor = Color.white;
-            popupFoodChoiceFrame.strokeThickness = new Dim(0.03, 0);
-            popupFoodChoiceFrame.strokeTransparency = 1f;
-            popupFoodChoiceFrame.setParent(popupFoodChoiceContainer);
-            popupFoodChoiceFrame.addReleaseListener((e) -> {
-                Consumer<String> done = popupBackground.getAttributeOrDefault("Done", null);
-                if (done != null) {
-                    ((Runnable)popupBackground.getAttribute("Reset")).run();
-                    done.accept(food);
-                }
-            });
-
-            UIImage popupFoodChoiceIcon = new UIImage(food + "PopupFoodChoiceIcon", this);
-            popupFoodChoiceIcon.setParent(popupFoodChoiceFrame);
-            popupFoodChoiceIcon.setImagePath("foods/" + food.toLowerCase() + "_ns.png");
-            popupFoodChoiceIcon.setImageFillType(UIImage.FIT_IMAGE);
-            popupFoodChoiceIcon.size = new Dim2(0.7, 0, 0.7, 0);
-            popupFoodChoiceIcon.position.center();
-            popupFoodChoiceIcon.anchorPoint.center();
-            popupFoodChoiceIcon.ignore = true;
-            popupFoodChoiceIcon.backgroundTransparency = 0f;
-
-            animOnHover(popupFoodChoiceFrame, popupFoodChoiceFrame);
-            animOnPress(popupFoodChoiceFrame, popupFoodChoiceFrame);
         }
-
-        UIFrame seedWormPopupFoodChoiceContainer = new UIFrame("Seed/WormPopupFoodChoiceContainer", this);
-        seedWormPopupFoodChoiceContainer.size = new Dim2(0.14, 0, 1, 0);
-        seedWormPopupFoodChoiceContainer.backgroundTransparency = 0f;
-        seedWormPopupFoodChoiceContainer.setParent(popupFoodChoices);
-
-        UIFrame seedWormPopupFoodChoiceFrame = new UIFrame("Seed/WormPopupFoodChoiceFrame", this);
-        seedWormPopupFoodChoiceFrame.size.full().dilate(0.9);
-        seedWormPopupFoodChoiceFrame.position.center();
-        seedWormPopupFoodChoiceFrame.anchorPoint.center();
-        seedWormPopupFoodChoiceFrame.backgroundTransparency = 1f;
-        seedWormPopupFoodChoiceFrame.backgroundColor = Color.decode("#dfd2c9");
-        seedWormPopupFoodChoiceFrame.borderRadius = new Dim(0.3, 0);
-        seedWormPopupFoodChoiceFrame.strokeColor = Color.white;
-        seedWormPopupFoodChoiceFrame.strokeThickness = new Dim(0.03, 0);
-        seedWormPopupFoodChoiceFrame.strokeTransparency = 1f;
-        seedWormPopupFoodChoiceFrame.setParent(seedWormPopupFoodChoiceContainer);
-        seedWormPopupFoodChoiceFrame.addReleaseListener((e) -> {
-            popupBackground.visible = false;
-            Consumer<String> done = popupBackground.getAttributeOrDefault("Done", null);
-            promptPlayerFood("Pick either a worm or a seed token:", done, List.of(new String[] {"seed", "worm"}));
-        });
-
-        UIImage seedWormPopupFoodChoiceIcon = new UIImage("Seed/WormPopupFoodChoiceIcon", this);
-        seedWormPopupFoodChoiceIcon.setParent(seedWormPopupFoodChoiceFrame);
-        seedWormPopupFoodChoiceIcon.setImagePath("foods/seedworm.png");
-        seedWormPopupFoodChoiceIcon.setImageFillType(UIImage.FIT_IMAGE);
-        seedWormPopupFoodChoiceIcon.size = new Dim2(0.7, 0, 0.7, 0);
-        seedWormPopupFoodChoiceIcon.position.center();
-        seedWormPopupFoodChoiceIcon.anchorPoint.center();
-        seedWormPopupFoodChoiceIcon.ignore = true;
-        seedWormPopupFoodChoiceIcon.backgroundTransparency = 0f;
 
         //promptPlayerFood("please", (a) -> System.out.println("clicked on " + a), Arrays.asList(new String[]{"berry", "worm"}));
     }
@@ -2590,6 +2632,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             Player player = currentGame.getPlayers().get(p - 1);
             ArrayList<Card> all = new ArrayList<>(player.getBoard().get(habitat).stream().map(BirdInstance::getBirdEnum).toList());
             cyclingView.setAttribute("Items", all);
+            cyclingView.setAttribute("BirdInstanceItems", player.getBoard().get(habitat));
             cyclingView.setAttribute("Index", all.indexOf((Card)(((BirdInstance)birdCardImage.getAttribute("BirdInstance")).getBirdEnum())));
             ((Runnable)cyclingView.getAttribute("Run")).run();
         });
@@ -2665,6 +2708,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupChoice1.text = option1;
         popupChoice2.text = option2;
         popupBackground.visible = true;
+        showCardDuringPopup.visible = false;
         popupBackground.tweenBackgroundTransparency(0.5f, 0.3, Tween.QUAD_IN_OUT);
         popupContainer.tweenBackgroundTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
         popupChoice1.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
@@ -2674,11 +2718,81 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupPrompt.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
     }
 
+    public void promptPlayer(String question, String option1, String option2, Consumer<Boolean> callback, Bird showBird) {
+        if (popupBackground.visible) {
+            Timer t = new Timer(300, (e) -> promptPlayer(question, option1, option2, callback, showBird)); t.setRepeats(false); t.start();
+            return;
+        }
+        promptPlayer(question, option1, option2, callback);
+        showCardDuringPopup.backgroundTransparency = 0f;
+        showCardDuringPopup.setImagePath(showBird.getImage());
+        showCardDuringPopup.visible = true;
+        showCardDuringPopup.tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
+    }
+
+    public UIFrame createPopupFoodChoice(String food) {
+        UIFrame popupFoodChoices = UIFrame.getByName("PopupFoodChoices");
+        UIFrame popupFoodChoiceContainer = new UIFrame(food + "PopupFoodChoiceContainer", this);
+        popupFoodChoiceContainer.size = new Dim2(0.14, 0, 1, 0);
+        popupFoodChoiceContainer.backgroundTransparency = 0f;
+        popupFoodChoiceContainer.setParent(popupFoodChoices);
+
+        UIFrame popupFoodChoiceFrame = new UIFrame(food + "PopupFoodChoiceFrame", this);
+        popupFoodChoiceFrame.size.full().dilate(0.9);
+        popupFoodChoiceFrame.position.center();
+        popupFoodChoiceFrame.anchorPoint.center();
+        popupFoodChoiceFrame.backgroundTransparency = 1f;
+        popupFoodChoiceFrame.backgroundColor = Color.decode("#dfd2c9");
+        popupFoodChoiceFrame.borderRadius = new Dim(0.3, 0);
+        popupFoodChoiceFrame.strokeColor = Color.white;
+        popupFoodChoiceFrame.strokeThickness = new Dim(0.03, 0);
+        popupFoodChoiceFrame.strokeTransparency = 1f;
+        popupFoodChoiceFrame.setParent(popupFoodChoiceContainer);
+        popupFoodChoiceFrame.addReleaseListener((e) -> {
+            if (food.toLowerCase().equals("seed/worm")) {
+                ((Runnable)popupBackground.getAttribute("Reset")).run();
+                Consumer<String> done = popupBackground.getAttributeOrDefault("Done", null);
+                promptPlayerFood("Pick either a worm or a seed token:", done, List.of(new String[] {"seed", "worm"}));
+            } else {
+                Consumer<String> done = popupBackground.getAttributeOrDefault("Done", null);
+                if (done != null) {
+                    ((Runnable)popupBackground.getAttribute("Reset")).run();
+                    done.accept(food);
+                    popupBackground.setAttribute("Done", null);
+                }
+            }
+        });
+
+        UIImage popupFoodChoiceIcon = new UIImage(food + "PopupFoodChoiceIcon", this);
+        popupFoodChoiceIcon.setParent(popupFoodChoiceFrame);
+        popupFoodChoiceIcon.setImagePath(food.toLowerCase().equals("seed/worm") ? "foods/seedworm.png" : "foods/" + food.toLowerCase() + "_ns.png");
+        popupFoodChoiceIcon.setImageFillType(UIImage.FIT_IMAGE);
+        popupFoodChoiceIcon.size = new Dim2(0.7, 0, 0.7, 0);
+        popupFoodChoiceIcon.position.center();
+        popupFoodChoiceIcon.anchorPoint.center();
+        popupFoodChoiceIcon.ignore = true;
+        popupFoodChoiceIcon.backgroundTransparency = 0f;
+
+        animOnHover(popupFoodChoiceFrame, popupFoodChoiceFrame);
+        animOnPress(popupFoodChoiceFrame, popupFoodChoiceFrame);
+
+        return popupFoodChoiceContainer;
+    }
+
     public void promptPlayerFood(String question, Consumer<String> callback) {
         if (popupBackground.visible) {
             Timer t = new Timer(300, (e) -> promptPlayerFood(question, callback)); t.setRepeats(false); t.start();
             return;
         }
+        promptPlayerFood(question, callback, List.of(new String[] {"seed", "worm", "berry", "fish", "berry"}));
+    }
+
+    public void promptPlayerFood(String question, Consumer<String> callback, List<String> show) {
+        if (popupBackground.visible) {
+            Timer t = new Timer(300, (e) -> promptPlayerFood(question, callback, show)); t.setRepeats(false); t.start();
+            return;
+        }
+        showCardDuringPopup.visible = false;
         popupBackground.setAttribute("Type", "food");
         popupBackground.setAttribute("Done", callback);
         UIElement.getByName("PopupFoodChoices").visible = true;
@@ -2688,8 +2802,10 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupContainer.backgroundTransparency = 0f;
         popupPrompt.textTransparency = 0f;
         popupPrompt.text = question;
-        for (UIElement f : UIElement.getByName("PopupFoodChoices").getChildren()) {
-            f.visible = true;
+        System.out.println(UIElement.getByName("PopupFoodChoices").getChildren());
+        for (String food : show) {
+            System.out.println("creating" + food);
+            UIFrame f = createPopupFoodChoice(food);
             String name = f.getName().substring(0, f.getName().length() - 9);
             UIFrame.getByName(name + "Frame").backgroundTransparency = 0f;
             UIFrame.getByName(name + "Frame").strokeTransparency = 0f;
@@ -2705,17 +2821,6 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             UIImage.getByName(name + "Icon").tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
         }
         popupPrompt.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
-    }
-
-    public void promptPlayerFood(String question, Consumer<String> callback, List<String> show) {
-        if (popupBackground.visible) {
-            Timer t = new Timer(300, (e) -> promptPlayerFood(question, callback, show)); t.setRepeats(false); t.start();
-            return;
-        }
-        promptPlayerFood(question, callback);
-        for (UIElement f : UIElement.getByName("PopupFoodChoices").getChildren()) {
-            f.visible = show.contains(f.getName().substring(0, f.getName().length() - 24).toLowerCase());
-        }
     }
 
     public void promptPlayerHabitat(String question, Consumer<String> callback, List<String> show) {

@@ -2,7 +2,6 @@
 import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.swing.Timer;
 
 public class Game {
@@ -21,6 +20,7 @@ public class Game {
 	private ArrayList<Bird> faceUpBirds; // replicates the 3 face up bird cards in the bird tray ; not sure when we want to create this, before or after player select resources
 	private ArrayList<Goals> goalBoard; // replicates the 4 goals on the goal board ; should be fine to create at game creation
 	private String[] foods = new String[] {"Berry", "Fish", "Worm", "Seed", "Rat"}; // food types available in the bird feeder, and to set food stats in UI
+	private HashMap<Player, List<BirdInstance>> playersLeftToAsk;
 
     // CONSTRUCTOR
     public Game(WingspanPanel panel) 
@@ -163,6 +163,7 @@ public class Game {
 			}
 		}
 		UIElement.removeAllTagged("Selected");
+		this.incrementPlayerTurn();
 	}
 
 	// method that has the player lay eggs on which bird they want
@@ -221,7 +222,6 @@ public class Game {
 				});
 			}
 			else {
-				System.out.println(this.getBirdFeeder());
 				panel.promptPlayerFood("Which food would you like to keep?", (choice) -> {
 					this.grabFood(choice.toLowerCase(), p, 1);
 					if(choice.equalsIgnoreCase("rat"))
@@ -277,15 +277,16 @@ public class Game {
 		}
 	}
 
-	public void askPlayerAboutActivatingAbility(HashMap<Player, List<BirdInstance>> playersLeft)
+	public void askPlayerAboutActivatingAbility()
 	{
-		Player current = playersLeft.keySet().stream().toList().getFirst();
-		List<BirdInstance> birdsToAsk = playersLeft.get(current);
+		if (playersLeftToAsk == null) return;
+		Player current = playersLeftToAsk.keySet().stream().toList().getFirst();
+		List<BirdInstance> birdsToAsk = playersLeftToAsk.get(current);
 		if (birdsToAsk.isEmpty()) {
-			playersLeft.remove(current);
-			if (playersLeft.isEmpty()) {
-				current = playersLeft.keySet().stream().toList().getFirst();
-				birdsToAsk = playersLeft.get(current);
+			playersLeftToAsk.remove(current);
+			if (!playersLeftToAsk.isEmpty()) {
+				current = playersLeftToAsk.keySet().stream().toList().getFirst();
+				birdsToAsk = playersLeftToAsk.get(current);
 			}
 		}
 		if (!birdsToAsk.isEmpty()) {
@@ -294,8 +295,25 @@ public class Game {
 			Player player = current;
 			panel.promptPlayer("Player " + (playerList.indexOf(player) + 1) + ", would you like to activate " + b.getName() + "'s ability?", "Yes", "No", (y) -> {
 				if(y) b.performAction(this, player); // if player has the bird and confirms desire to activate then activate ability
-				askPlayerAboutActivatingAbility(playersLeft);
-			});
+				//askPlayerAboutActivatingAbility();
+			}, b.getBirdEnum());
+		}
+	}
+
+	public void askPlayersToGrabFood(ArrayList<Player> players, int leastAmount) {
+		if (!players.isEmpty()) {
+			Player p = players.getFirst();
+			players.remove(p);
+			int i = playerList.indexOf(p) + 1;
+			if (leastAmount == p.getBoard().get("forest").size()) {
+				// what if bird feeder needs to reroll?
+				panel.promptPlayerFood("Player " + i + ", which food would you like to grab from the bird feeder?", (food) -> {
+					grabFood(food, p, 1);
+					askPlayersToGrabFood(players, leastAmount);
+				});
+			} else askPlayersToGrabFood(players, leastAmount);
+		} else {
+			askPlayerAboutActivatingAbility();
 		}
 	}
 
@@ -315,7 +333,7 @@ public class Game {
 
 		HashMap<Player, List<BirdInstance>> playersAndBirds = new HashMap<>();
 		// now directly activates ability after searching through the list
-		for(Player p : playerList)
+		for(Player p : playerList) {
 			if(p != playerList.get(playerTurn - 1)) // pink cards only activate on ANOTHER PLAYER's action, cant be your own
 			{
 				List<BirdInstance> birdsToActivate = p.getBoard().values().stream()
@@ -323,11 +341,14 @@ public class Game {
 						.filter(b -> birdNames.contains(b.getName().toUpperCase())).toList(); // checks each bird of the player if they have the bird
 
 				/* .forEach(b -> panel.promptPlayer("Would you like to activate " + b.getName() + "'s ability?", "Yes", "No", (y) -> {
-                    if(y) b.performAction(this, p); // if player has the bird and confirms desire to activate then activate ability
-                })); */
+					if(y) b.performAction(this, p); // if player has the bird and confirms desire to activate then activate ability
+				})); */
 				playersAndBirds.put(p, birdsToActivate);
 			}
-		askPlayerAboutActivatingAbility(playersAndBirds);
+		}
+
+		playersLeftToAsk = playersAndBirds;
+		askPlayerAboutActivatingAbility();
 	}
 
 	// resets all pink birds status to not played yet; used at end of rounds
@@ -364,8 +385,9 @@ public class Game {
 
 		HashMap<Player, List<BirdInstance>> birdsToPlay	= new HashMap<>();
 		birdsToPlay.put(player, birds);
+		playersLeftToAsk = birdsToPlay;
 		if(!birds.isEmpty())
-			this.askPlayerAboutActivatingAbility(birdsToPlay);
+			this.askPlayerAboutActivatingAbility();
 		/*
 		for(int i = birds.size()-1; i >= 0; --i) // goes backwards, replicates right to left behavior on board
 		{
@@ -611,7 +633,7 @@ public class Game {
 			else eggsReq = 2;
 			if(p.getBoard().values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() >= eggsReq) habitatEggCheck = true;
 		}
-		if(!habitatEggCheck) {
+		/*if(!habitatEggCheck) {
 			// tell player they dont have enough eggs. ask what they want to do
 			panel.promptPlayer("You don't have enough eggs to play this card. What would you like to do?", "Repick card", "Repick action", (v) -> {
 				if (!v) { // if v is true, the player screen is already on hand screen so no need to do anything
@@ -620,7 +642,7 @@ public class Game {
 				}
 			});
 			return;
-		}
+		}*/
 		if(!habitatSizeCheck) { 
 			panel.promptPlayer("You don't have any habitats available to place this bird. What would you like to do?", "Repick card", "Repick action", (v) -> {
 				if (!v) { // if v is true, the player screen is already on hand screen so no need to do anything
@@ -630,7 +652,6 @@ public class Game {
 			});
 			return; 
 		}
-        System.out.println("check 4: " + bird.getFoodRequired());
 		// removes the food from the player's food supply
         if(bird.getFoodRequired().contains("and")) {
             p.removeAndFoodToAddBird(bird, this); // this method removes all food but the any
@@ -691,7 +712,7 @@ public class Game {
 
 			panel.promptPlayer("Would you like to activate " + bird.getName() + "'s ability?", "Yes", "No", (y) -> {
                 if (y) birdInstance.performAction(this, p);
-            });
+            }, bird);
 		}
 		if(habitat.equals("forest"))
 			pinkAbilityActivation("playForestAndGetWorm");

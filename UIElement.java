@@ -860,6 +860,12 @@ class UIElement {
         return children;
     }
 
+    public void clearAllChildren() {
+        while (!children.isEmpty()) {
+            children.get(0).destroy();
+        }
+    }
+
     public void resetAspectRatio() {
         aspectRatio = absoluteSize.getY() / absoluteSize.getX();
     }
@@ -1451,6 +1457,8 @@ class UIElement {
             ((UIImage) e).imageTransparency = (float) newValue;
         } else if (tween.property.equals("txtt")) {
             ((UIText) e).textTransparency = (float) newValue;
+        } else if (tween.property.equals("txtst")) {
+            ((UIText) e).textStrokeTransparency = (float) newValue;
         }
     }
 
@@ -1564,6 +1572,8 @@ class UIElement {
         attributes.clear();
         getListByName(name).remove(this);
     }
+
+    public String toString() { return name; }
 }
 
 class UIFrame extends UIElement {
@@ -2020,5 +2030,13 @@ class UIText extends UIElement {
 
     public Tween tweenTextTransparency(float endTextTransparency, double time, int animationStyle) {
         return addTween(textTransparency, endTextTransparency, time, "txtt", "float", animationStyle);
+    }
+
+    public Tween tweenTextStrokeTransparency(float endTextStrokeTransparency, double time) {
+        return addTween(textStrokeTransparency, endTextStrokeTransparency, time, "txtst", "float", Tween.LINEAR);
+    }
+
+    public Tween tweenTextStrokeTransparency(float endTextStrokeTransparency, double time, int animationStyle) {
+        return addTween(textStrokeTransparency, endTextStrokeTransparency, time, "txtst", "float", animationStyle);
     }
 }
