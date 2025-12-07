@@ -6,6 +6,7 @@ public class BirdInstance {
     private int cachedFood;
 	private String currentHabitat;
     private boolean playedThisTurn;
+	private UIElement UIBirdCard;
 
 	public BirdInstance(Bird bird) {
 		this.birdEnum = bird;
@@ -65,6 +66,9 @@ public class BirdInstance {
 
 	// returns a String with the bird's current habitat
 	public String getCurrentHabitat() { return currentHabitat; }
+
+	// returns a String with the bird's current habitat
+	public UIElement getUIBirdCard() { return UIBirdCard; }
 	
 	// VOID METHODS
 
@@ -107,6 +111,8 @@ public class BirdInstance {
 	
 	// performs this bird's stored BirdAction ability on the given player
 	public void performAction(Game gameContext, Player player) { birdEnum.performAction(gameContext, player, this); }
+
+	public void setUIBirdCard(UIElement frame) { UIBirdCard = frame; }
 
     public String toString() { return getName(); }
 }

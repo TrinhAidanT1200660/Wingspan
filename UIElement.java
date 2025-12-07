@@ -629,6 +629,17 @@ class ListLayout {
             if (direction == VERTICAL) y += child.absoluteSize.getY() + absoluteSpacing; else x += child.absoluteSize.getX() + absoluteSpacing;
         }
     }
+
+    public ListLayout clone() {
+        ListLayout clone = new ListLayout();
+        clone.direction = direction;
+        clone.verticalAlignment = verticalAlignment;
+        clone.horizontalAlignment = horizontalAlignment;
+        clone.padding = padding;
+        clone.spacing = spacing;
+        clone.dirty = true;
+        return clone;
+    }
 }
 
 class UIElement {
