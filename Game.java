@@ -1005,15 +1005,15 @@ public class Game {
 	{
         if (released.getAttribute("startButton") != null)
 		{
-			/*panel.playTransition((Runnable)() -> {
+			panel.playTransition((Runnable)() -> {
 				setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
 				giveUIBirds(5);
 				panel.clickedStart(event, released);
 			});
-			gamePhase = 1;*/
+			gamePhase = 1;
 			//});
 			// we're just simulating generating 5 random players just for testing actual game play here 
-			panel.playTransition(() -> { 
+			/*panel.playTransition(() -> { 
 				setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
 				for (int i = 0; i < 5; i++) {
 					Player p = playerList.get(i);
@@ -1061,7 +1061,7 @@ public class Game {
 				UIImage.getByName("GoalBoardButton").setImagePath("images/" + compType.toLowerCase() + "_goal_board_button.png");
 				UIFrame.getByName(compType + "ActionCubeCharts").visible = true;
 				updateUITurn(1);
-			}); 
+			}); */
     	} 
 	}
 	
