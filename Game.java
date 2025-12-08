@@ -21,14 +21,15 @@ public class Game {
 	private ArrayList<Goals> goalBoard; // replicates the 4 goals on the goal board ; should be fine to create at game creation
 	private String[] foods = new String[] {"Berry", "Fish", "Worm", "Seed", "Rat"}; // food types available in the bird feeder, and to set food stats in UI
 	private HashMap<Player, List<BirdInstance>> playersLeftToAsk;
+	private HashMap<Player, List<BirdInstance>> playersLeftToAskPink;
 
     // CONSTRUCTOR
     public Game(WingspanPanel panel) 
 	{
 		this.panel = panel;
         this.startingActionCubes = 8;
-        this.playerTurn = 1;
-        this.startingPlayerTurn = 1;
+        this.startingPlayerTurn = (int)(Math.random() * 5) + 1;
+		this.playerTurn = this.startingPlayerTurn;
         this.roundsPlayed = 0;
         this.playerList = new ArrayList<>();
 		this.gamePhase = 0;
@@ -37,7 +38,6 @@ public class Game {
         for (int i = 0; i < 5; ++i)
             playerList.add(new Player());
 		this.birdFeeder = new ArrayList<>();
-		this.rollBirdFeeder(); // rolls bird feeder
 		this.faceUpBirds = new ArrayList<>();
 		this.goalBoard = new ArrayList<>();
 		this.selectGoals(); // selects goals; shouldn't be recalled
@@ -67,14 +67,18 @@ public class Game {
 		// think we need to allow the whole game to be viewed while showing the goal board so teacher can grade; he took off points if you didn't do so last project
 		goalBoard.get(roundsPlayed).determineRankings(playerList, roundsPlayed, isCompetitive); // has the player's rankings determined
 		this.roundsPlayed ++; // increments the amount of rounds played
+		UIText.getByName("RoundTitle").text = "" + (roundsPlayed + 1);
 		if(roundsPlayed >= 4) this.gameEnd(); // since rounds played begins at 0 and increments right before, when it hits 4 is when game ends
 		// since game hasn't ended yet, game now will begin clearing things that require to do so
 		this.clearAndRegenerateFaceUpTray(); // end of rounds has the tray cleared and regenerated
 		this.resetAllBirdsStatus(); // makes sure all pink birds are reset just in case
 		this.startingPlayerTurn = this.startingPlayerTurn % playerList.size() + 1; // shouldn't need to reset back to 1 but keep it just in case
-        this.playerTurn = this.startingPlayerTurn; // sets player turn to the startingPlayerToken
+		int old = this.playerTurn;
+		this.playerTurn = this.startingPlayerTurn; // sets player turn to the startingPlayerToken
 		for(Player p : this.playerList)
 			p.setActionCubes(8 - this.roundsPlayed); // 8 is beginning amount and players lose 1 action cube at the end of each round
+		
+		updateUITurn(playerTurn);
 	}
 
 	// not sure we need to keep this; i think we should imo
@@ -89,10 +93,14 @@ public class Game {
 		// while loop is basically only for playBird which is the only one that can end up in failure if the player doesn't have enough eggs or even a bird to play
 		System.out.println(choice + " - current player is player " + playerTurn);
 		if(choice.equals("playBird")) { this.playBird(p); } // playBird auto adds it to board and returns true if successfully placed
-		else if(choice.equals("getFood")) { this.getFood(p); this.iterateBirdAbilities(p, "forest"); }
-		else if(choice.equals("layEggs")) { this.layEggs(p); this.iterateBirdAbilities(p, "grassland"); }
+		else if(choice.equals("getFood")) { this.getFood(p); }
+		else if(choice.equals("layEggs")) { this.layEggs(p); }
 		else if(choice.equals("drawBirds")) { this.drawBirds(p); this.iterateBirdAbilities(p, "wetland"); }
-		else { System.out.println("ERROR IN PLAYACTIONS, CAN'T FIND ACTION"); return; }
+		else { 
+			System.out.println("ERROR IN PLAYACTIONS, CAN'T FIND ACTION: " + choice); 
+			panel.promptPlayer("There was an error in play actions method in game: cannot find action '" + choice + "'.", "Ok", null, null);
+			return; 
+		}
 		p.decreaseActionCubes(); // player turn has ended and they lose an action cube
 		this.regenerateFaceUpTray(); // regens the tray without removing old cards as player turn has ended
 		//if (!choice.equals("playBird")) this.incrementPlayerTurn(); // increments player turn
@@ -152,18 +160,41 @@ public class Game {
 			if(isFaceDown) {
 				Bird random = this.pullRandomBirds(1).get(0);
 				p.addBirdHand(random, this);
-				//panel.addToPlayerHand(playerList.indexOf(p) + 1, random);
+				panel.promptPlayer("You drew a " + random.getName() + "!", "Ok", null, (b) -> this.incrementPlayerTurn(), random);
 			} else {
 				Bird bird = (Bird)current.getAttribute("Card");
 				int choice = faceUpBirds.indexOf(bird);
 				if (choice > -1) {
 					this.grabFaceUpCard(choice, p);
-					panel.addToPlayerHand(playerList.indexOf(p) + 1, bird);
-				} else System.out.println("ERROR IN DRAWBIRDS METHOD GAME");
+					this.incrementPlayerTurn();
+				} else {
+					System.out.println("ERROR IN DRAWBIRDS METHOD GAME");
+					panel.promptPlayer("There was an error in draw birds method - game.", "Ok", null, (b) -> this.incrementPlayerTurn());
+				}
 			}
 		}
 		UIElement.removeAllTagged("Selected");
-		this.incrementPlayerTurn();
+	}
+
+	public boolean layEggsOnSpecificBird(BirdInstance bird, int left) {
+		UIFrame gameScreen = UIFrame.getByName("GameScreen");
+		boolean success = bird.addEggs(1);
+		if(success)
+		{
+			gameScreen.setAttribute("Laid1", true);
+		}
+		System.out.println("left:" +  left);
+		if (left == 1 && success) {
+			Player p = playerList.get(playerTurn - 1);
+			System.out.println("player " + playerTurn);
+			if (gameScreen.getAttributeOrDefault("Laid1", false)) {
+				gameScreen.setAttribute("Laid1", false);
+				pinkAbilityActivation("eggLaid"); 
+			}
+			this.iterateBirdAbilities(p, "grassland");
+			incrementPlayerTurn();
+		}
+		return success;
 	}
 
 	// method that has the player lay eggs on which bird they want
@@ -178,7 +209,7 @@ public class Game {
 		else eggGet = 4;
 		if(birdAmount % 2 == 0 || birdAmount > 5)
 		{
-			// UI asks player if they would like to trade
+			/*// UI asks player if they would like to trade
 			// for now the trade will be false
 			boolean trade = false;
 			if(trade)
@@ -190,16 +221,25 @@ public class Game {
 					String food = "seed"; // left as seed for now but should be returned a value
 					if(p.removeFood(food, 1, this)) break; // auto removes food and returns true if food is removed
 				}
-				eggGet ++;
-			}
-		}
-		// will lay eggs one at a time to allow eggs to be chosen where it's placed
+			} */
+			int amt = eggGet;
+			panel.promptPlayer("Would you like to trade in a food token for an extra egg?", "Yes", "No", (y) -> {
+				if (y) {
+					panel.promptPlayerFood("Which food would you like to trade?", food -> {
+						p.removeFood(food, 1, this);
+						panel.promptPlayerLayEggs(getPlayerIndex(p), "Choose which birds to lay " + (amt + 1) + " eggs on.", (amt + 1));
+					}, p.getFood().entrySet().stream().filter((v) -> v.getValue() > 0).map(Map.Entry::getKey).toList());
+				} else {
+					panel.promptPlayerLayEggs(getPlayerIndex(p), "Choose which birds to lay " + amt + " eggs on.", amt);
+				}
+			});
+		} else panel.promptPlayerLayEggs(getPlayerIndex(p), "Choose which birds to lay " + eggGet + " eggs on.", eggGet);
+		/*// will lay eggs one at a time to allow eggs to be chosen where it's placed
 		for (int i = 0; i < eggGet; ++i)
 		{
 			// UI should choose the bird
 			// not sure if it will make sure if the bird has the sufficient space in the UI method or here, for now i implement here in case
 			// have while loop commented to not create errors if called for now
-			/*
 			while(true)
 			{
 				BirdInstance bird = ;
@@ -209,16 +249,23 @@ public class Game {
 					break; // breaks while loop
 				}
 			}
-			*/
-		}
+			
+		} */
 	}
 
 	public void askPlayerForFoodOrReroll(Player p, int times) {
 		if (times > 0) {
 			if(birdFeederEligibleForReroll()) {
-				panel.promptPlayer("Would you like to reroll?", "Yes", "No", (y) -> {
+				panel.promptPlayer("Would you like to reroll? Only food left available: " + String.join(", ", birdFeeder), "Yes", "No", (y) -> {
 					if (y) this.rollBirdFeeder();
-					askPlayerForFoodOrReroll(p, times);
+					panel.promptPlayerFood("Which food would you like to keep?", (choice) -> {
+						this.grabFood(choice.toLowerCase(), p, 1);
+						if (birdFeeder.isEmpty()) this.rollBirdFeeder();
+						if(choice.equalsIgnoreCase("rat"))
+							this.pinkAbilityActivation("ratFoodGrabbed");
+
+						askPlayerForFoodOrReroll(p, times - 1);
+					}, this.getBirdFeeder());
 				});
 			}
 			else {
@@ -230,7 +277,10 @@ public class Game {
 					askPlayerForFoodOrReroll(p, times - 1);
 				}, this.getBirdFeeder());
 			}
-		} else this.incrementPlayerTurn();
+		} else {
+			this.iterateBirdAbilities(p, "forest"); 
+			this.incrementPlayerTurn();
+		}
 	}
 
 	// method that has the player choose which food they want and then grab it
@@ -279,24 +329,32 @@ public class Game {
 
 	public void askPlayerAboutActivatingAbility()
 	{
-		if (playersLeftToAsk == null) return;
-		Player current = playersLeftToAsk.keySet().stream().toList().getFirst();
-		List<BirdInstance> birdsToAsk = playersLeftToAsk.get(current);
-		if (birdsToAsk.isEmpty()) {
-			playersLeftToAsk.remove(current);
-			if (!playersLeftToAsk.isEmpty()) {
-				current = playersLeftToAsk.keySet().stream().toList().getFirst();
-				birdsToAsk = playersLeftToAsk.get(current);
-			}
+		HashMap<Player, List<BirdInstance>> abilities = null;
+		if (playersLeftToAskPink != null && playersLeftToAskPink.values().stream().anyMatch(list -> !list.isEmpty())) {
+			abilities = playersLeftToAskPink;
+		} else if (playersLeftToAsk != null && playersLeftToAsk.values().stream().anyMatch(list -> !list.isEmpty())) {
+			abilities = playersLeftToAsk;
 		}
-		if (!birdsToAsk.isEmpty()) {
-			BirdInstance b = birdsToAsk.getLast();
-			birdsToAsk.removeLast();
-			Player player = current;
-			panel.promptPlayer("Player " + (playerList.indexOf(player) + 1) + ", would you like to activate " + b.getName() + "'s ability?", "Yes", "No", (y) -> {
-				if(y) b.performAction(this, player); // if player has the bird and confirms desire to activate then activate ability
-				//askPlayerAboutActivatingAbility();
-			}, b.getBirdEnum());
+		System.out.println("playerslefttoaskpink: " + playersLeftToAskPink + " | playerslefttoask: " + playersLeftToAsk + " | asking: " + abilities);
+		if (abilities != null) {
+			Player current = abilities.keySet().stream().toList().getFirst();
+			List<BirdInstance> birdsToAsk = abilities.get(current);
+			if (birdsToAsk.isEmpty()) {
+				abilities.remove(current);
+				if (!abilities.isEmpty()) {
+					current = abilities.keySet().stream().toList().getFirst();
+					birdsToAsk = abilities.get(current);
+				}
+			}
+			if (!birdsToAsk.isEmpty()) {
+				BirdInstance b = birdsToAsk.getLast();
+				birdsToAsk.removeLast();
+				Player player = current;
+				panel.promptPlayer("Player " + (playerList.indexOf(player) + 1) + ", would you like to activate " + b.getName() + "'s ability?", "Yes", "No", (y) -> {
+					if(y) b.performAction(this, player); // if player has the bird and confirms desire to activate then activate ability
+					//askPlayerAboutActivatingAbility();
+				}, b.getBirdEnum());
+			}
 		}
 	}
 
@@ -347,7 +405,7 @@ public class Game {
 			}
 		}
 
-		playersLeftToAsk = playersAndBirds;
+		playersLeftToAskPink = playersAndBirds;
 		askPlayerAboutActivatingAbility();
 	}
 
@@ -386,6 +444,7 @@ public class Game {
 		HashMap<Player, List<BirdInstance>> birdsToPlay	= new HashMap<>();
 		birdsToPlay.put(player, birds);
 		playersLeftToAsk = birdsToPlay;
+		System.out.println("HABITAT IS: " + habitat + ". TO ASK: " + playersLeftToAsk);
 		if(!birds.isEmpty())
 			this.askPlayerAboutActivatingAbility();
 		/*
@@ -405,12 +464,14 @@ public class Game {
 
 	// Simulates rolling the birdFeeder to generate 5 random food dies
 	public void rollBirdFeeder() {
+		panel.removeAllFromBirdFeederList();
 		final String[] foods = {"berry", "fish", "rat", "seed", "worm", "seed/worm"};
 		ArrayList<String> rolledFoods = new ArrayList<>();
 		for(int i = 0; i < 5; ++i)
 		{
 			int randFood = (int) (Math.random() * foods.length);
 			rolledFoods.add(foods[randFood]);
+			panel.addToBirdFeederList(foods[randFood]);
 		}
 
 		birdFeeder = rolledFoods;
@@ -676,7 +737,7 @@ public class Game {
     }
 
 	public void askPlayerForHabitatAndContinue(Player p, Bird bird, String q) {
-		panel.promptPlayerHabitat(q == null ? "Which habitat would you like to place this bird in?" : q, (habitat) -> {
+		panel.promptPlayerHabitat(getPlayerIndex(p), q == null ? "Which habitat would you like to place this bird in?" : q, (habitat) -> {
 			int eggsReq = 0;
 			if (bird.getHabitat().length > 1) {
 				if(p.getBoard().get(habitat).size() >= 5) { // makes sure player selects a habitat that isnt full'
@@ -776,12 +837,14 @@ public class Game {
 			{
 				player.addFood(food, 1, this);
 				birdFeeder.remove(food);
+				panel.removeFromBirdFeederList(food);
 				atLeast1Grabbed = true;
 			}
 			else if((food.equals("seed") || food.equals("worm")) && birdFeeder.contains("seed/worm"))
 			{
 				player.addFood(food, 1, this);
 				birdFeeder.remove("seed/worm");
+				panel.removeFromBirdFeederList("seed/worm");
 				atLeast1Grabbed = true;
 			}
 			if(this.birdFeeder.isEmpty()) this.rollBirdFeeder(); // checks if the feeder is empty and rerolls it if so
@@ -821,15 +884,20 @@ public class Game {
 
 	public void incrementPlayerTurn() 
 	{ 
-    int oldPlayer = playerTurn;
+    	int oldPlayer = playerTurn;
 		playerTurn = playerTurn % playerList.size() + 1;  
 		Player p = this.playerList.get(playerTurn - 1);
 		// pink birds are reset on every rotation back to your own turn, thus it
 		this.resetThisPlayersBirdsStatus(p); // resets the player's pink birds to not played for whoevers turn it now is
 		// end of round check : if the next player's action cubes is 0 and the beginning player is the next player, then the round ends
 		if(p.getActionCubes() == 0 && this.startingPlayerTurn == this.playerTurn) roundEnd();
+		updateUITurn(oldPlayer);
+	}
+
+	public void updateUITurn(int oldPlayer) 
+	{ 
 		if (gamePhase == 1) { 
-			UIFrame.getByName("Player" + oldPlayer + "CardsContainer").visible = false;
+			if (oldPlayer > -1) UIFrame.getByName("Player" + oldPlayer + "CardsContainer").visible = false;
 			UIFrame.getByName("Player" + playerTurn + "CardsContainer").visible = true;
 			UIImage.getByName("ActionCubeIcon").setImagePath("images/p" + playerTurn + "_action_cube.png");
 			UIText.getByName("ActionCubesStat").text = "" + playerList.get(playerTurn - 1).getActionCubes();
@@ -842,6 +910,7 @@ public class Game {
 			} 
 			UIFrame.getByName("Boards").setAttribute("Index", playerTurn);
 			((Runnable)UIFrame.getByName("Boards").getAttribute("ViewBoard")).run();
+			UIImage.getByName("FirstPlayerToken").setParent(UIFrame.getByName("Player" + this.startingPlayerTurn + "ButtonFrame"));
 		}
 	}
 
@@ -879,38 +948,52 @@ public class Game {
 			gamePhase++;
 			}); */
 			// we're just simulating generating 5 random players just for testing actual game play here 
-			setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
-			for (int i = 0; i < 5; i++) {
-				Player p = playerList.get(i);
-				p.addBirdHand(Bird.WHOOPING_CRANE, this);
-				//panel.addToPlayerHand(i + 1, Bird.WHOOPING_CRANE);
-				p.addBirdHand(Bird.BLACK_VULTURE, this);
-				//panel.addToPlayerHand(i + 1, Bird.BLACK_VULTURE);
-				ArrayList<Bird> birds = pullRandomBirds(5);
-				for (int j = 0; j < 5; j++) {
-					int foodOrBird = 1;//(int)(Math.random() * 2); // 0 for food, 1 for bird
-					if (foodOrBird == 0) {
-						//p.addFood(foods[(int)(Math.random() * 5)].toLowerCase(), 1);
-					} else {
-						Bird b = birds.get(j);
-						p.addBirdHand(b, this);
-						//panel.addToPlayerHand(i + 1, b);
+			panel.playTransition(() -> { 
+				setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
+				for (int i = 0; i < 5; i++) {
+					Player p = playerList.get(i);
+					p.addBirdHand(Bird.WHOOPING_CRANE, this);
+					//panel.addToPlayerHand(i + 1, Bird.WHOOPING_CRANE);
+					p.addBirdHand(Bird.BLACK_VULTURE, this);
+					//panel.addToPlayerHand(i + 1, Bird.BLACK_VULTURE);
+					ArrayList<Bird> birds = pullRandomBirds(5);
+					for (int j = 0; j < 5; j++) {
+						int foodOrBird = 1;//(int)(Math.random() * 2); // 0 for food, 1 for bird
+						if (foodOrBird == 0) {
+							//p.addFood(foods[(int)(Math.random() * 5)].toLowerCase(), 1);
+						} else {
+							Bird b = birds.get(j);
+							p.addBirdHand(b, this);
+							//panel.addToPlayerHand(i + 1, b);
+						}
+						p.addFood(foods[j].toLowerCase(), 5, this);
 					}
-					p.addFood(foods[j].toLowerCase(), 5, this);
+					BonusCard randomBonus = pullRandomBonusCards(1).get(0);
+					p.addBonusHand(randomBonus, this);
+					//panel.addToPlayerHand(i + 1, randomBonus);
+					
 				}
-				BonusCard randomBonus = pullRandomBonusCards(1).get(0);
-				p.addBonusHand(randomBonus, this);
-				//panel.addToPlayerHand(i + 1, randomBonus);
-				
-			}
-			gamePhase = 1;
-			for (String food : foods) UIText.getByName(food + "Stat").text = "" + playerList.get(0).getFood().getOrDefault(food.toLowerCase(), 0);
-			UIElement.getByName("StartScreen").visible = false;
-			UIElement.getByName("GameScreen").visible = true;
-			((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
-			regenerateFaceUpTray();
-			UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
-			UIFrame.getByName("Player1CardsContainer").visible = true;
+				for (Player p : playerList) {
+					int i = (playerList.indexOf(p) + 1);
+					for (Bird b : p.getBirdHand()) {
+						ImageHandler.setGroup(b.getImage(), "Player" + i + "BirdHands");
+					}
+					ImageHandler.loadGroup("Player" + i + "BirdHands");
+				}
+				gamePhase = 1;
+				for (String food : foods) UIText.getByName(food + "Stat").text = "" + playerList.get(0).getFood().getOrDefault(food.toLowerCase(), 0);
+				UIElement.getByName("StartScreen").visible = false;
+				UIElement.getByName("GameScreen").visible = true;
+				((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
+				regenerateFaceUpTray();
+				for (Bird b : faceUpBirds) ImageHandler.setGroup(b.getImage(), "FaceUp");
+				ImageHandler.loadGroup("FaceUp");
+				UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
+				UIFrame.getByName("Player1CardsContainer").visible = true;
+				UIImage.getByName("GoalBoard").setImagePath("images/" + (isCompetitive ? "competitive" : "peaceful") + "_goal_board.png");
+				UIImage.getByName("GoalBoardButton").setImagePath("images/" + (isCompetitive ? "competitive" : "peaceful") + "_goal_board_button.png");
+				updateUITurn(1);
+			});
     	} 
 	}
 	
@@ -939,12 +1022,14 @@ public class Game {
 						deselect(selected.last()); // remove from selected
 						if (playerTurn == 1) { // if new player is back to 1 then
 							gamePhase = 1;
-							UIElement.getByName("ResourceChoosingScreen").visible = false;
-							UIElement.getByName("GameScreen").visible = true;
-							((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
-							regenerateFaceUpTray();
-							UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
-							UIFrame.getByName("Player1CardsContainer").visible = true;
+							panel.playTransition(() -> { 
+								UIElement.getByName("ResourceChoosingScreen").visible = false;
+								UIElement.getByName("GameScreen").visible = true;
+								((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
+								regenerateFaceUpTray();
+								UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
+								UIFrame.getByName("Player1CardsContainer").visible = true;
+							});
 						} else { // else if we're not done choosing yet
 							// update player title to show the turn
 							UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
@@ -1004,6 +1089,10 @@ public class Game {
             birdImage.setAttribute("selectionValue", randomBirds.get(i));
             birdImage.setImagePath(imageFileString);
         }
+	}
+
+	public int getPlayerIndex(Player p) {
+		return playerList.indexOf(p) + 1;
 	}
 
 	private void handleSelected() { // if the user selected more than 5 things deselect the least recent thing selected (could be bird or food token)

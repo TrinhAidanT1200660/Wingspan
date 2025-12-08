@@ -1,3 +1,4 @@
+
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -71,9 +72,12 @@ class Vector2 {
 class Dim2 {
 
     /*
-     * this class represents a 2D coordinate, similar to Vector2 with x and y, but it allows for:
-     * scale: a percentage of the screen size; half screen would be 0.5 scale for example. 
-     * offset: a number that isnt affected by screen size. if you had 500 offset along x, and screen size was 400x400, then 500 offset would be off the screen 
+     * this class represents a 2D coordinate, similar to Vector2 with x and y, but
+     * it allows for:
+     * scale: a percentage of the screen size; half screen would be 0.5 scale for
+     * example.
+     * offset: a number that isnt affected by screen size. if you had 500 offset
+     * along x, and screen size was 400x400, then 500 offset would be off the screen
      * and you wouldn't be able to see it.
      */
     private double xScale = 0;
@@ -127,7 +131,9 @@ class Dim2 {
         return "{(" + xScale + ", " + xOffset + "), (" + yScale + ", " + yOffset + ")}";
     }
 
-    // ok so basically what this method does is it returns a new Dim2 that starts from Dim2 and finshes a fraction of the way to Dim2 goal, determined by a (alpha). just used for animations/tweening
+    // ok so basically what this method does is it returns a new Dim2 that starts
+    // from Dim2 and finshes a fraction of the way to Dim2 goal, determined by a
+    // (alpha). just used for animations/tweening
     public static Dim2 lerp(Dim2 start, Dim2 goal, double a) {
         double xScale = start.xScale + (goal.xScale - start.xScale) * a;
         double xOffset = start.xOffset + (goal.xOffset - start.xOffset) * a;
@@ -217,7 +223,9 @@ class Dim {
         return "(" + scale + ", " + offset + ")";
     }
 
-    // ok so basically what this method does is it returns a new Dim that starts from Dim and finshes a fraction of the way to Dim goal, determined by a (alpha). just used for animations/tweening
+    // ok so basically what this method does is it returns a new Dim that starts
+    // from Dim and finshes a fraction of the way to Dim goal, determined by a
+    // (alpha). just used for animations/tweening
     public static Dim lerp(Dim start, Dim goal, double a) {
         double scale = start.scale + (goal.scale - start.scale) * a;
         double offset = start.offset + (goal.offset - start.offset) * a;
@@ -294,7 +302,8 @@ class Tween {
     public static int ELASTIC = 8;
     public static int EXPONENTIAL_IN_OUT = 9;
 
-    public Tween(UIElement element, Object startValue, Object endValue, long duration, String property, String propertyType, int animationType) {
+    public Tween(UIElement element, Object startValue, Object endValue, long duration, String property,
+            String propertyType, int animationType) {
         this.element = element;
         this.startValue = startValue;
         this.endValue = endValue;
@@ -307,11 +316,16 @@ class Tween {
     }
 
     /*
-     * alpha is like a percentage of how "complete" the tween is. if im tweening position
-     * from (xScale: 0, xOffset: 0), (yScale: 0, yOffset: 0) to (xScale: 0.9, xOffset: 0), (yScale: 0.9, yOffset: 0)
-     * and alpha was 0.5, then the new position would be (xScale: 0.45, xOffset: 0), (yScale: 0.45, yOffset: 0)
-     * alpha is calcualted by getting how much time has passed since the animation started, and dividing that by animation duration
-     * alpha in some cases can go over 1 or below 0, for example in easing style overshoot
+     * alpha is like a percentage of how "complete" the tween is. if im tweening
+     * position
+     * from (xScale: 0, xOffset: 0), (yScale: 0, yOffset: 0) to (xScale: 0.9,
+     * xOffset: 0), (yScale: 0.9, yOffset: 0)
+     * and alpha was 0.5, then the new position would be (xScale: 0.45, xOffset: 0),
+     * (yScale: 0.45, yOffset: 0)
+     * alpha is calcualted by getting how much time has passed since the animation
+     * started, and dividing that by animation duration
+     * alpha in some cases can go over 1 or below 0, for example in easing style
+     * overshoot
      */
     public double getAlpha() {
         long timePassed = System.currentTimeMillis() - startTime;
@@ -354,7 +368,8 @@ class Tween {
     }
 
     private float tweenFloat(float startValue, float endValue, double alpha) {
-        return Math.min(1.0f, Math.max((float) (startValue + (endValue - startValue) * handleAnimationAlpha(alpha, animationType)), 0.0f));
+        return Math.min(1.0f, Math.max(
+                (float) (startValue + (endValue - startValue) * handleAnimationAlpha(alpha, animationType)), 0.0f));
     }
 
     private Vector2 tweenVector2(Vector2 startValue, Vector2 endValue, double alpha) {
@@ -391,10 +406,13 @@ class Tween {
         skipTween = true;
     }
 
-    // if user wants to do something when the animation is finished they can set that here
+    // if user wants to do something when the animation is finished they can set
+    // that here
     public void onFinish(TweenEvent e) {
         onFinishEvent = e;
-        if (UIElement.performanceMode) e.run();
+        if (UIElement.performanceMode) {
+            e.run();
+        }
     }
 
     // easing types
@@ -428,7 +446,8 @@ class Tween {
 
     private double overshoot(double a) {
         double c1 = 1.70158 * 1.525;
-        return a < 0.5 ? (Math.pow(2 * a, 2) * ((c1 + 1) * 2 * a - c1)) / 2 : (Math.pow(2 * a - 2, 2) * ((c1 + 1) * (a * 2 - 2) + c1) + 2) / 2;
+        return a < 0.5 ? (Math.pow(2 * a, 2) * ((c1 + 1) * 2 * a - c1)) / 2
+                : (Math.pow(2 * a - 2, 2) * ((c1 + 1) * (a * 2 - 2) + c1) + 2) / 2;
     }
 
     private double exponentialInOut(double a) {
@@ -460,7 +479,8 @@ class Tween {
     }
 }
 
-// only reason for this class is in the case that the user rotates the root element so like u want to get the mouse data relative to that ykwim
+// only reason for this class is in the case that the user rotates the root
+// element so like u want to get the mouse data relative to that ykwim
 class RootMouseEvent {
 
     private MouseEvent event;
@@ -475,9 +495,12 @@ class RootMouseEvent {
         if (element != null) {
             JPanel panel = element.panel;
             /*
-            * so here we gotta calculate the element's position RELATIVE TO the anchor point
-            * absolutePosition represents the top left corner of the element which is what java is looking for
-            * we need to calculate these so we can check if a coordinate is inside the element or not
+             * so here we gotta calculate the element's position RELATIVE TO the anchor
+             * point
+             * absolutePosition represents the top left corner of the element which is what
+             * java is looking for
+             * we need to calculate these so we can check if a coordinate is inside the
+             * element or not
              */
 
             UIElement root = UIElement.getRootForPanel(panel);
@@ -486,41 +509,49 @@ class RootMouseEvent {
             double anchorScreenY = root.absolutePosition.getY() + root.absoluteSize.getY() * root.anchorPoint.getY();
 
             /*
-            * here we move the coordinate so it's relative to the element anchor point. this is needed because to
-            * "unrotate" the element, you have to rotate the coordinate AROUND the same anchor point (which we'll do eventually)
+             * here we move the coordinate so it's relative to the element anchor point.
+             * this is needed because to
+             * "unrotate" the element, you have to rotate the coordinate AROUND the same
+             * anchor point (which we'll do eventually)
              */
             double mouseRelativeToAnchorX = event.getX() - anchorScreenX;
             double mouseRelativeToAnchorY = event.getY() - anchorScreenY;
 
             /*
-            * here we "cancel" the element's rotation so we can pretend the rotation is 0
-            * and so that the coordinate and element TECHINCALLY have the same rotation
-            * having it at 0 deg just makes the math easier 
+             * here we "cancel" the element's rotation so we can pretend the rotation is 0
+             * and so that the coordinate and element TECHINCALLY have the same rotation
+             * having it at 0 deg just makes the math easier
              */
             double rotationRadians = Math.toRadians(-root.absoluteRotation); // negative rotation to unrotate
             double rotationCos = Math.cos(rotationRadians);
             double rotationSin = Math.sin(rotationRadians);
 
             /*
-            * this part is confusing but it's based on a formula in math to rotate a point around a given point:
-            * Px, Py: original point (in this case the given coordinate)
-            * Ox, Oy: origin of rotation (anchorScreenX, anchorScreenY)
-            * P'x = Px - Ox: translate point so origin is (0, 0)
-            * P'y = Py - Oy: same as above
-            * xnew = (P'x * cos θ) - (P'y * sin θ)
-            * ynew = (P'x * sin θ) + (P'y * cos θ)
-            * then you add back Ox, Oy so that you move the point so its relative to screen space now
+             * this part is confusing but it's based on a formula in math to rotate a point
+             * around a given point:
+             * Px, Py: original point (in this case the given coordinate)
+             * Ox, Oy: origin of rotation (anchorScreenX, anchorScreenY)
+             * P'x = Px - Ox: translate point so origin is (0, 0)
+             * P'y = Py - Oy: same as above
+             * xnew = (P'x * cos θ) - (P'y * sin θ)
+             * ynew = (P'x * sin θ) + (P'y * cos θ)
+             * then you add back Ox, Oy so that you move the point so its relative to screen
+             * space now
              */
-            double unrotatedMouseX = mouseRelativeToAnchorX * rotationCos - mouseRelativeToAnchorY * rotationSin + anchorScreenX;
-            double unrotatedMouseY = mouseRelativeToAnchorX * rotationSin + mouseRelativeToAnchorY * rotationCos + anchorScreenY;
+            double unrotatedMouseX = mouseRelativeToAnchorX * rotationCos - mouseRelativeToAnchorY * rotationSin
+                    + anchorScreenX;
+            double unrotatedMouseY = mouseRelativeToAnchorX * rotationSin + mouseRelativeToAnchorY * rotationCos
+                    + anchorScreenY;
 
-            /* int panelWidth = panel.getWidth();
-            int panelHeight = panel.getHeight();
-            double ratioX = (double)root.absoluteSize.getX() / panelWidth;
-            double ratioY = (double)root.absoluteSize.getY() / panelHeight;
-
-            this.x = (int)(unrotatedMouseX * ratioX);
-            this.y = (int)(unrotatedMouseY * ratioY); */
+            /*
+             * int panelWidth = panel.getWidth();
+             * int panelHeight = panel.getHeight();
+             * double ratioX = (double)root.absoluteSize.getX() / panelWidth;
+             * double ratioY = (double)root.absoluteSize.getY() / panelHeight;
+             * 
+             * this.x = (int)(unrotatedMouseX * ratioX);
+             * this.y = (int)(unrotatedMouseY * ratioY);
+             */
             this.x = (int) (unrotatedMouseX - root.absolutePosition.getX());
             this.y = (int) (unrotatedMouseY - root.absolutePosition.getY());
         } else {
@@ -547,6 +578,7 @@ class RootMouseEvent {
 }
 
 class ListLayout {
+
     // direction options or like which way to stack the items
     public static int VERTICAL = 0;
     public static int HORIZONTAL = 1;
@@ -562,7 +594,8 @@ class ListLayout {
     public int direction = VERTICAL; // whether items stack vertically or horizontally
     public int verticalAlignment = TOP; // how to align vertically (top/middle/bottom)
     public int horizontalAlignment = LEFT; // how to align horizontally (left/center/right)
-    public Dim padding = new Dim(); // padding is like the margin of the actual content area so if u have a 200x200 area and like padding is 10 then the actual content area would be 180x180
+    public Dim padding = new Dim(); // padding is like the margin of the actual content area so if u have a 200x200
+    // area and like padding is 10 then the actual content area would be 180x180
     public Dim spacing = new Dim(); // spacing is like the space between each child
     public boolean dirty = true; // used to know if we need to resort children; only true when new child is added
 
@@ -573,19 +606,27 @@ class ListLayout {
             children.sort((a, b) -> Integer.compare(a.layoutOrder, b.layoutOrder));
             dirty = false;
         }
-        
-        double absolutePadding = (direction == VERTICAL) ? padding.getScale() * parent.absoluteSize.getY() + padding.getOffset() : padding.getScale() * parent.absoluteSize.getX() + padding.getOffset();
-        double absoluteSpacing = (direction == VERTICAL) ? spacing.getScale() * parent.absoluteSize.getY() + spacing.getOffset() : spacing.getScale() * parent.absoluteSize.getX() + spacing.getOffset();
 
-        // start positions at padding (cus like if theres padding u gotta move the content area from the left a little bit)
+        double absolutePadding = (direction == VERTICAL)
+                ? padding.getScale() * parent.absoluteSize.getY() + padding.getOffset()
+                : padding.getScale() * parent.absoluteSize.getX() + padding.getOffset();
+        double absoluteSpacing = (direction == VERTICAL)
+                ? spacing.getScale() * parent.absoluteSize.getY() + spacing.getOffset()
+                : spacing.getScale() * parent.absoluteSize.getX() + spacing.getOffset();
+
+        // start positions at padding (cus like if theres padding u gotta move the
+        // content area from the left a little bit)
         double x = absolutePadding;
         double y = absolutePadding;
 
-        // this will store total space used by all children and spacing, depends on direction
+        // this will store total space used by all children and spacing, depends on
+        // direction
         double absoluteContentSize = 0;
 
         for (UIElement child : children) {
-            if (!child.visible) continue;
+            if (!child.visible) {
+                continue;
+            }
 
             // get the size of the child depending on layout direction
             double size = (direction == VERTICAL) ? child.absoluteSize.getY() : child.absoluteSize.getX();
@@ -596,37 +637,61 @@ class ListLayout {
         // remove last spacing cus we don't want that extra gap at the end yk
         absoluteContentSize -= absoluteSpacing;
 
-        // so we gotta find the actual size we can use, which is the bounds of the parent - padding (on both left and right or top and bottom)
+        // so we gotta find the actual size we can use, which is the bounds of the
+        // parent - padding (on both left and right or top and bottom)
         double availableWidth = parent.absoluteSize.getX() - absolutePadding * 2;
         double availableHeight = parent.absoluteSize.getY() - absolutePadding * 2;
 
         // alignment for the direction we chose
         double offset = 0;
         if (direction == VERTICAL) {
-            if (verticalAlignment == MIDDLE || verticalAlignment == CENTER) offset = (availableHeight - absoluteContentSize) / 2; else if (verticalAlignment == BOTTOM) offset = (availableHeight - absoluteContentSize);
+            if (verticalAlignment == MIDDLE || verticalAlignment == CENTER) {
+                offset = (availableHeight - absoluteContentSize) / 2; 
+            }else if (verticalAlignment == BOTTOM) {
+                offset = (availableHeight - absoluteContentSize);
+            }
             y += offset;
         } else {
-            if (horizontalAlignment == CENTER || horizontalAlignment == MIDDLE) offset = (availableWidth - absoluteContentSize) / 2; else if (horizontalAlignment == RIGHT) offset = (availableWidth - absoluteContentSize);
+            if (horizontalAlignment == CENTER || horizontalAlignment == MIDDLE) {
+                offset = (availableWidth - absoluteContentSize) / 2; 
+            }else if (horizontalAlignment == RIGHT) {
+                offset = (availableWidth - absoluteContentSize);
+            }
             x += offset;
         }
 
-        // ok now we gota update the positioning of the children to like fit the stacking of the list and stuff
+        // ok now we gota update the positioning of the children to like fit the
+        // stacking of the list and stuff
         for (UIElement child : children) {
-            if (!child.visible) continue;
+            if (!child.visible) {
+                continue;
+            }
 
             double childX = x;
             double childY = y;
 
             // handle the alignment that's opposite to the current one (perperendiuclaar)
             if (direction == VERTICAL) {
-                if (horizontalAlignment == CENTER || horizontalAlignment == MIDDLE) childX = (availableWidth - child.absoluteSize.getX()) / 2 + absolutePadding; else if (horizontalAlignment == RIGHT) childX = availableWidth - child.absoluteSize.getX() + absolutePadding;
+                if (horizontalAlignment == CENTER || horizontalAlignment == MIDDLE) {
+                    childX = (availableWidth - child.absoluteSize.getX()) / 2 + absolutePadding; 
+                }else if (horizontalAlignment == RIGHT) {
+                    childX = availableWidth - child.absoluteSize.getX() + absolutePadding;
+                }
             } else {
-                if (verticalAlignment == MIDDLE || verticalAlignment == CENTER) childY = (availableHeight - child.absoluteSize.getY()) / 2 + absolutePadding; else if (verticalAlignment == BOTTOM) childY = availableHeight - child.absoluteSize.getY() + absolutePadding;
+                if (verticalAlignment == MIDDLE || verticalAlignment == CENTER) {
+                    childY = (availableHeight - child.absoluteSize.getY()) / 2 + absolutePadding; 
+                }else if (verticalAlignment == BOTTOM) {
+                    childY = availableHeight - child.absoluteSize.getY() + absolutePadding;
+                }
             }
 
-            child.position = new Dim2(0, (int)childX, 0, (int)childY);
+            child.position = new Dim2(0, (int) childX, 0, (int) childY);
 
-            if (direction == VERTICAL) y += child.absoluteSize.getY() + absoluteSpacing; else x += child.absoluteSize.getX() + absoluteSpacing;
+            if (direction == VERTICAL) {
+                y += child.absoluteSize.getY() + absoluteSpacing; 
+            }else {
+                x += child.absoluteSize.getX() + absoluteSpacing;
+            }
         }
     }
 
@@ -643,26 +708,39 @@ class ListLayout {
 }
 
 class UIElement {
+
     // oh boy
     // this is like the big dog like the framework for everything
     // private/public values
-    private static HashMap<JPanel, UIElement> rootElements = new HashMap<>(); // rootElements act like containers for all the UIElements; each panel has its own "root element". this is used to control all UIElements and handle zIndex (which are essentially layers) and handle clicking
-    protected Vector2 absolutePosition = new Vector2(); // the final literal position on the screen, represented in pixels, after scale and offset calculations
-    protected Vector2 absoluteSize = new Vector2(); // the final literal size on the screen, represented in pixels, after scale and offset calculations
-    protected double absoluteRotation = 0; // the final literal rotation on the screen after adding rotations from its ancestors (degrees)
+    private static HashMap<JPanel, UIElement> rootElements = new HashMap<>(); // rootElements act like containers for
+    // all the UIElements; each panel has its
+    // own "root element". this is used to
+    // control all UIElements and handle
+    // zIndex (which are essentially layers)
+    // and handle clicking
+    protected Vector2 absolutePosition = new Vector2(); // the final literal position on the screen, represented in
+    // pixels, after scale and offset calculations
+    protected Vector2 absoluteSize = new Vector2(); // the final literal size on the screen, represented in pixels,
+    // after scale and offset calculations
+    protected double absoluteRotation = 0; // the final literal rotation on the screen after adding rotations from its
+    // ancestors (degrees)
     protected int absoluteBorderRadius = 0;
     protected int absoluteStrokeThickness = 0;
-    public Vector2 anchorPoint = new Vector2(); // controls where to "anchor" the ui element. 0,0 would be top left corner of the element; 0.5,0.5 would be middle; 1,1 would be bottom right corner
+    public Vector2 anchorPoint = new Vector2(); // controls where to "anchor" the ui element. 0,0 would be top left
+    // corner of the element; 0.5,0.5 would be middle; 1,1 would be bottom
+    // right corner
     public Dim2 position = new Dim2(); // position using scale and offset
     public Dim2 size = new Dim2(0, 100, 0, 100); // size using scale and offset; default size 100x100 pixels
     public double rotation = 0; // rotation in degrees
     public Color backgroundColor = Color.WHITE; // background color of frame.
-    public float backgroundTransparency = 1f; // this number will determine the element's background's transparency. 1 -> fully visible, 0 -> invisible
+    public float backgroundTransparency = 1f; // this number will determine the element's background's transparency. 1
+    // -> fully visible, 0 -> invisible
     public Dim borderRadius = new Dim(); // rounded corners
     public Dim strokeThickness = new Dim();
     public float strokeTransparency = 0.0f;
     public Color strokeColor = Color.BLUE;
-    private int zIndex = 0; // represents the layer the element is on. keep in mind that zIndex is relative, meaning all children will inherit its parent's zIndex
+    private int zIndex = 0; // represents the layer the element is on. keep in mind that zIndex is relative,
+    // meaning all children will inherit its parent's zIndex
     public boolean visible = true;
     public boolean keepAspectRatio = false;
     public boolean cropOverflow = false;
@@ -717,7 +795,9 @@ class UIElement {
         clone.anchorPoint = this.anchorPoint.clone();
         clone.ignore = this.ignore;
         clone.setParent(this.parent);
-        for (String tag : this.tags) clone.addTag(tag);
+        for (String tag : this.tags) {
+            clone.addTag(tag);
+        }
         return clone;
     }
 
@@ -754,7 +834,8 @@ class UIElement {
         }
     }
 
-    // get the root element for a jpanel; acts like the whole container for all the UIElements basically
+    // get the root element for a jpanel; acts like the whole container for all the
+    // UIElements basically
     public static UIElement getRootForPanel(JPanel p) {
         UIElement root = rootElements.get(p);
         if (root == null) {
@@ -769,7 +850,9 @@ class UIElement {
     }
 
     public void setZIndex(int zIndex) {
-        if (this.parent != null) this.parent.resort = true;
+        if (this.parent != null) {
+            this.parent.resort = true;
+        }
         this.zIndex = zIndex;
     }
 
@@ -802,7 +885,7 @@ class UIElement {
         }
         return list;
     }
- 
+
     public void addTag(String tag) {
         HashSet<UIElement> list = getTaggedList(tag);
         list.add(this);
@@ -839,7 +922,9 @@ class UIElement {
         if (child.parent != null) {
             child.parent.children.remove(child);
             child.parent.resort = true;
-            if (child.parent.layout != null) child.parent.layout.dirty = true;
+            if (child.parent.layout != null) {
+                child.parent.layout.dirty = true;
+            }
         }
         resort = true;
         child.parent = this;
@@ -874,7 +959,8 @@ class UIElement {
         return aspectRatio;
     }
 
-    // returns either current height of panel or height of its parent if it has one. used for scale values
+    // returns either current height of panel or height of its parent if it has one.
+    // used for scale values
     private double getHeight() {
         if (parent != null) {
             return parent.absoluteSize.getY();
@@ -882,7 +968,8 @@ class UIElement {
         return panel.getHeight();
     }
 
-    // returns either current width of panel or width of its parent if it has one. used for scale values
+    // returns either current width of panel or width of its parent if it has one.
+    // used for scale values
     private double getWidth() {
         if (parent != null) {
             return parent.absoluteSize.getX();
@@ -891,77 +978,99 @@ class UIElement {
     }
 
     /*
-     * this method checks if a given coordinate is inside this element even if it's rotated
-     * the trick is instead of rotating the element back, we can just rotate the mouse coordinate
-     * in the opposite way to "cancel out". then we check if the new point is inside the box using 
+     * this method checks if a given coordinate is inside this element even if it's
+     * rotated
+     * the trick is instead of rotating the element back, we can just rotate the
+     * mouse coordinate
+     * in the opposite way to "cancel out". then we check if the new point is inside
+     * the box using
      * a regular check
      * 
      * sigh this used to work but its not accurate after some testing
      */
- /* public boolean containsPoint(double x, double y) {
-        // bear with me here
-        /*
-         * so here we gotta calculate the element's position RELATIVE TO the anchor point
-         * absolutePosition represents the top left corner of the element which is what java is looking for
-         * we need to calculate these so we can check if a coordinate is inside the element or not
-
-        double anchorScreenX = absolutePosition.getX() + absoluteSize.getX() * anchorPoint.getX();
-        double anchorScreenY = absolutePosition.getY() + absoluteSize.getY() * anchorPoint.getY();
-
-        /*
-        * here we move the coordinate so it's relative to the element anchor point. this is needed because to
-        * "unrotate" the element, you have to rotate the coordinate AROUND the same anchor point (which we'll do eventually)
-        
-        double mouseRelativeToAnchorX = x - anchorScreenX;
-        double mouseRelativeToAnchorY = y - anchorScreenY;
-
-        /*
-         * here we "cancel" the element's rotation so we can pretend the rotation is 0
-         * and so that the coordinate and element TECHINCALLY have the same rotation
-         * having it at 0 deg just makes the math easier 
-         
-        double rotationRadians = Math.toRadians(-absoluteRotation); // negative rotation to unrotate
-        double rotationCos = Math.cos(rotationRadians);
-        double rotationSin = Math.sin(rotationRadians);
-
-        /*
-         * this part is confusing but it's based on a formula in math to rotate a point around a given point:
-         * Px, Py: original point (in this case the given coordinate)
-         * Ox, Oy: origin of rotation (anchorScreenX, anchorScreenY)
-         * P'x = Px - Ox: translate point so origin is (0, 0)
-         * P'y = Py - Oy: same as above
-         * xnew = (P'x * cos θ) - (P'y * sin θ)
-         * ynew = (P'x * sin θ) + (P'y * cos θ)
-         * then you add back Ox, Oy so that you move the point so its relative to screen space now
-         
-
-        double unrotatedMouseX = mouseRelativeToAnchorX * rotationCos - mouseRelativeToAnchorY * rotationSin + anchorScreenX;
-        double unrotatedMouseY = mouseRelativeToAnchorX * rotationSin + mouseRelativeToAnchorY * rotationCos + anchorScreenY;
-
-        /*
-         * now that the element is "unrotated", we can do a normal box check
-         * imagine the element was rotated 45 deg or smth. because we did all the
-         * calculations above, we can pretend its 0 deg and check if coordinate is 
-         * within the bounds of the box, as normal
-         
-        double elementLeft = absolutePosition.getX();
-        double elementTop = absolutePosition.getY();
-        double elementRight = elementLeft + absoluteSize.getX();
-        double elementBottom = elementTop + absoluteSize.getY();
-
-        return unrotatedMouseX >= elementLeft && unrotatedMouseX <= elementRight && unrotatedMouseY >= elementTop  && unrotatedMouseY <= elementBottom;
-    } */
+ /*
+     * public boolean containsPoint(double x, double y) {
+     * // bear with me here
+     * /*
+     * so here we gotta calculate the element's position RELATIVE TO the anchor
+     * point
+     * absolutePosition represents the top left corner of the element which is what
+     * java is looking for
+     * we need to calculate these so we can check if a coordinate is inside the
+     * element or not
+     * 
+     * double anchorScreenX = absolutePosition.getX() + absoluteSize.getX() *
+     * anchorPoint.getX();
+     * double anchorScreenY = absolutePosition.getY() + absoluteSize.getY() *
+     * anchorPoint.getY();
+     * 
+     * /*
+     * here we move the coordinate so it's relative to the element anchor point.
+     * this is needed because to
+     * "unrotate" the element, you have to rotate the coordinate AROUND the same
+     * anchor point (which we'll do eventually)
+     * 
+     * double mouseRelativeToAnchorX = x - anchorScreenX;
+     * double mouseRelativeToAnchorY = y - anchorScreenY;
+     * 
+     * /*
+     * here we "cancel" the element's rotation so we can pretend the rotation is 0
+     * and so that the coordinate and element TECHINCALLY have the same rotation
+     * having it at 0 deg just makes the math easier
+     * 
+     * double rotationRadians = Math.toRadians(-absoluteRotation); // negative
+     * rotation to unrotate
+     * double rotationCos = Math.cos(rotationRadians);
+     * double rotationSin = Math.sin(rotationRadians);
+     * 
+     * /*
+     * this part is confusing but it's based on a formula in math to rotate a point
+     * around a given point:
+     * Px, Py: original point (in this case the given coordinate)
+     * Ox, Oy: origin of rotation (anchorScreenX, anchorScreenY)
+     * P'x = Px - Ox: translate point so origin is (0, 0)
+     * P'y = Py - Oy: same as above
+     * xnew = (P'x * cos θ) - (P'y * sin θ)
+     * ynew = (P'x * sin θ) + (P'y * cos θ)
+     * then you add back Ox, Oy so that you move the point so its relative to screen
+     * space now
+     * 
+     * 
+     * double unrotatedMouseX = mouseRelativeToAnchorX * rotationCos -
+     * mouseRelativeToAnchorY * rotationSin + anchorScreenX;
+     * double unrotatedMouseY = mouseRelativeToAnchorX * rotationSin +
+     * mouseRelativeToAnchorY * rotationCos + anchorScreenY;
+     * 
+     * /*
+     * now that the element is "unrotated", we can do a normal box check
+     * imagine the element was rotated 45 deg or smth. because we did all the
+     * calculations above, we can pretend its 0 deg and check if coordinate is
+     * within the bounds of the box, as normal
+     * 
+     * double elementLeft = absolutePosition.getX();
+     * double elementTop = absolutePosition.getY();
+     * double elementRight = elementLeft + absoluteSize.getX();
+     * double elementBottom = elementTop + absoluteSize.getY();
+     * 
+     * return unrotatedMouseX >= elementLeft && unrotatedMouseX <= elementRight &&
+     * unrotatedMouseY >= elementTop && unrotatedMouseY <= elementBottom;
+     * }
+     */
     public boolean containsPoint(double x, double y) {
-        // the only case where mostRecentTransform would be null is when its drawing for the first time
+        // the only case where mostRecentTransform would be null is when its drawing for
+        // the first time
         if (mostRecentTransform == null) {
             return false;
         }
 
         try {
-            /* 
-             * alr if u refer to my old containsPoint method above , i explain why we transform. to briefly put it,
-             * we wanna check if a certain coordinate is inside a rotated polygon; all u have to do is rotate
-             * the coordinate in the opposite direction of the rotated polygon in order to "nullify" or cancel 
+            /*
+             * alr if u refer to my old containsPoint method above , i explain why we
+             * transform. to briefly put it,
+             * we wanna check if a certain coordinate is inside a rotated polygon; all u
+             * have to do is rotate
+             * the coordinate in the opposite direction of the rotated polygon in order to
+             * "nullify" or cancel
              * the rotation of the polygon and then badabing badaboom dude
              */
             // why does this need a try catch block bro
@@ -976,7 +1085,8 @@ class UIElement {
             double elementRight = elementLeft + absoluteSize.getX();
             double elementBottom = elementTop + absoluteSize.getY();
 
-            return p.getX() >= elementLeft && p.getX() <= elementRight && p.getY() >= elementTop && p.getY() <= elementBottom;
+            return p.getX() >= elementLeft && p.getX() <= elementRight && p.getY() >= elementTop
+                    && p.getY() <= elementBottom;
 
         } catch (NoninvertibleTransformException e) {
             e.printStackTrace();
@@ -997,9 +1107,10 @@ class UIElement {
         int xOffsetPos = position.getXOffset();
         int yOffsetPos = position.getYOffset();
 
-        /* 
-         * so here im calculating the literal size of element by 
-         * multiplying screen size (or parent size if there is one) by the scale value and then adding on the offset 
+        /*
+         * so here im calculating the literal size of element by
+         * multiplying screen size (or parent size if there is one) by the scale value
+         * and then adding on the offset
          * and then i apply aspect ratio which i explain even more below
          */
         double sizeX = (width * xScaleSize) + xOffsetSize;
@@ -1009,9 +1120,12 @@ class UIElement {
                 resetAspectRatio(); // if aspect ratio hasnt been properly been set yet then reset it
             }
             /*
-             * if this is the first time updateAbsoluteValues is running, aspectRatio is a NaN because absolutesize hasnt been properly set yet
-             * in resetAspectRatio() it does absoluteSize.y divided by absoluteSize.x. that would return undefined if absoluteSize isnt properly set yet
-             * so in that case we dont apply aspect ratio UNTIL updateAbsoluteValues runs at least once
+             * if this is the first time updateAbsoluteValues is running, aspectRatio is a
+             * NaN because absolutesize hasnt been properly set yet
+             * in resetAspectRatio() it does absoluteSize.y divided by absoluteSize.x. that
+             * would return undefined if absoluteSize isnt properly set yet
+             * so in that case we dont apply aspect ratio UNTIL updateAbsoluteValues runs at
+             * least once
              */
             if (!Double.isNaN(aspectRatio)) {
                 /*
@@ -1023,7 +1137,8 @@ class UIElement {
                 double currentRatio = sizeY / sizeX;
                 if (currentRatio > aspectRatio) { // if the current height is too tall, we have to bound it to its width
                     sizeY = sizeX * aspectRatio;
-                } else if (currentRatio < aspectRatio) { // if the current width is too wide, we have to bound it to its height
+                } else if (currentRatio < aspectRatio) { // if the current width is too wide, we have to bound it to its
+                    // height
                     sizeX = sizeY / aspectRatio;
                 }
             }
@@ -1031,16 +1146,19 @@ class UIElement {
         absoluteSize.setX(sizeX);
         absoluteSize.setY(sizeY);
 
-        /* 
+        /*
          * here im calculating the displacement from the anchor point.
-         * for example: if anchor point was 0.5,0.5 then the displacement along x and y would be half the literal size of the element
+         * for example: if anchor point was 0.5,0.5 then the displacement along x and y
+         * would be half the literal size of the element
          */
         double displacementX = sizeX * anchorPoint.getX();
         double displacementY = sizeY * anchorPoint.getY();
 
-        /* 
-         * here i calculate the literal position of the element by multiplying screen size (or parent size if there is one) 
-         * by the scale value and then adding on the offset and then subtracting by the displacement from the anchor point 
+        /*
+         * here i calculate the literal position of the element by multiplying screen
+         * size (or parent size if there is one)
+         * by the scale value and then adding on the offset and then subtracting by the
+         * displacement from the anchor point
          */
         double posX = (width * xScalePos) + xOffsetPos - displacementX;
         double posY = (height * yScalePos) + yOffsetPos - displacementY;
@@ -1049,10 +1167,12 @@ class UIElement {
         absoluteRotation = rotation;
 
         if (parent != null) { // if this child has a parent...
-            /* 
-             * then displace the child (this element) by its parent's position 
-             * so that this element's position becomes relative to its parent's and not whole screen
-             * on top of that, add on the rotation of its parent so child rotates along with it
+            /*
+             * then displace the child (this element) by its parent's position
+             * so that this element's position becomes relative to its parent's and not
+             * whole screen
+             * on top of that, add on the rotation of its parent so child rotates along with
+             * it
              */
             posX += parent.absolutePosition.getX();
             posY += parent.absolutePosition.getY();
@@ -1063,7 +1183,8 @@ class UIElement {
         absolutePosition.setY(posY);
 
         absoluteBorderRadius = (int) (borderRadius.getScale() * Math.min(sizeX, sizeY) + borderRadius.getOffset());
-        absoluteStrokeThickness = (int) (strokeThickness.getScale() * Math.min(sizeX, sizeY) + strokeThickness.getOffset());
+        absoluteStrokeThickness = (int) (strokeThickness.getScale() * Math.min(sizeX, sizeY)
+                + strokeThickness.getOffset());
 
         customUpdateAbsolute(width, height);
     }
@@ -1081,55 +1202,73 @@ class UIElement {
         if (!visible) {
             return; // if this element has visible = false, then don't even bother drawing
         }
-        Graphics2D g2d = (Graphics2D) g.create(); // graphics2d is a subclass of graphics and it has more features like rotation
+        Graphics2D g2d = (Graphics2D) g.create(); // graphics2d is a subclass of graphics and it has more features like
+        // rotation
 
-        updateAbsoluteValues(); // we need to update absolute values. they act as a translation so that java can use those values to display what we want
+        updateAbsoluteValues(); // we need to update absolute values. they act as a translation so that java can
+        // use those values to display what we want
 
         /*
-         * so here we gotta calculate the element's position RELATIVE TO the anchor point
-         * absolutePosition represents the top left corner of the element which is what java is looking for
+         * so here we gotta calculate the element's position RELATIVE TO the anchor
+         * point
+         * absolutePosition represents the top left corner of the element which is what
+         * java is looking for
          * we need to calculate these so we can rotate element based around these values
          */
         double anchorScreenX = absolutePosition.getX() + absoluteSize.getX() * anchorPoint.getX();
         double anchorScreenY = absolutePosition.getY() + absoluteSize.getY() * anchorPoint.getY();
 
-        // so AffineTransform is what handles like all the transofmrations like rotation and translation 
+        // so AffineTransform is what handles like all the transofmrations like rotation
+        // and translation
         AffineTransform transform = g2d.getTransform();
         /*
          * so remember, children inherit their parents properties
-         * so i want to ADD ON the transformations of this element TO the previous element's transformations (its parent)
-         * its parents transofmrations are given to us because we pass the graphics object of the parent so the child can use it
+         * so i want to ADD ON the transformations of this element TO the previous
+         * element's transformations (its parent)
+         * its parents transofmrations are given to us because we pass the graphics
+         * object of the parent so the child can use it
          * 
-         * ok now the reason i want to store the transform because for the life of me i cannot find out how to 
-         * do the proper calculations for checking if the mouse is over a UIElement; it used to work right but
-         * the thing is i realized that some children were rotating as if the origin was themselves which i realized was wrong;
-         * it should be rotating around the parents origin and i just found that doing it this way is easier
+         * ok now the reason i want to store the transform because for the life of me i
+         * cannot find out how to
+         * do the proper calculations for checking if the mouse is over a UIElement; it
+         * used to work right but
+         * the thing is i realized that some children were rotating as if the origin was
+         * themselves which i realized was wrong;
+         * it should be rotating around the parents origin and i just found that doing
+         * it this way is easier
          */
         transform.rotate(Math.toRadians(rotation), anchorScreenX, anchorScreenY);
         g2d.setTransform(transform);
         mostRecentTransform = new AffineTransform(transform);
-        
-        if (!performanceMode) g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        //g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+        if (!performanceMode) {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        }
+        // g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
+        // RenderingHints.VALUE_RENDER_QUALITY);
 
         if (backgroundTransparency > 0) {
-            g2d.setColor(backgroundColor); 
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(backgroundTransparency, 1f)))); // setting transparency for the element
-            g2d.fillRoundRect((int) absolutePosition.getX(), (int) absolutePosition.getY(), (int) absoluteSize.getX(), (int) absoluteSize.getY(), absoluteBorderRadius, absoluteBorderRadius);
+            g2d.setColor(backgroundColor);
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                    Math.max(0f, Math.min(backgroundTransparency, 1f)))); // setting transparency for the element
+            g2d.fillRoundRect((int) absolutePosition.getX(), (int) absolutePosition.getY(), (int) absoluteSize.getX(),
+                    (int) absoluteSize.getY(), absoluteBorderRadius, absoluteBorderRadius);
         }
 
         if (strokeTransparency > 0) {
             g2d.setColor(strokeColor);
             g2d.setStroke(new BasicStroke(absoluteStrokeThickness)); // set border thickness
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(strokeTransparency, 1f))));
-            g2d.drawRoundRect((int) absolutePosition.getX(), (int) absolutePosition.getY(), (int) absoluteSize.getX(), (int) absoluteSize.getY(), absoluteBorderRadius, absoluteBorderRadius);
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                    Math.max(0f, Math.min(strokeTransparency, 1f))));
+            g2d.drawRoundRect((int) absolutePosition.getX(), (int) absolutePosition.getY(), (int) absoluteSize.getX(),
+                    (int) absoluteSize.getY(), absoluteBorderRadius, absoluteBorderRadius);
         }
 
         if (resort) {
-            //System.out.println("Resorting children of " + name);
-            //System.out.println( children );
+            // System.out.println("Resorting children of " + name);
+            // System.out.println( children );
             children.sort((a, b) -> Integer.compare(a.zIndex, b.zIndex));
-            //System.out.println("now" + children );
+            // System.out.println("now" + children );
             resort = false;
         }
 
@@ -1140,7 +1279,8 @@ class UIElement {
         }
 
         if (cropOverflow) {
-            g2d.setClip((int) absolutePosition.getX(), (int) absolutePosition.getY(), (int) absoluteSize.getX(), (int) absoluteSize.getY());
+            g2d.setClip((int) absolutePosition.getX(), (int) absolutePosition.getY(), (int) absoluteSize.getX(),
+                    (int) absoluteSize.getY());
         }
 
         for (UIElement child : children) {
@@ -1148,7 +1288,8 @@ class UIElement {
         }
 
         // drawing children
-        g2d.dispose(); // good practice to dispose to clean up resources from the graphics object we cloned (g.create())
+        g2d.dispose(); // good practice to dispose to clean up resources from the graphics object we
+        // cloned (g.create())
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1159,19 +1300,26 @@ class UIElement {
         if (!root.containsPoint(x, y)) {
             return null;
         }
-        // first we gotta check if any of this element's children that may be on top of our element contain the given coordinate
+        // first we gotta check if any of this element's children that may be on top of
+        // our element contain the given coordinate
         for (int i = children.size() - 1; i >= 0; i--) {
             UIElement child = children.get(i);
-            //System.out.println(child.zIndex);
-            if (child.visible && !child.ignore) { // if child has visible = true (we dont check if the mouse is in the bounds of the child because what if a child of the child is not in the bounds of the child we still wanna check that)
-                UIElement deeper = child.findTopmostElement(x, y); // then run findTopmostElement again. if there is another child in that child, this whole loop will happen again until it finally gets to the descendant it's hovering over
+            // System.out.println(child.zIndex);
+            if (child.visible && !child.ignore) { // if child has visible = true (we dont check if the mouse is in the
+                // bounds of the child because what if a child of the child is not in
+                // the bounds of the child we still wanna check that)
+                UIElement deeper = child.findTopmostElement(x, y); // then run findTopmostElement again. if there is
+                // another child in that child, this whole loop will
+                // happen again until it finally gets to the
+                // descendant it's hovering over
                 if (deeper != null) {
                     return deeper;
                 }
             }
         }
 
-        if (containsPoint(x, y)) { // if none of our children contain our coordinate, then just check if we're hovering over this element
+        if (containsPoint(x, y)) { // if none of our children contain our coordinate, then just check if we're
+            // hovering over this element
             return this; // if so then return this element
         }
 
@@ -1187,10 +1335,21 @@ class UIElement {
     }
 
     public RootMouseEvent handleClick(MouseEvent e) {
+        /*
+         * UITextBox focusedTextbox = UITextBox.focusedTextbox;
+         * if (focusedTextbox != null) focusedTextbox.unfocus();
+         */
+
         UIElement top = findTopmostElement(e.getX(), e.getY());
         if (top != null) {
+            /*
+             * if (top instanceof UITextBox) {
+             * ((UITextBox) top).focus();
+             * }
+             */
             RootMouseEvent event = new RootMouseEvent(top, e);
-            for (ClickListener listener : top.clickListeners) { // if we're indeed hovering over something then call all the clickListeners on the element
+            for (ClickListener listener : top.clickListeners) { // if we're indeed hovering over something then call all
+                // the clickListeners on the element
                 listener.onClick(event);
             }
             return event;
@@ -1210,7 +1369,8 @@ class UIElement {
         UIElement top = findTopmostElement(e.getX(), e.getY());
         if (top != null) {
             RootMouseEvent event = new RootMouseEvent(top, e);
-            for (PressListener listener : top.pressListeners) { // if we're indeed hovering over something then call all the clickListeners on the element
+            for (PressListener listener : top.pressListeners) { // if we're indeed hovering over something then call all
+                // the clickListeners on the element
                 listener.onPress(event);
             }
             pressed = top;
@@ -1256,28 +1416,36 @@ class UIElement {
         exitListeners.remove(listener);
     }
 
-    /* this is for mouse hovering/exiting but only based on top most element
-    public void handleMouseMovement(MouseEvent e) {
-        UIElement top = findTopmostElement(e.getX(), e.getY()); // find top most element that we're hovering over
-        if (top != currentlyHovering) { // if what we're NOW hovering over is not the same as previously then that means we're hovering over something else now
-            if (currentlyHovering != null) { // if we were previously hovering over something
-                currentlyHovering.isHovered = false; // flag it as not hovering anymore
-                for (ExitListener l : currentlyHovering.exitListeners) { // call all the exit listeners on it
-                    l.onExit(e);
-                }
-            }
-
-            if (top != null) { // if what we're hovering now exists
-                top.isHovered = true; // flag it has hovering
-                for (HoverListener l : top.hoverListeners) { // call all the hover listeners on it
-                    l.onHover(e);
-                }
-            }
-
-            currentlyHovering = top; // update currently hovering
-        }
-    } */
-    // this neglects topmost and detects hovering/exiting even if ur hovering on top of an element on top of it
+    /*
+     * this is for mouse hovering/exiting but only based on top most element
+     * public void handleMouseMovement(MouseEvent e) {
+     * UIElement top = findTopmostElement(e.getX(), e.getY()); // find top most
+     * element that we're hovering over
+     * if (top != currentlyHovering) { // if what we're NOW hovering over is not the
+     * same as previously then that means we're hovering over something else now
+     * if (currentlyHovering != null) { // if we were previously hovering over
+     * something
+     * currentlyHovering.isHovered = false; // flag it as not hovering anymore
+     * for (ExitListener l : currentlyHovering.exitListeners) { // call all the exit
+     * listeners on it
+     * l.onExit(e);
+     * }
+     * }
+     * 
+     * if (top != null) { // if what we're hovering now exists
+     * top.isHovered = true; // flag it has hovering
+     * for (HoverListener l : top.hoverListeners) { // call all the hover listeners
+     * on it
+     * l.onHover(e);
+     * }
+     * }
+     * 
+     * currentlyHovering = top; // update currently hovering
+     * }
+     * }
+     */
+    // this neglects topmost and detects hovering/exiting even if ur hovering on top
+    // of an element on top of it
     public RootMouseEvent[] handleMouseMovement(MouseEvent e) {
         UIElement nowHovered = findTopmostElement(e.getX(), e.getY());
 
@@ -1304,23 +1472,33 @@ class UIElement {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     // yooooo animations
 
-    protected Tween addTween(Object startValue, Object endValue, double time, String property, String propertyType, int animationStyle) {
+    protected Tween addTween(Object startValue, Object endValue, double time, String property, String propertyType,
+            int animationStyle) {
         /*
          * startValue: initial value of property
          * endValue: goal value of property
          * time: how long it takes in seconds to finish this animation
          * property: what you're animating; for example, position, size, color...
-         * propertyType: represents the class of the property we're adjusting; for example, position is Dim2, rotation is double, etc.
-         * animationStyle: the easing style of the animation, refer to the static values in Tween class
+         * propertyType: represents the class of the property we're adjusting; for
+         * example, position is Dim2, rotation is double, etc.
+         * animationStyle: the easing style of the animation, refer to the static values
+         * in Tween class
          */
-        long duration = (long) (time * 1000); // duration is calculated by multiplying time (in seconds) by 1000 to get milliseconds
-        Tween tween = new Tween(this, startValue, endValue, duration, property, propertyType, animationStyle); // creates a new tween object
+        long duration = (long) (time * 1000); // duration is calculated by multiplying time (in seconds) by 1000 to get
+        // milliseconds
+        Tween tween = new Tween(this, startValue, endValue, duration, property, propertyType, animationStyle); // creates
+        // a new
+        // tween
+        // object
         tweens.add(tween); // we add it to arraylist of all tweens to keep track of them
-        if (performanceMode) tween.skipTween = true;
-        startTimer(); // then make a new "loop" or timer. we only want one timer globally. if we make a new timer for every tween then it can lag
+        if (performanceMode) {
+            tween.skipTween = true;
+        }
+        startTimer(); // then make a new "loop" or timer. we only want one timer globally. if we make
+        // a new timer for every tween then it can lag
         return tween;
     }
 
@@ -1328,35 +1506,44 @@ class UIElement {
         if (isTweening) {
             return;
         }
-        if (performanceMode) { updateAllTweens(); return; }
+        if (performanceMode) {
+            updateAllTweens();
+            return;
+        }
         timer = new Timer(8, e -> {
             updateAllTweens();
             if (performanceMode) {
                 timer.stop();
             }
-        }); // create timer, every 8 miliseconds we progress the animation. 8 ms is around 120 fps
+        }); // create timer, every 8 miliseconds we progress the animation. 8 ms is around
+        // 120 fps
         timer.start(); // start timer
         isTweening = true;
     }
 
     private static void updateAllTweens() {
-        boolean allTweensComplete = true; // by default this is true. we loop thru all tweens below, and if one them isn't complete, this will be set to false
+        boolean allTweensComplete = true; // by default this is true. we loop thru all tweens below, and if one them
+        // isn't complete, this will be set to false
         boolean allSpritesComplete = true;
         ArrayList<TweenEvent> onFinishEvents = new ArrayList<>();
         HashSet<JPanel> rootPanels = new HashSet<>();
 
         if (!tweens.isEmpty()) {
-                
+
             for (int i = 0; i < tweens.size(); i++) {
                 Tween tween = tweens.get(i);
                 if (!tween.complete) { // if tween is not complete
-                    // then get the new value based on current time and update the property to that value
+                    // then get the new value based on current time and update the property to that
+                    // value
                     Object newValue;
                     if (tween.skipTween || tween.cancelTween) { // if the user requested to cancel/skip the tween
                         tween.complete = true; // flag it as complete
-                        newValue = tween.simulate(tween.skipTween ? 1 : 0); // get the new value. if skipped tween, then get it at 100% complete; if cancelled, get it at 0% (its initial value)
+                        newValue = tween.simulate(tween.skipTween ? 1 : 0); // get the new value. if skipped tween, then
+                        // get it at 100% complete; if cancelled,
+                        // get it at 0% (its initial value)
                         if (tween.onFinishEvent != null) {
-                            onFinishEvents.add(tween.onFinishEvent); // if the user set a finish event then call that method
+                            onFinishEvents.add(tween.onFinishEvent); // if the user set a finish event then call that
+                            // method
                         }
                         tweens.remove(tween);
                         i--;
@@ -1366,13 +1553,15 @@ class UIElement {
                             tween.complete = true; // flag it as complete
                             newValue = tween.simulate(1); // get the new value at 100% complete
                             if (tween.onFinishEvent != null) {
-                                onFinishEvents.add(tween.onFinishEvent); // if the user set a finish event then call that method
+                                onFinishEvents.add(tween.onFinishEvent); // if the user set a finish event then call
+                                // that method
                             }
                             tweens.remove(tween);
                             i--;
                         } else { // if the current time still hasn't passed end time
                             newValue = tween.simulate(); // then just get the new value based on alpha
-                            allTweensComplete = false; // flag allcomplete as false because this tween hasn't finished yet
+                            allTweensComplete = false; // flag allcomplete as false because this tween hasn't finished
+                            // yet
                         }
                     }
                     setProperty(tween, newValue); // update the element's property to newValue
@@ -1543,12 +1732,12 @@ class UIElement {
     }
 
     //////////////// attributes
-    
-    public <T>T getAttribute(String key) {
-        return (T)attributes.get(key);
+
+    public <T> T getAttribute(String key) {
+        return (T) attributes.get(key);
     }
 
-    public <T>T getAttributeOrDefault(String key, T defaultValue) {
+    public <T> T getAttributeOrDefault(String key, T defaultValue) {
         return getAttribute(key) != null ? (T) getAttribute(key) : defaultValue;
     }
 
@@ -1573,7 +1762,9 @@ class UIElement {
         getListByName(name).remove(this);
     }
 
-    public String toString() { return name; }
+    public String toString() {
+        return name;
+    }
 }
 
 class UIFrame extends UIElement {
@@ -1592,20 +1783,23 @@ class UIFrame extends UIElement {
     }
 
     public static UIFrame getByName(String name) {
-        return (UIFrame)(UIElement.getByName(name));
+        return (UIFrame) (UIElement.getByName(name));
     }
 }
 
 class UIImage extends UIElement {
 
-    public float imageTransparency = 1f; // if there's an image, this number will determine it's transparency. 1 -> fully visible, 0 -> invisible
+    public float imageTransparency = 1f; // if there's an image, this number will determine it's transparency. 1 ->
+    // fully visible, 0 -> invisible
     private String imagePath = ""; // draws an image if this is not null
     public BufferedImage image = null;
     private BufferedImage toDraw = null;
     private float brightness = 1f;
     private boolean dirtyBrightness = false;
     private boolean dirtyImagePath = false;
-    protected int imageFillType = 0; // by default it's 0 which represents fill. fill will make the image take the whole size, allowing for stretching, while fit will prevent stretching by setting image size to its native dimensions
+    protected int imageFillType = 0; // by default it's 0 which represents fill. fill will make the image take the
+    // whole size, allowing for stretching, while fit will prevent stretching by
+    // setting image size to its native dimensions
     public static int FILL_IMAGE = 0;
     public static int FIT_IMAGE = 1;
     public static int CROP_IMAGE = 2;
@@ -1636,7 +1830,9 @@ class UIImage extends UIElement {
     }
 
     private BufferedImage updateBrightness() {
-        if (image == null) return null;
+        if (image == null) {
+            return null;
+        }
         try {
             if (brightnessCache.containsKey(brightness)) {
                 return brightnessCache.get(brightness);
@@ -1667,7 +1863,9 @@ class UIImage extends UIElement {
         if (!imagePath.equals(newImagePath)) {
             imagePath = newImagePath;
             dirtyImagePath = true;
-            if (brightness != 1f) dirtyBrightness = true;
+            if (brightness != 1f) {
+                dirtyBrightness = true;
+            }
         }
     }
 
@@ -1692,7 +1890,10 @@ class UIImage extends UIElement {
             toDraw = updateBrightness();
         }
         if (toDraw != null && imageTransparency > 0) {
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(imageTransparency, 1f)))); // setting image transparency
+            g2d.setComposite(
+                    AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(imageTransparency, 1f)))); // setting
+            // image
+            // transparency
             int xPos = (int) absolutePosition.getX();
             int yPos = (int) absolutePosition.getY();
             int xSize = (int) absoluteSize.getX();
@@ -1707,8 +1908,10 @@ class UIImage extends UIElement {
                 int imgHeight = toDraw.getHeight();
 
                 /*
-                 * here we calculate ratios of width and height by dividing the absoluteSize by the image native size
-                 * then we find the smaller one (width or height) and that'll be the aspect ratio
+                 * here we calculate ratios of width and height by dividing the absoluteSize by
+                 * the image native size
+                 * then we find the smaller one (width or height) and that'll be the aspect
+                 * ratio
                  */
                 double widthRatio = (double) xSize / imgWidth;
                 double heightRatio = (double) ySize / imgHeight;
@@ -1731,21 +1934,25 @@ class UIImage extends UIElement {
                 double heightRatio = (double) ySize / imgHeight;
                 double ratio = Math.max(widthRatio, heightRatio); // fill, crop overflow
 
-                // so this calculates the size as big as it can be with the ratio. its as if we asked if we scaled the image to fill the box, how big would it become?
+                // so this calculates the size as big as it can be with the ratio. its as if we
+                // asked if we scaled the image to fill the box, how big would it become?
                 int drawWidth = (int) (imgWidth * ratio);
                 int drawHeight = (int) (imgHeight * ratio);
 
                 /*
-                 * imagine the rect is 200 pixels wide, and the scaled image is 300 pixels wide; the image is 100 pixels too big
+                 * imagine the rect is 200 pixels wide, and the scaled image is 300 pixels wide;
+                 * the image is 100 pixels too big
                  * we want to cut off 50 on the left, 50 on the right so that its CENTERED
                  * same vertically
                  */
                 int offsetX = (drawWidth - xSize) / 2;
                 int offsetY = (drawHeight - ySize) / 2;
 
-                /* 
-                 * we want to know where to start drawing the image from the source; so we divide the amount we need to cut off from above 
-                 * but remember, we applied ratio; so we have to divide by it. if ratio was 1, that means the picture is perfectly a square
+                /*
+                 * we want to know where to start drawing the image from the source; so we
+                 * divide the amount we need to cut off from above
+                 * but remember, we applied ratio; so we have to divide by it. if ratio was 1,
+                 * that means the picture is perfectly a square
                  * like 100x100
                  */
                 int topLeftBound = (int) (offsetX / ratio);
@@ -1753,21 +1960,26 @@ class UIImage extends UIElement {
                 int bottomLeftBound = (int) ((offsetX + xSize) / ratio);
                 int bottomRightBound = (int) ((offsetY + ySize) / ratio);
 
-                g2d.drawImage(toDraw, xPos, yPos, xPos + xSize, yPos + ySize, topLeftBound, topRightBound, bottomLeftBound, bottomRightBound, null);
+                g2d.drawImage(toDraw, xPos, yPos, xPos + xSize, yPos + ySize, topLeftBound, topRightBound,
+                        bottomLeftBound, bottomRightBound, null);
             } else if (imageFillType == SPRITE_ANIMATION) {
-                int framesPerRow = toDraw.getWidth() / frameWidth; // the amount of frames a row is determined by dividing the image native width by how many pixels the user specified
+                int framesPerRow = toDraw.getWidth() / frameWidth; // the amount of frames a row is determined by
+                // dividing the image native width by how many pixels
+                // the user specified
 
                 /*
                  * below, we gotta find the top corner of the frame on the sprite
-                 *  +-----+-----+-----+
-                 *  |  0  |  1  |  2  |
-                 *  +-----+-----+-----+
-                 *  |  3  |  4  |  5  |
-                 *  +-----+-----+-----+
-                 *  look at that for example
-                 *  imagine the current frame = 2 and framesPerRow is 3 and frameWidth is 100 and frameHeight is 50
-                 *  4 % 3 * 100 = 100; this is x
-                 *  4 / 3 * 50 = 50; this is y; so the 5th frame (2nd row 2nd column) would start at (100, 50)
+                 * +-----+-----+-----+
+                 * | 0 | 1 | 2 |
+                 * +-----+-----+-----+
+                 * | 3 | 4 | 5 |
+                 * +-----+-----+-----+
+                 * look at that for example
+                 * imagine the current frame = 2 and framesPerRow is 3 and frameWidth is 100 and
+                 * frameHeight is 50
+                 * 4 % 3 * 100 = 100; this is x
+                 * 4 / 3 * 50 = 50; this is y; so the 5th frame (2nd row 2nd column) would start
+                 * at (100, 50)
                  */
                 int startingSpriteX = (currentFrame % framesPerRow) * frameWidth;
                 int startingSpriteY = (currentFrame / framesPerRow) * frameHeight;
@@ -1784,7 +1996,8 @@ class UIImage extends UIElement {
                 int drawX = xPos + (xSize - drawWidth) / 2;
                 int drawY = yPos + (ySize - drawHeight) / 2;
 
-                g2d.drawImage(toDraw, drawX, drawY, drawX + drawWidth, drawY + drawHeight, startingSpriteX, startingSpriteY, startingSpriteX + frameWidth, startingSpriteY + frameHeight, null);
+                g2d.drawImage(toDraw, drawX, drawY, drawX + drawWidth, drawY + drawHeight, startingSpriteX,
+                        startingSpriteY, startingSpriteX + frameWidth, startingSpriteY + frameHeight, null);
             }
         }
     }
@@ -1849,7 +2062,7 @@ class UIImage extends UIElement {
     }
 
     public static UIImage getByName(String name) {
-        return (UIImage)(UIElement.getByName(name));
+        return (UIImage) (UIElement.getByName(name));
     }
 }
 
@@ -1888,13 +2101,18 @@ class UIText extends UIElement {
     }
 
     protected void customUpdateAbsolute(double width, double height) {
-        absoluteTextStrokeThickness = (int) (textStrokeThickness.getScale() * Math.min(width, height) + textStrokeThickness.getOffset());
+        absoluteTextStrokeThickness = (int) (textStrokeThickness.getScale() * Math.min(width, height)
+                + textStrokeThickness.getOffset());
     }
 
     protected void drawCustom(Graphics2D g2d) {
-        if (!performanceMode) g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        if (!performanceMode) {
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        }
 
-        if (textScaled) textWrapped = true;
+        if (textScaled) {
+            textWrapped = true;
+        }
 
         double width = absoluteSize.getX();
         double height = absoluteSize.getY();
@@ -1938,7 +2156,7 @@ class UIText extends UIElement {
 
         float lineHeight = fm.getHeight();
         float totalTextHeight = lines.size() * lineHeight;
-        float y = (float)absolutePosition.getY();
+        float y = (float) absolutePosition.getY();
 
         if (verticialAlignment == MIDDLE) {
             y += (height - totalTextHeight) / 2f + fm.getAscent();
@@ -1964,12 +2182,14 @@ class UIText extends UIElement {
                 Shape outline = gv.getOutline(x, y);
                 g2d.setColor(textStrokeColor);
                 g2d.setStroke(new BasicStroke((float) absoluteTextStrokeThickness));
-                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(textStrokeTransparency, 1f))));
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                        Math.max(0f, Math.min(textStrokeTransparency, 1f))));
                 g2d.draw(outline);
             }
 
             if (textTransparency > 0) {
-                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(textTransparency, 1f))));
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                        Math.max(0f, Math.min(textTransparency, 1f))));
                 g2d.setColor(textColor);
                 g2d.drawString(line, x, y);
             }
@@ -2001,27 +2221,34 @@ class UIText extends UIElement {
     }
 
     public static UIText getByName(String name) {
-        return (UIText)(UIElement.getByName(name));
+        return (UIText) (UIElement.getByName(name));
     }
 
-    private ArrayList<String> wrapText(Graphics2D g2d) {
+    protected ArrayList<String> wrapText(Graphics2D g2d) {
         ArrayList<String> lines = new ArrayList<>();
         FontMetrics fm = g2d.getFontMetrics();
         String[] words = text.split(" "); // splits ENTIRE text into words
-        String line = ""; // temporary string thats gonna hold the current line we're building. once we're done with it and its longer than the container width, we add it to lines arraylist and start a new line
+        String line = ""; // temporary string thats gonna hold the current line we're building. once we're
+        // done with it and its longer than the container width, we add it to lines
+        // arraylist and start a new line
 
         for (String word : words) { // looping thru all the words
-            String wholeLine = line.length() == 0 ? word : line + " " + word; // if line is empty, then wholeLine is just the word; else wholeLine is line + space + word
+            String wholeLine = line.length() == 0 ? word : line + " " + word; // if line is empty, then wholeLine is
+            // just the word; else wholeLine is line +
+            // space + word
             int lineWidth = fm.stringWidth(wholeLine); // get the width of the wholeLine if we added this word to it
-            if (lineWidth > absoluteSize.getX() && line.length() > 0) { // if the wholeLine is wider than the container width AND line is not empty
+            if (lineWidth > absoluteSize.getX() && line.length() > 0) { // if the wholeLine is wider than the container
+                // width AND line is not empty
                 lines.add(line); // then we add the current line to lines arraylist (wihtout the new word)
                 line = word; // start the next line with the word that we couldnt add
             } else {
                 line = wholeLine; // if it still fits then we just update line to wholeLine
             }
         }
-        if (line.length() > 0) lines.add(line); // if there's any remaining text in line after the loop then add it as well
-        return lines;
+        if (line.length() > 0) {
+            lines.add(line); // if there's any remaining text in line after the loop then add it as well
+
+                }return lines;
     }
 
     public Tween tweenTextTransparency(float endTextTransparency, double time) {
@@ -2040,3 +2267,102 @@ class UIText extends UIElement {
         return addTween(textStrokeTransparency, endTextStrokeTransparency, time, "txtst", "float", animationStyle);
     }
 }
+
+/*
+ * class UITextBox extends UIText {
+ * public String placeholderText = "";
+ * public Color placeholderTextColor = Color.darkGray;
+ * public boolean focused = false;
+ * public static UITextBox focusedTextbox = null;
+ * public int lineBlinkSpeed = 500;
+ * private boolean lineVisible = true;
+ * private long lastBlink = System.currentTimeMillis();
+ * 
+ * public UITextBox(String name, JPanel panel) {
+ * super(name, panel);
+ * text = "";
+ * }
+ * 
+ * public void focus() {
+ * if (focusedTextbox != null) focusedTextbox.focused = false;
+ * focusedTextbox = this;
+ * focusedTextbox.focused = true;
+ * }
+ * 
+ * public void unfocus() {
+ * if (focusedTextbox == this) focusedTextbox = null;
+ * focused = false;
+ * }
+ * 
+ * public static void keyTyped(KeyEvent e) {
+ * if (focusedTextbox == null) return;
+ * 
+ * char c = e.getKeyChar();
+ * 
+ * // if its like those keys on ur keyboard like ctrl or alt or osmething like
+ * that
+ * if (Character.isISOControl(c)) return;
+ * 
+ * focusedTextbox.text += c;
+ * }
+ * 
+ * public static void keyPressed(KeyEvent e) {
+ * if (focusedTextbox == null) return;
+ * 
+ * if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && focusedTextbox.text.length()
+ * > 0) { // if they backspace
+ * focusedTextbox.text = focusedTextbox.text.substring(0,
+ * focusedTextbox.text.length() - 1);
+ * }
+ * }
+ * 
+ * protected void drawCustom(Graphics2D g2d) {
+ * boolean empty = (text == null || text.length() == 0);
+ * 
+ * if (!focused && empty) {
+ * Color oldColor = textColor;
+ * float oldTrans = textTransparency;
+ * String oldText = text;
+ * 
+ * textColor = placeholderTextColor;
+ * textTransparency = 1f;
+ * text = placeholderText;
+ * 
+ * super.drawCustom(g2d);
+ * 
+ * textColor = oldColor;
+ * textTransparency = oldTrans;
+ * text = oldText;
+ * } else {
+ * super.drawCustom(g2d);
+ * 
+ * if (focused) {
+ * long now = System.currentTimeMillis();
+ * if (now - lastBlink > lineBlinkSpeed) {
+ * lineVisible = !lineVisible;
+ * lastBlink = now;
+ * }
+ * 
+ * if (lineVisible) {
+ * //drawLine(g2d);
+ * }
+ * }
+ * }
+ * }
+ * 
+ * protected UITextBox cloneCustom(String name) {
+ * UITextBox c = new UITextBox(name, panel);
+ * c.placeholderText = this.placeholderText;
+ * c.placeholderTextColor = this.placeholderTextColor;
+ * return c;
+ * }
+ * 
+ * public UITextBox clone(String name) {
+ * return (UITextBox) super.clone(name);
+ * }
+ * 
+ * public static UITextBox getByName(String name) {
+ * return (UITextBox)(UIElement.getByName(name));
+ * }
+ * }
+ */

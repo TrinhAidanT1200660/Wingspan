@@ -74,12 +74,22 @@ public class BirdInstance {
 
 	// adds an egg to the amount of eggs held
 	public boolean addEggs(int amt) { 
-		if (heldEggs < this.getEggMax() && amt + heldEggs < this.getEggMax()) {
+		if (heldEggs < this.getEggMax() && amt + heldEggs <= this.getEggMax()) {
 			heldEggs+=amt; 
 			return true;
 		}
 		else if(heldEggs < this.getEggMax() && amt + heldEggs > this.getEggMax()) {
 			heldEggs = this.getEggMax();
+			return true;
+		}
+		return false;
+	}
+
+	public boolean canAddEggs(int amt) { 
+		if (heldEggs < this.getEggMax() && amt + heldEggs <= this.getEggMax()) {
+			return true;
+		}
+		else if(heldEggs < this.getEggMax() && amt + heldEggs > this.getEggMax()) {
 			return true;
 		}
 		return false;

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e42e10f1-7adb-4220-bdd3-3770ae15f332" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/Game.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UIElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/UIElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WingspanPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/WingspanPanel.java" afterDir="false" />
+    </list>
+    <list id="a1d68f8b-08ca-4ea9-8e16-d0553fa97696" name="Changes by Aidan" comment="">
+      <change beforePath="$PROJECT_DIR$/BirdAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/BirdAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/Game.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/Game.java">
+      <ranges>
+        <range start1="255" end1="255" start2="255" end2="275" changelist="e42e10f1-7adb-4220-bdd3-3770ae15f332" />
+        <range start1="269" end1="270" start2="289" end2="291" changelist="a1d68f8b-08ca-4ea9-8e16-d0553fa97696" />
+        <range start1="273" end1="278" start2="294" end2="300" changelist="e42e10f1-7adb-4220-bdd3-3770ae15f332" />
+        <range start1="279" end1="281" start2="301" end2="305" changelist="e42e10f1-7adb-4220-bdd3-3770ae15f332" />
+        <range start1="310" end1="311" start2="334" end2="343" changelist="a1d68f8b-08ca-4ea9-8e16-d0553fa97696" />
+        <range start1="322" end1="322" start2="354" end2="355" changelist="a1d68f8b-08ca-4ea9-8e16-d0553fa97696" />
+        <range start1="626" end1="626" start2="659" end2="660" changelist="e42e10f1-7adb-4220-bdd3-3770ae15f332" />
+      </ranges>
+    </file>
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="36UeKGQ7HcKmiPBVrJb4Efsqtjj" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Run.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "third-branch-with-main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Mohammed/Documents/GitHub/Wingspan",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="Run" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="WingspanRunner" />
+      <module name="Wingspan" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.24978.46" />
+        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-IU-243.24978.46" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e42e10f1-7adb-4220-bdd3-3770ae15f332" name="Changes" comment="" />
+      <created>1765065511819</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1765065511819</updated>
+      <workItem from="1765065512937" duration="5589000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

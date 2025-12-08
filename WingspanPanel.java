@@ -21,20 +21,24 @@ import javax.swing.Timer;
 
 public class WingspanPanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
     public Game currentGame;
-    private UIElement root, viewingBirdStats, transition, startMenu, resourceChoosingScreen, gameScreen, promptBoardScreen, promptBonusScreen, chosenScreen, boardScreen, deckScreen, birdFeederScreen, handScreen, birdContainer, cyclingView, popupBackground, popupContainer, popupChoice1Frame, popupChoice2Frame;
-    private UIText loadingTitle, popupPrompt, playerBoardPrompt, playerBonusPrompt, popupChoice1, popupChoice2, heldEggsStat, cachedFoodStat, tuckedCardsStat;
+    private UIElement root, viewingBirdStats, transition, startMenu, resourceChoosingScreen, gameScreen, finalScreen,
+            promptBoardScreen, promptBonusScreen, chosenScreen, boardScreen, deckScreen, birdFeederScreen, handScreen,
+            birdContainer, cyclingView, popupBackground, popupContainer, popupChoice1Frame, popupChoice2Frame;
+    private UIText loadingTitle, popupPrompt, playerBoardPrompt, playerBonusPrompt, popupChoice1, popupChoice2,
+            heldEggsStat, cachedFoodStat, tuckedCardsStat;
     private UIImage showCardDuringPopup;
 
     public WingspanPanel() {
         currentGame = new Game(this);
         initializeUI();
+        currentGame.rollBirdFeeder();
         // necessary for all our GUI, you can just ignore this
         root = UIElement.getRootForPanel(this);
 
         addMouseMotionListener(this);
         addMouseListener(this);
         addKeyListener(this);
-        
+
     }
 
     @Override
@@ -49,11 +53,13 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             birdFeederScreen.visible = true;
             handScreen.visible = true;
             popupBackground.visible = true;
-            Timer t = new Timer(5000, (e) -> {
+            finalScreen.visible = true;
+            Timer t = new Timer(1000, (e) -> {
                 resourceChoosingScreen.visible = false;
                 gameScreen.visible = false;
                 cyclingView.visible = false;
                 promptBoardScreen.visible = false;
+                finalScreen.visible = false;
                 promptBonusScreen.visible = false;
                 popupBackground.visible = false;
                 UIElement.getByName("StartScreen").visible = true;
@@ -62,9 +68,10 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                 birdFeederScreen.visible = false;
                 handScreen.visible = false;
                 loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
-                ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
+                ((UIImage) UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
                 transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
-                    System.out.println("AIODSASIODAUIBSDOAUSYDAUSDBASUIDOB ASUIDO GASUIDGBASUIDG ASUID GASIUDG ASUIODG AUOISDG AUSIOD G");
+                    System.out.println(
+                            "AIODSASIODAUIBSDOAUSYDAUSDBASUIDOB ASUIDO GASUIDGBASUIDG ASUID GASIUDG ASUIODG AUOISDG AUSIOD G");
                     transition.visible = false;
                 });
                 startMenu.tweenSize(new Dim2(0.5, 0, 0.6, 0), 0.4, Tween.QUAD_IN_OUT);
@@ -80,12 +87,13 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         transition.backgroundTransparency = 0f;
         loadingTitle.textTransparency = 0f;
         loadingTitle.tweenTextTransparency(1f, 0.4, Tween.QUAD_IN_OUT);
-        ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(1f, 0.4, Tween.QUAD_IN_OUT);
+        ((UIImage) UIElement.getByName("BirdSprite")).tweenImageTransparency(1f, 0.4, Tween.QUAD_IN_OUT);
         transition.tweenBackgroundTransparency(1f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
-            if (between != null) between.run();
+            if (between != null)
+                between.run();
             loadingTitle.tweenTextTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
-            ((UIImage)UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
-            transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> { 
+            ((UIImage) UIElement.getByName("BirdSprite")).tweenImageTransparency(0f, 0.4, Tween.QUAD_IN_OUT);
+            transition.tweenBackgroundTransparency(0f, 0.4, Tween.QUAD_IN_OUT).onFinish(() -> {
                 transition.visible = false;
             });
         });
@@ -137,23 +145,30 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
     @Override
     public void mouseReleased(MouseEvent e) {
         RootMouseEvent event = root.handleRelease(e);
-        UIElement released = event.getElement(); // tells us what button was pressed on and then released on (so full click)
-        if (released == null) return;
+        UIElement released = event.getElement(); // tells us what button was pressed on and then released on (so full
+                                                 // click)
+        if (released == null)
+            return;
         System.out.println("Released on: " + released.getName());
-        if (released != null && released.containsPoint(e.getX(), e.getY())) { // if we actually pressed and released something
+        if (released != null && released.containsPoint(e.getX(), e.getY())) { // if we actually pressed and released
+                                                                              // something
             // we can do whatever with the button that was fully clicked here...
             currentGame.UIMouseReleased(event, released);
 
         }
-        Object hasAnimOnPress = released.getAttribute("animOnPress"); // check if the element wants to be animated when pressed
+        Object hasAnimOnPress = released.getAttribute("animOnPress"); // check if the element wants to be animated when
+                                                                      // pressed
         if (hasAnimOnPress != null) { // if so
             UIElement drop = (UIElement) hasAnimOnPress;
-            drop.tweenSize((Dim2) drop.getAttribute("ogsize"), 0.05, Tween.QUAD_IN_OUT); // set it back to its original size
+            drop.tweenSize((Dim2) drop.getAttribute("ogsize"), 0.05, Tween.QUAD_IN_OUT); // set it back to its original
+                                                                                         // size
         }
-        Object hasPressCover = released.getAttribute("pressCover"); // check if element wants to slightly dim when pressed
+        Object hasPressCover = released.getAttribute("pressCover"); // check if element wants to slightly dim when
+                                                                    // pressed
         if (released.getAttribute("pressCover") != null) { // if so
             UIFrame pressCover = (UIFrame) hasPressCover;
-            pressCover.tweenBackgroundTransparency(0f, 0.075, Tween.QUAD_IN_OUT); // fade it out so u cant see it anymore
+            pressCover.tweenBackgroundTransparency(0f, 0.075, Tween.QUAD_IN_OUT); // fade it out so u cant see it
+                                                                                  // anymore
         }
 
         mouseMoved(e);
@@ -234,29 +249,29 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
     @Override
     public void mouseDragged(MouseEvent e) {
     }
-    
+
     @Override
-    public void keyTyped(KeyEvent e) { }
-    
+    public void keyTyped(KeyEvent e) {
+    }
+
     @Override
     public void keyReleased(KeyEvent e) {
-    	currentGame.UIKeyReleased(e);
+        currentGame.UIKeyReleased(e);
     }
-    
-    @Override
-    public void keyPressed(KeyEvent e) { }
 
-    //to be called from back end
-    public void clickedResource(RootMouseEvent event, UIElement released, boolean canContinue)
-    {
+    @Override
+    public void keyPressed(KeyEvent e) {
+    }
+
+    // to be called from back end
+    public void clickedResource(RootMouseEvent event, UIElement released, boolean canContinue) {
         UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
         continueButton.setAttribute("Clickable", canContinue);
         continueButton.backgroundColor = canContinue ? Color.white : Color.lightGray;
     }
 
-    //to be called from back end
-    public void clickedStart(RootMouseEvent event, UIElement released)
-    {
+    // to be called from back end
+    public void clickedStart(RootMouseEvent event, UIElement released) {
         ImageHandler.setGroup("foods/berry.png", "Foods");
         ImageHandler.setGroup("foods/fish.png", "Foods");
         ImageHandler.setGroup("foods/rat.png", "Foods");
@@ -272,21 +287,21 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         startMenu.size = new Dim2(0.5, 0, 0.6, 0);
         resourceChoosingScreen.tweenSize(new Dim2().full(), 0.4, Tween.QUAD_IN_OUT);
     }
-    
-    //to be called from back end
-    public void clickedResourceContinue(RootMouseEvent event, UIElement released, boolean screenToShow)
-    {
+
+    // to be called from back end
+    public void clickedResourceContinue(RootMouseEvent event, UIElement released, boolean screenToShow) {
         UIElement.getByName("ChoosableBirdsContainer").visible = screenToShow;
         UIElement.getByName("ChoosableFoodsContainer").visible = screenToShow;
         UIElement.getByName("ChoosableBonusesContainer").visible = !screenToShow;
-        
+
         UIElement continueButton = UIElement.getByName("ContinueResourcesButtonBg");
         continueButton.setAttribute("Clickable", false);
         continueButton.backgroundColor = Color.lightGray;
     }
 
     public void animateBird() {
-        if (UIElement.performanceMode) return;
+        if (UIElement.performanceMode)
+            return;
         if (startMenu.visible) {
             birdContainer.tweenPosition(new Dim2(-0.1, 0, 0.55, 0), 1, Tween.QUAD_IN_OUT).onFinish(() -> {
                 birdContainer.tweenPosition(new Dim2(-0.1, 0, 0.45, 0), 1, Tween.QUAD_IN_OUT).onFinish(() -> {
@@ -305,7 +320,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         blackBackground.backgroundColor = Color.black;
 
         UIImage backgroundFrame = new UIImage("Background", this); // background image of the sky
-        backgroundFrame.setImagePath("images/wingspan_background.png"); // setting the picture to the BufferedImage of the sky
+        backgroundFrame.setImagePath("images/wingspan_background.png"); // setting the picture to the BufferedImage of
+                                                                        // the sky
         backgroundFrame.size.full(); // take 100% of the screen
         backgroundFrame.backgroundTransparency = 0f; // no background color
         backgroundFrame.setImageFillType(UIImage.CROP_IMAGE); // setting it so even if screen is an awkward size the
@@ -511,7 +527,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         loadingTitle.setParent(transitionContainer);
 
         // next screen
-        resourceChoosingScreen = new UIFrame("ResourceChoosingScreen", this); // invisible frame holding player choosing stuff
+        resourceChoosingScreen = new UIFrame("ResourceChoosingScreen", this); // invisible frame holding player choosing
+                                                                              // stuff
         resourceChoosingScreen.anchorPoint.center(); // centered anchor point
         resourceChoosingScreen.position.center(); // center in middle
         resourceChoosingScreen.size.full(); // entire screen
@@ -571,14 +588,14 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             bonus.setParent(chooseableBonusContainer);
             animOnHover(bonus, bonus);
             animOnPress(bonus, bonus);
-            bonus.setAttribute("Select", (Runnable)() -> {
+            bonus.setAttribute("Select", (Runnable) () -> {
                 bonus.setBrightness(1f);
                 Dim2 newSize = new Dim2().full().dilate(0.95);
                 bonus.setAttribute("ogsize", newSize);
                 bonus.setAttribute("hoversize", newSize.clone().dilate(1.1));
                 bonus.setAttribute("presssize", newSize.clone().dilate(0.85));
             });
-            bonus.setAttribute("Deselect", (Runnable)() -> {
+            bonus.setAttribute("Deselect", (Runnable) () -> {
                 bonus.setBrightness(0.6f);
                 Dim2 newSize = new Dim2().full().dilate(0.85);
                 bonus.setAttribute("ogsize", newSize);
@@ -619,14 +636,14 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             bird.setParent(chooseableBirdContainer);
             animOnHover(bird, bird);
             animOnPress(bird, bird);
-            bird.setAttribute("Select", (Runnable)() -> {
+            bird.setAttribute("Select", (Runnable) () -> {
                 bird.setBrightness(1f);
                 Dim2 newSize = new Dim2().full().dilate(0.95);
                 bird.setAttribute("ogsize", newSize);
                 bird.setAttribute("hoversize", newSize.clone().dilate(1.1));
                 bird.setAttribute("presssize", newSize.clone().dilate(0.85));
             });
-            bird.setAttribute("Deselect", (Runnable)() -> {
+            bird.setAttribute("Deselect", (Runnable) () -> {
                 bird.setBrightness(0.6f);
                 Dim2 newSize = new Dim2().full().dilate(0.85);
                 bird.setAttribute("ogsize", newSize);
@@ -707,7 +724,111 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         gameScreen.anchorPoint.center(); // centered anchor point
         gameScreen.position.center(); // center in middle
         gameScreen.size.full(); // entire screen
-        gameScreen.backgroundTransparency = 0; // invisible
+        gameScreen.backgroundTransparency = 0f; // invisible
+
+        finalScreen = gameScreen.clone("FinalScreen");
+
+        UIFrame finalScreenContent = new UIFrame("FinalScreenContent", this);
+        finalScreenContent.size.full();
+        finalScreenContent.position.center();
+        finalScreenContent.anchorPoint.center();
+        finalScreenContent.backgroundTransparency = 0f;
+        finalScreenContent.keepAspectRatio = true;
+        finalScreenContent.setParent(finalScreen);
+
+        UIImage scoreChart = new UIImage("ScoreChart", this);
+        scoreChart.setImageFillType(UIImage.FIT_IMAGE);
+        scoreChart.setImagePath("images/final_scoring_chart.png");
+        scoreChart.size.full().dilate(0.8);
+        scoreChart.position.center();
+        scoreChart.anchorPoint.center();
+        scoreChart.setParent(finalScreenContent);
+
+        UIImage goalBoardButtonContainer = new UIImage("GoalBoardButtonContainer", this);
+        goalBoardButtonContainer.size = new Dim2(0.048, 0, 0.285 * 1.9, 0);
+        goalBoardButtonContainer.position = new Dim2(1, 0, 0.5, 0);
+        goalBoardButtonContainer.anchorPoint = new Vector2(1, 0.5);
+        goalBoardButtonContainer.keepAspectRatio = true;
+        goalBoardButtonContainer.backgroundTransparency = 0f;
+        goalBoardButtonContainer.backgroundColor = Color.black;
+        goalBoardButtonContainer.setParent(gameScreen);
+        goalBoardButtonContainer.setZIndex(50);
+
+        UIImage goalBoardButton = new UIImage("GoalBoardButton", this);
+        goalBoardButton.size.full();
+        goalBoardButton.position = new Dim2(0.05, 0, 0.5, 0);
+        goalBoardButton.anchorPoint = new Vector2(0, 0.5);
+        goalBoardButton.setImageFillType(UIImage.FIT_IMAGE);
+        goalBoardButton.setImagePath("images/competitive_goal_board_button.png");
+        goalBoardButton.backgroundTransparency = 0f;
+        goalBoardButton.backgroundColor = Color.black;
+        goalBoardButton.setParent(goalBoardButtonContainer);
+        goalBoardButton.setZIndex(50);
+
+        UIImage goalBoard = new UIImage("GoalBoard", this);
+        goalBoard.size = new Dim2(12, 0, 1, 0);
+        goalBoard.position = new Dim2(0, 0, 0.5, 0);
+        goalBoard.anchorPoint = new Vector2(0, 0.5);
+        goalBoard.setImageFillType(UIImage.FIT_IMAGE);
+        goalBoard.setImagePath("images/competitive_goal_board.png");
+        goalBoard.backgroundTransparency = 0f;
+        goalBoard.visible = false;
+        goalBoard.setParent(goalBoardButton);
+        goalBoard.setZIndex(50);
+
+        UIFrame playerActionCubeCharts = new UIFrame("PeacefulPlayerChart", this);
+        playerActionCubeCharts.setParent(goalBoard);
+        playerActionCubeCharts.size = new Dim2(0.5, 0, 0.5, 0);
+        playerActionCubeCharts.position = new Dim2();
+
+        UIFrame goalBoardBackground = new UIFrame("GoalBoardBackground", this);
+        goalBoardBackground.visible = false;
+        goalBoardBackground.size.full().dilate(150);
+        goalBoardBackground.position.center();
+        goalBoardBackground.anchorPoint.center();
+        goalBoardBackground.backgroundColor = Color.decode("#422508");
+        goalBoardBackground.backgroundTransparency = 0f;
+        goalBoardBackground.setZIndex(49);
+        goalBoardBackground.setParent(gameScreen);
+        goalBoardBackground.addReleaseListener((e) -> ((Runnable) goalBoard.getAttribute("Close")).run());
+
+        goalBoardButton.addReleaseListener(e -> {
+            if (goalBoardButton.getAttributeOrDefault("open", false)) {
+                ((Runnable) goalBoard.getAttribute("Close")).run();
+                return;
+            }
+            boolean db = goalBoardButton.getAttributeOrDefault("db", false);
+            if (!db) {
+                goalBoardBackground.visible = true;
+                goalBoardBackground.tweenBackgroundTransparency(0.5f, 0.3, Tween.QUAD_IN_OUT);
+                goalBoardButton.setAttribute("open", true);
+                goalBoardButton.setAttribute("db", true);
+                goalBoardButton.imageTransparency = 0f;
+                goalBoard.visible = true;
+                goalBoard.tweenPosition(new Dim2(-10.8, 0, 0.5, 0), 0.3, Tween.QUAD_IN_OUT).onFinish(() -> {
+                    goalBoardButton.setAttribute("db", false);
+                });
+            }
+        });
+
+        goalBoard.setAttribute("Close", (Runnable) () -> {
+            if (!goalBoardButton.getAttributeOrDefault("open", false))
+                return;
+            boolean db = goalBoardButton.getAttributeOrDefault("db", false);
+            if (!db) {
+                goalBoardButton.setAttribute("db", true);
+                goalBoardBackground.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
+                goalBoard.tweenPosition(new Dim2(0, 0, 0.5, 0), 0.3, Tween.QUAD_IN_OUT).onFinish(() -> {
+                    goalBoardButton.setAttribute("open", false);
+                    goalBoardButton.setAttribute("db", false);
+                    goalBoardButton.imageTransparency = 1f;
+                    goalBoard.visible = false;
+                    goalBoardBackground.visible = false;
+                });
+            }
+        });
+
+        goalBoard.addReleaseListener(e -> ((Runnable) goalBoard.getAttribute("Close")).run());
 
         promptBoardScreen = gameScreen.clone("PromptBoardScreen");
         promptBoardScreen.keepAspectRatio = true;
@@ -726,10 +847,70 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         playerBoardPrompt.backgroundTransparency = 0f;
         playerBoardPrompt.anchorPoint.center();
         playerBoardPrompt.position = new Dim2(0.5, 0, 0.9, 0);
-        playerBoardPrompt.size = new Dim2(0.9, 0, 0.12, 0);
+        playerBoardPrompt.size = new Dim2(0.6, 0, 0.12, 0);
         playerBoardPrompt.textScaled = true;
         playerBoardPrompt.textColor = Color.white;
         playerBoardPrompt.text = "hi";
+
+        UIFrame exitBoardPromptContainer = new UIFrame("RerollBirdFeederButtonContainer", this);
+        exitBoardPromptContainer.backgroundTransparency = 0f;
+        exitBoardPromptContainer.size = new Dim2(0.12, 0, 0.1, 0);
+        exitBoardPromptContainer.anchorPoint = new Vector2(1, 1);
+        exitBoardPromptContainer.position = new Dim2(0.95, 0, 0.95, 0);
+        exitBoardPromptContainer.setParent(promptBoardScreen);
+
+        UIFrame exitBoardPromptButton = new UIFrame("ExitBoardPromptButton", this);
+        exitBoardPromptButton.size.full().dilate(0.9);
+        exitBoardPromptButton.backgroundColor = Color.decode("#ff3b3b");
+        exitBoardPromptButton.visible = false;
+        exitBoardPromptButton.borderRadius = new Dim(0.3, 0);
+        exitBoardPromptButton.position.center();
+        exitBoardPromptButton.anchorPoint.center();
+        exitBoardPromptButton.setParent(exitBoardPromptContainer);
+
+        exitBoardPromptButton.addReleaseListener(e -> {
+            if (gameScreen.getAttributeOrDefault("Action", "").equals("layEggs")) {
+                promptPlayer(
+                        "Are you sure you want to stop laying eggs? You won't lose the ones you laid already, but you will lose the ones you have not laid and a food token if you traded one.",
+                        "Yes", "No", (b) -> {
+                            if (b) {
+                                gameScreen.setAttribute("Action", "");
+                                ((Runnable) (UIFrame.getByName("SelectButtonFrame")).getAttribute("UpdateVisibility"))
+                                        .run();
+                                ((Runnable) viewingBirdStats.getAttribute("Update")).run();
+                                promptBoardScreen.setAttribute("Active", false);
+                                UIElement playerBoard = playerBoardPromptContainer.getChildren().getFirst();
+                                playerBoard.setParent(UIFrame.getByName("Boards"));
+                                ((Runnable) cyclingView.getAttribute("Stop")).run();
+                                promptBoardScreen.visible = false;
+                                exitBoardPromptButton.visible = false;
+                                gameScreen.visible = true;
+                                Player p = currentGame.getPlayers().get(currentGame.getPlayerTurn() - 1);
+                                boolean laid1 = gameScreen.getAttributeOrDefault("Laid1", false);
+                                if (laid1) {
+                                    gameScreen.setAttribute("Laid1", false);
+                                    currentGame.pinkAbilityActivation("eggLaid");
+                                }
+                                currentGame.iterateBirdAbilities(p, "grassland");
+                                currentGame.incrementPlayerTurn();
+                            }
+                        });
+            }
+        });
+
+        UIText exitBoardPromptButtonText = new UIText("ExitBoardPromptButtonText", this);
+        exitBoardPromptButtonText.ignore = true;
+        exitBoardPromptButtonText.textScaled = true;
+        exitBoardPromptButtonText.text = "Exit";
+        exitBoardPromptButtonText.textColor = Color.WHITE;
+        exitBoardPromptButtonText.size.full().dilate(0.75);
+        exitBoardPromptButtonText.position.center();
+        exitBoardPromptButtonText.anchorPoint.center();
+        exitBoardPromptButtonText.backgroundTransparency = 0f;
+        exitBoardPromptButtonText.setParent(exitBoardPromptButton);
+
+        animOnHover(exitBoardPromptButton, exitBoardPromptButton);
+        animOnPress(exitBoardPromptButton, exitBoardPromptButton);
 
         playerBonusPrompt = playerBoardPrompt.clone("PlayerBonusPrompt");
         playerBonusPrompt.setParent(promptBonusScreen);
@@ -745,14 +926,18 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         promptBonusesContainer.layout = bonusChoicesLayout.clone();
         promptBonusesContainer.layout.spacing = new Dim(0.02, 0);
 
-        promptBonusesContainer.setAttribute("Choose", (Consumer<UIImage>)(choice) -> {
+        promptBonusesContainer.setAttribute("Choose", (Consumer<UIImage>) (choice) -> {
             Consumer<BonusCard> done = promptBonusScreen.getAttributeOrDefault("Done", null);
             if (done != null) {
-                done.accept(choice.getAttributeOrDefault("Card", null));
                 promptBonusScreen.setAttribute("Done", null);
+                done.accept(choice.getAttributeOrDefault("Card", null));
             }
-            promptBonusScreen.visible = false;
-            gameScreen.visible = true;
+            Timer t = new Timer(500, (e) -> {
+                promptBonusScreen.visible = false;
+                gameScreen.visible = true;
+            });
+            t.setRepeats(false);
+            t.start();
         });
 
         for (int i = 0; i < 2; i++) {
@@ -770,27 +955,31 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             bonus.setParent(bonusContainerChoice);
             animOnHover(bonus, bonus);
             animOnPress(bonus, bonus);
-            bonus.addReleaseListener((e) -> ((Consumer<UIImage>)promptBonusesContainer.getAttribute("Choose")).accept(bonus));
+            bonus.addReleaseListener(
+                    (e) -> ((Consumer<UIImage>) promptBonusesContainer.getAttribute("Choose")).accept(bonus));
         }
 
-        promptBoardScreen.setAttribute("Choose", (Consumer<UIElement>)(UIElement choice) -> {
-            Consumer<String> done = promptBoardScreen.getAttributeOrDefault("Done", null);
-            UIElement playerBoard = playerBoardPromptContainer.getChildren().getFirst();
-            playerBoard.setParent(UIFrame.getByName("Boards"));
-            int playerIndex = playerBoard.getAttribute("PlayerIndex");
-            UIFrame.getByName("PlayBirdButton" + playerIndex).backgroundTransparency = 0f;
-            UIFrame.getByName("GetFoodButton" + playerIndex).backgroundTransparency = 0f;
-            UIFrame.getByName("LayEggsButton" + playerIndex).backgroundTransparency = 0f;
-            UIFrame.getByName("DrawBirdsButton" + playerIndex).backgroundTransparency = 0f;
-            promptBoardScreen.setAttribute("Active", false);
-            promptBoardScreen.visible = false;
-            gameScreen.visible = true;
-            if (done != null) {
-                promptBoardScreen.setAttribute("Done", null);
-                done.accept(choice.getAttributeOrDefault("Habitat", null));
+        promptBoardScreen.setAttribute("Choose", (Consumer<UIElement>) (UIElement choice) -> {
+            if (!gameScreen.getAttributeOrDefault("Action", "").equals("layEggs")) {
+                Consumer<String> done = promptBoardScreen.getAttributeOrDefault("Done", null);
+                UIElement playerBoard = playerBoardPromptContainer.getChildren().getFirst();
+                playerBoard.setParent(UIFrame.getByName("Boards"));
+                int playerIndex = playerBoard.getAttribute("PlayerIndex");
+                UIFrame.getByName("PlayBirdButton" + playerIndex).backgroundTransparency = 0f;
+                UIFrame.getByName("GetFoodButton" + playerIndex).backgroundTransparency = 0f;
+                UIFrame.getByName("LayEggsButton" + playerIndex).backgroundTransparency = 0f;
+                UIFrame.getByName("DrawBirdsButton" + playerIndex).backgroundTransparency = 0f;
+                promptBoardScreen.setAttribute("Active", false);
+                promptBoardScreen.visible = false;
+                exitBoardPromptButton.visible = false;
+                gameScreen.visible = true;
+                if (done != null) {
+                    promptBoardScreen.setAttribute("Done", null);
+                    done.accept(choice.getAttributeOrDefault("Habitat", null));
+                }
             }
         });
-        
+
         UIFrame infoCorner = new UIFrame("GameInfoCorner", this);
         infoCorner.backgroundTransparency = 0f;
         infoCorner.size = new Dim2(0.15, 0, 0.29, 0).dilate(1.3);
@@ -798,14 +987,14 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         infoCorner.keepAspectRatio = true;
         infoCorner.setZIndex(3);
         infoCorner.setParent(gameScreen);
-        
+
         UIImage gameStatsFrame = new UIImage("GameStatsFrame", this);
         gameStatsFrame.setParent(infoCorner);
         gameStatsFrame.setImagePath("images/game_stats_background.png");
         gameStatsFrame.setImageFillType(UIImage.FIT_IMAGE);
         gameStatsFrame.size = new Dim2(0.46, 0, 1, 0);
         gameStatsFrame.backgroundTransparency = 0f;
-        
+
         UIImage actionCubeIcon = new UIImage("ActionCubeIcon", this);
         actionCubeIcon.setParent(gameStatsFrame);
         actionCubeIcon.setImagePath("images/p1_action_cube.png");
@@ -813,7 +1002,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         actionCubeIcon.backgroundTransparency = 0f;
         actionCubeIcon.size = new Dim2(0.45, 0, 0.15, 0);
         actionCubeIcon.position = new Dim2(0.12, 0, 0.05, 0);
-        
+
         UIText actionCubesStat = new UIText("ActionCubesStat", this);
         actionCubesStat.setParent(gameStatsFrame);
         actionCubesStat.textScaled = true;
@@ -833,7 +1022,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         foodsStatFrame.backgroundTransparency = 0f;
         foodsStatFrame.strokeTransparency = 0f;
         foodsStatFrame.strokeColor = Color.decode("#fff7f7");
-        
+
         ListLayout foodsStatLayout = new ListLayout();
         foodsStatLayout.direction = ListLayout.VERTICAL;
         foodsStatLayout.verticalAlignment = ListLayout.CENTER;
@@ -856,9 +1045,14 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         birdFeederButton.backgroundTransparency = 0f;
         birdFeederButton.setParent(birdFeederButtonContainer);
         birdFeederButton.addReleaseListener((e) -> {
-            //choosePlayingScreen(birdFeederScreen);
-            //this.promptPlayerBonus("hi there", BonusCard.BIRD_COUNTER, BonusCard.BACKYARD_BIRDER, null);
-            this.promptPlayerBirdCard(new ArrayList<>(currentGame.getPlayers().get(currentGame.getPlayerTurn() - 1).getBirdHand()), (Consumer<Bird>)(choice) -> System.out.println(choice));
+            choosePlayingScreen(birdFeederScreen);
+            // this.promptPlayerBonus("hi there", BonusCard.BIRD_COUNTER,
+            // BonusCard.BACKYARD_BIRDER, null);
+            // this.promptPlayerHabitat(1, "hi there", null, List.of(new String[] {"forest",
+            // "grassland"}));
+            // this.promptPlayerBirdCard(new
+            // ArrayList<>(currentGame.getPlayers().get(currentGame.getPlayerTurn() -
+            // 1).getBirdHand()), (Consumer<Bird>)(choice) -> System.out.println(choice));
         });
         animOnHover(birdFeederButton, birdFeederButton);
         animOnPress(birdFeederButton, birdFeederButton);
@@ -883,7 +1077,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         birdFeederButtonCover.backgroundColor = Color.black;
         birdFeederButtonCover.setParent(birdFeederButton);
         birdFeederButtonCover.setZIndex(1);
-        birdFeederButtonCover.borderRadius = new Dim(0.34, 0);
+        birdFeederButtonCover.borderRadius = new Dim(0.25, 0);
         birdFeederButtonCover.ignore = true;
         pressCover(birdFeederButton, birdFeederButtonCover);
 
@@ -927,7 +1121,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         deckButtonCover.backgroundColor = Color.black;
         deckButtonCover.setParent(deckButton);
         deckButtonCover.setZIndex(1);
-        deckButtonCover.borderRadius = new Dim(0.34, 0);
+        deckButtonCover.borderRadius = new Dim(0.25, 0);
         deckButtonCover.ignore = true;
         pressCover(deckButton, deckButtonCover);
 
@@ -1007,6 +1201,20 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         boardScreen.visible = false;
         boardScreen.setParent(gameScreen);
 
+        UIText roundTitle = new UIText("RoundTitle", this);
+        roundTitle.backgroundTransparency = 0f;
+        roundTitle.textColor = Color.white;
+        roundTitle.textScaled = true;
+        roundTitle.position = new Dim2(0.5, 0, -0.07, 0);
+        roundTitle.size = new Dim2(0.9, 0, 0.06, 0);
+        roundTitle.textStrokeColor = Color.black;
+        roundTitle.textStrokeTransparency = 1f;
+        roundTitle.textStrokeThickness = new Dim(0.007, 0);
+        roundTitle.horizontalAlignment = UIText.CENTER;
+        roundTitle.anchorPoint.center();
+        roundTitle.text = "Round 1";
+        roundTitle.setParent(boardScreen);
+
         UIText boardTitle = new UIText("BoardTitle", this);
         boardTitle.backgroundTransparency = 0f;
         boardTitle.textColor = Color.white;
@@ -1029,20 +1237,22 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         boards.anchorPoint.center();
         boards.setParent(boardScreen);
         boards.setAttribute("Index", 1);
-        boards.setAttribute("ShowBoardOfCurrent", (Runnable)() -> {
+        boards.setAttribute("ShowBoardOfCurrent", (Runnable) () -> {
             boards.setAttribute("Index", currentGame.getPlayerTurn());
-            ((Runnable)boards.getAttribute("ViewBoard")).run();
+            ((Runnable) boards.getAttribute("ViewBoard")).run();
         });
-        boards.setAttribute("ViewBoard", (Runnable)() -> {
-            int index = (int)boards.getAttribute("Index");
+        boards.setAttribute("ViewBoard", (Runnable) () -> {
+            int index = (int) boards.getAttribute("Index");
             if (index == currentGame.getPlayerTurn()) {
                 boardTitle.text = "Player " + index + "'s Turn";
             } else {
                 boardTitle.text = "Viewing Player " + index + "'s Board";
             }
-            UIImage prevBoard = (UIImage)boards.getAttribute("Current");
+            // set round here roundTitle.text = "Round " +
+            UIImage prevBoard = (UIImage) boards.getAttribute("Current");
             if (prevBoard != null) {
-                UIFrame.getByName("Player" + prevBoard.getName().split("PlayerBoard")[1] + "Button").strokeColor = Color.white;
+                UIFrame.getByName(
+                        "Player" + prevBoard.getName().split("PlayerBoard")[1] + "Button").strokeColor = Color.white;
                 prevBoard.visible = false;
             }
             UIImage newBoard = UIImage.getByName("PlayerBoard" + index);
@@ -1066,6 +1276,9 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             playerBoard.visible = false;
 
             UIFrame playBirdButton = new UIFrame("PlayBirdButton" + p, this);
+            playBirdButton.strokeTransparency = 0f;
+            playBirdButton.strokeColor = Color.white;
+            playBirdButton.strokeThickness = new Dim(0.4, 0);
             playBirdButton.backgroundColor = Color.black;
             playBirdButton.size = new Dim2(1, 0, 0.045, 0);
             playBirdButton.position = new Dim2(0.5, 0, 0, 0);
@@ -1075,13 +1288,19 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             playBirdButton.addClickListener((e) -> {
                 boolean prompting = promptBoardScreen.getAttributeOrDefault("Active", false);
                 if (!prompting) {
-                    if (currentGame.getPlayerTurn() != p) return;
+                    if (currentGame.getPlayerTurn() != p)
+                        return;
                     gameScreen.setAttribute("Action", "playBird");
-                    ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                    ((Runnable) gameScreen.getAttribute("PickAction")).run();
                 }
             });
+            playBirdButton.addHoverListener((e) -> playBirdButton.strokeTransparency = 1f);
+            playBirdButton.addExitListener((e) -> playBirdButton.strokeTransparency = 0f);
 
             UIFrame getFoodButton = new UIFrame("GetFoodButton" + p, this);
+            getFoodButton.strokeTransparency = 0f;
+            getFoodButton.strokeColor = Color.white;
+            getFoodButton.strokeThickness = new Dim(0.08, 0);
             getFoodButton.backgroundColor = Color.black;
             getFoodButton.setAttribute("Habitat", "forest");
             getFoodButton.size = new Dim2(1, 0, 0.315, 0);
@@ -1092,16 +1311,20 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             getFoodButton.addClickListener((e) -> {
                 boolean prompting = promptBoardScreen.getAttributeOrDefault("Active", false);
                 if (!prompting) {
-                    if (currentGame.getPlayerTurn() != p) return;
-                    //gameScreen.setAttribute("Action", "getFood");
-                    //((Runnable)gameScreen.getAttribute("PickAction")).run();
+                    if (currentGame.getPlayerTurn() != p)
+                        return;
+                    // gameScreen.setAttribute("Action", "getFood");
+                    // ((Runnable)gameScreen.getAttribute("PickAction")).run();
                     currentGame.playActions("getFood");
                 } else {
                     if (getFoodButton.getAttributeOrDefault("Clickable", false)) {
-                        ((Consumer<UIElement>)promptBoardScreen.getAttribute("Choose")).accept(getFoodButton);
+                        ((Consumer<UIElement>) promptBoardScreen.getAttribute("Choose")).accept(getFoodButton);
                     }
                 }
             });
+
+            getFoodButton.addHoverListener((e) -> getFoodButton.strokeTransparency = 1f);
+            getFoodButton.addExitListener((e) -> getFoodButton.strokeTransparency = 0f);
 
             UIFrame forestBirdsList = new UIFrame("forestBirdsList" + p, this);
             forestBirdsList.backgroundColor = Color.white;
@@ -1118,21 +1341,26 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             forestBirdsListLayout.direction = ListLayout.HORIZONTAL;
             forestBirdsList.layout = forestBirdsListLayout;
 
-            /* UIImage testBird = new UIImage("TestBird", this);
-            testBird.size = new Dim2(0.188, 0, 1, 0);
-            testBird.setImageFillType(UIImage.FIT_IMAGE);
-            testBird.setImagePath("birds/acorn_woodpecker.png");
-            testBird.backgroundTransparency = 0.5f;
-            testBird.setParent(forestBirdsList);
+            /*
+             * UIImage testBird = new UIImage("TestBird", this);
+             * testBird.size = new Dim2(0.188, 0, 1, 0);
+             * testBird.setImageFillType(UIImage.FIT_IMAGE);
+             * testBird.setImagePath("birds/acorn_woodpecker.png");
+             * testBird.backgroundTransparency = 0.5f;
+             * testBird.setParent(forestBirdsList);
+             * 
+             * UIImage testBird2 = new UIImage("TestBird", this);
+             * testBird2.size = new Dim2(0.188, 0, 1, 0);
+             * testBird2.setImageFillType(UIImage.FIT_IMAGE);
+             * testBird2.setImagePath("birds/acorn_woodpecker.png");
+             * testBird2.backgroundTransparency = 0.5f;
+             * testBird2.setParent(forestBirdsList);
+             */
 
-            UIImage testBird2 = new UIImage("TestBird", this);
-            testBird2.size = new Dim2(0.188, 0, 1, 0);
-            testBird2.setImageFillType(UIImage.FIT_IMAGE);
-            testBird2.setImagePath("birds/acorn_woodpecker.png");
-            testBird2.backgroundTransparency = 0.5f;
-            testBird2.setParent(forestBirdsList); */
- 
             UIFrame layEggsButton = new UIFrame("LayEggsButton" + p, this);
+            layEggsButton.strokeTransparency = 0f;
+            layEggsButton.strokeColor = Color.white;
+            layEggsButton.strokeThickness = new Dim(0.08, 0);
             layEggsButton.backgroundColor = Color.black;
             layEggsButton.setAttribute("Habitat", "grassland");
             layEggsButton.size = new Dim2(1, 0, 0.315, 0);
@@ -1143,15 +1371,19 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             layEggsButton.addClickListener((e) -> {
                 boolean prompting = promptBoardScreen.getAttributeOrDefault("Active", false);
                 if (!prompting) {
-                    if (currentGame.getPlayerTurn() != p) return;
+                    if (currentGame.getPlayerTurn() != p)
+                        return;
                     gameScreen.setAttribute("Action", "layEggs");
-                    ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                    ((Runnable) gameScreen.getAttribute("PickAction")).run();
                 } else {
                     if (layEggsButton.getAttributeOrDefault("Clickable", false)) {
-                        ((Consumer<UIElement>)promptBoardScreen.getAttribute("Choose")).accept(layEggsButton);
+                        ((Consumer<UIElement>) promptBoardScreen.getAttribute("Choose")).accept(layEggsButton);
                     }
                 }
             });
+
+            layEggsButton.addHoverListener((e) -> layEggsButton.strokeTransparency = 1f);
+            layEggsButton.addExitListener((e) -> layEggsButton.strokeTransparency = 0f);
 
             UIFrame grasslandBirdsList = forestBirdsList.clone("grasslandBirdsList" + p);
             grasslandBirdsList.setParent(layEggsButton);
@@ -1159,6 +1391,9 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             grasslandBirdsList.layout = forestBirdsListLayout.clone();
 
             UIFrame drawBirdsButton = new UIFrame("DrawBirdsButton" + p, this);
+            drawBirdsButton.strokeTransparency = 0f;
+            drawBirdsButton.strokeColor = Color.white;
+            drawBirdsButton.strokeThickness = new Dim(0.08, 0);
             drawBirdsButton.backgroundColor = Color.black;
             drawBirdsButton.setAttribute("Habitat", "wetland");
             drawBirdsButton.size = new Dim2(1, 0, 0.325, 0);
@@ -1169,15 +1404,19 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             drawBirdsButton.addClickListener((e) -> {
                 boolean prompting = promptBoardScreen.getAttributeOrDefault("Active", false);
                 if (!prompting) {
-                    if (currentGame.getPlayerTurn() != p) return;
+                    if (currentGame.getPlayerTurn() != p)
+                        return;
                     gameScreen.setAttribute("Action", "drawBirds");
-                    ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                    ((Runnable) gameScreen.getAttribute("PickAction")).run();
                 } else {
                     if (drawBirdsButton.getAttributeOrDefault("Clickable", false)) {
-                        ((Consumer<UIElement>)promptBoardScreen.getAttribute("Choose")).accept(drawBirdsButton);
+                        ((Consumer<UIElement>) promptBoardScreen.getAttribute("Choose")).accept(drawBirdsButton);
                     }
                 }
             });
+
+            drawBirdsButton.addHoverListener((e) -> drawBirdsButton.strokeTransparency = 1f);
+            drawBirdsButton.addExitListener((e) -> drawBirdsButton.strokeTransparency = 0f);
 
             UIFrame wetlandBirdsList = forestBirdsList.clone("wetlandBirdsList" + p);
             wetlandBirdsList.setParent(drawBirdsButton);
@@ -1185,91 +1424,103 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             wetlandBirdsList.layout = forestBirdsListLayout.clone();
         }
 
-        gameScreen.setAttribute("ResetSelected", (Runnable)() -> {
-            for(UIElement tagged : UIElement.getAllTagged("Check")) tagged.visible = false;
+        gameScreen.setAttribute("ResetSelected", (Runnable) () -> {
+            for (UIElement tagged : UIElement.getAllTagged("Check"))
+                tagged.visible = false;
             UIElement.removeAllTagged("Selected");
             gameScreen.setAttribute("TradingEgg", false);
             selected.clear();
             UIFrame.getByName("ConfirmDrawFrame").setAttribute("Clickable", false);
-            ((Runnable)UIFrame.getByName("ConfirmDrawFrame").getAttribute("Update")).run();
+            ((Runnable) UIFrame.getByName("ConfirmDrawFrame").getAttribute("Update")).run();
         });
 
-        gameScreen.setAttribute("PickAction", (Runnable)() -> {
-            ((Runnable)gameScreen.getAttribute("ResetSelected")).run();
-            String action = (String)gameScreen.getAttributeOrDefault("Action", "");
+        gameScreen.setAttribute("PickAction", (Runnable) () -> {
+            ((Runnable) gameScreen.getAttribute("ResetSelected")).run();
+            String action = (String) gameScreen.getAttributeOrDefault("Action", "");
             this.selected.clear();
             if (action.equals("playBird")) {
                 choosePlayingScreen(handScreen);
             } else if (action.equals("getFood")) {
                 choosePlayingScreen(birdFeederScreen);
             } else if (action.equals("layEggs")) {
-                
+                System.out.println("ok guys playing actuions");
+                currentGame.playActions("layEggs");
             } else if (action.equals("drawBirds")) {
                 choosePlayingScreen(deckScreen);
                 Player p = currentGame.getPlayers().get(currentGame.getPlayerTurn() - 1);
                 int birdGet = 0;
                 int birdAmount = p.getBoard().get("wetland").size();
-                if(birdAmount < 2) birdGet = 1;
-                else if (birdAmount < 5) birdGet = 2;
-                else birdGet = 3;
+                if (birdAmount < 2)
+                    birdGet = 1;
+                else if (birdAmount < 5)
+                    birdGet = 2;
+                else
+                    birdGet = 3;
                 gameScreen.setAttribute("CanSelectAmount", birdGet);
                 if (p.hasEnoughEggs(1)) {
-                    promptPlayer("Would you like to spend an egg to be able to draw one extra card?", "Yes", "No", (b) -> {
-                        gameScreen.setAttribute("TradingEgg", b);
-                        gameScreen.setAttribute("CanSelectAmount", (int)gameScreen.getAttribute("CanSelectAmount") + (b ? 1 : 0));
-                    });
+                    promptPlayer("Would you like to spend an egg to be able to draw one extra card?", "Yes", "No",
+                            (b) -> {
+                                gameScreen.setAttribute("TradingEgg", b);
+                                gameScreen.setAttribute("CanSelectAmount",
+                                        (int) gameScreen.getAttribute("CanSelectAmount") + (b ? 1 : 0));
+                            });
                 }
-                ((Runnable)(UIElement.getByName("ConfirmDrawFrame").getAttribute("Update"))).run();
-            } else choosePlayingScreen(boardScreen);
+                ((Runnable) (UIElement.getByName("ConfirmDrawFrame").getAttribute("Update"))).run();
+            } else
+                choosePlayingScreen(boardScreen);
             this.repaint();
         });
 
-        /* UIFrame selectedInfoFrame = new UIFrame("SelectedInfoFrame", this);
-        selectedInfoFrame.size = new Dim2(0.3, 0, 0.08, 0);
-        selectedInfoFrame.keepAspectRatio = true;
-        selectedInfoFrame.position = new Dim2(0.975, 0, 0.05, 0);
-        selectedInfoFrame.anchorPoint = new Vector2(1, 0);
-        selectedInfoFrame.backgroundTransparency = 1f;
-        selectedInfoFrame.backgroundColor = Color.decode("#ffffff");
-        selectedInfoFrame.strokeColor = Color.decode("#2c2c2c");
-        selectedInfoFrame.strokeThickness = new Dim(0.05, 0);
-        selectedInfoFrame.strokeTransparency = 1f;
-        selectedInfoFrame.borderRadius = new Dim(0.15, 0);
-        selectedInfoFrame.setZIndex(80);
-        selectedInfoFrame.setParent(gameScreen);
+        /*
+         * UIFrame selectedInfoFrame = new UIFrame("SelectedInfoFrame", this);
+         * selectedInfoFrame.size = new Dim2(0.3, 0, 0.08, 0);
+         * selectedInfoFrame.keepAspectRatio = true;
+         * selectedInfoFrame.position = new Dim2(0.975, 0, 0.05, 0);
+         * selectedInfoFrame.anchorPoint = new Vector2(1, 0);
+         * selectedInfoFrame.backgroundTransparency = 1f;
+         * selectedInfoFrame.backgroundColor = Color.decode("#ffffff");
+         * selectedInfoFrame.strokeColor = Color.decode("#2c2c2c");
+         * selectedInfoFrame.strokeThickness = new Dim(0.05, 0);
+         * selectedInfoFrame.strokeTransparency = 1f;
+         * selectedInfoFrame.borderRadius = new Dim(0.15, 0);
+         * selectedInfoFrame.setZIndex(80);
+         * selectedInfoFrame.setParent(gameScreen);
+         * 
+         * UIText selectedAmountStat = new UIText("SelectedAmountStat", this);
+         * selectedAmountStat.backgroundTransparency = 0f;
+         * selectedAmountStat.text = "You selected 0/1 cards";
+         */
 
-        UIText selectedAmountStat = new UIText("SelectedAmountStat", this);
-        selectedAmountStat.backgroundTransparency = 0f;
-        selectedAmountStat.text = "You selected 0/1 cards"; */
+        /*
+         * UIFrame bfbInfoContainer = new UIFrame("BFBInfoContainer", this);
+         * bfbInfoContainer.keepAspectRatio = true;
+         * bfbInfoContainer.size = new Dim2(1.5, 0, 0.85, 0).dilate(1.05);
+         * bfbInfoContainer.anchorPoint = new Vector2(0, .5);
+         * bfbInfoContainer.position = new Dim2(1.01, 0, 0.65, 0);
+         * bfbInfoContainer.backgroundTransparency = 0f;
+         * bfbInfoContainer.ignore = true;
+         * bfbInfoContainer.setParent(birdFeederButtonContainer);
+         * 
+         * UIImage bfbCurvedArrow = new UIImage("BFBCurvedArrow", this);
+         * bfbCurvedArrow.size = new Dim2(0.7, 0, 0.8, 0).dilate(0.7);
+         * bfbCurvedArrow.setImageFillType(UIImage.FIT_IMAGE);
+         * bfbCurvedArrow.setImagePath("images/curved_arrow.png");
+         * bfbCurvedArrow.backgroundTransparency = 0f;
+         * bfbCurvedArrow.setParent(bfbInfoContainer);
+         * 
+         * UIText bfbInfoText = new UIText("BFBInfoText", this);
+         * bfbInfoText.size = new Dim2(0.9, 0, 0.5, 0);
+         * bfbInfoText.position = new Dim2(0.45, 0, 0.7, 0);
+         * bfbInfoText.anchorPoint.center();
+         * bfbInfoText.textScaled = true;
+         * bfbInfoText.textColor = Color.white;
+         * bfbInfoText.backgroundTransparency = 0f;
+         * bfbInfoText.horizontalAlignment = UIText.CENTER;
+         * bfbInfoText.text = "Pick food tokens here!";
+         * bfbInfoText.setParent(bfbInfoContainer);
+         */
 
-        /* UIFrame bfbInfoContainer = new UIFrame("BFBInfoContainer", this);
-        bfbInfoContainer.keepAspectRatio = true;
-        bfbInfoContainer.size = new Dim2(1.5, 0, 0.85, 0).dilate(1.05);
-        bfbInfoContainer.anchorPoint = new Vector2(0, .5);
-        bfbInfoContainer.position = new Dim2(1.01, 0, 0.65, 0);
-        bfbInfoContainer.backgroundTransparency = 0f;
-        bfbInfoContainer.ignore = true;
-        bfbInfoContainer.setParent(birdFeederButtonContainer);
-
-        UIImage bfbCurvedArrow = new UIImage("BFBCurvedArrow", this);
-        bfbCurvedArrow.size = new Dim2(0.7, 0, 0.8, 0).dilate(0.7);
-        bfbCurvedArrow.setImageFillType(UIImage.FIT_IMAGE);
-        bfbCurvedArrow.setImagePath("images/curved_arrow.png");
-        bfbCurvedArrow.backgroundTransparency = 0f;
-        bfbCurvedArrow.setParent(bfbInfoContainer);
-
-        UIText bfbInfoText = new UIText("BFBInfoText", this);
-        bfbInfoText.size = new Dim2(0.9, 0, 0.5, 0);
-        bfbInfoText.position = new Dim2(0.45, 0, 0.7, 0);
-        bfbInfoText.anchorPoint.center();
-        bfbInfoText.textScaled = true;
-        bfbInfoText.textColor = Color.white;
-        bfbInfoText.backgroundTransparency = 0f;
-        bfbInfoText.horizontalAlignment = UIText.CENTER;
-        bfbInfoText.text = "Pick food tokens here!";
-        bfbInfoText.setParent(bfbInfoContainer); */
-
-        deckScreen = (UIFrame)boardScreen.clone("DeckScreen");
+        deckScreen = (UIFrame) boardScreen.clone("DeckScreen");
         deckScreen.setAttribute("Button", deckButton);
 
         UIFrame deckScreenContent = new UIFrame("DeckScreenContent", this);
@@ -1330,7 +1581,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         confirmDraw.setParent(confirmDrawFrame);
         animOnHover(confirmDrawFrame, confirmDrawFrame);
         animOnPress(confirmDrawFrame, confirmDrawFrame);
-        confirmDrawFrame.setAttribute("Update", (Runnable)() -> {
+        confirmDrawFrame.setAttribute("Update", (Runnable) () -> {
             confirmDrawContainer.visible = gameScreen.getAttributeOrDefault("Action", "").equals("drawBirds");
             boolean clickable = confirmDrawFrame.getAttributeOrDefault("Clickable", false);
             confirmDrawFrame.backgroundColor = clickable ? Color.decode("#4ccc47") : Color.lightGray;
@@ -1340,10 +1591,10 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             if (clickable) {
                 currentGame.playActions("drawBirds");
                 gameScreen.setAttribute("Action", "");
-                ((Runnable)gameScreen.getAttribute("PickAction")).run();
+                ((Runnable) gameScreen.getAttribute("PickAction")).run();
             }
         });
-        ((Runnable)(confirmDrawFrame.getAttribute("Update"))).run();
+        ((Runnable) (confirmDrawFrame.getAttribute("Update"))).run();
 
         UIFrame deckCardsContainer = new UIFrame("DeckCardsContainer", this);
         deckCardsContainer.backgroundTransparency = 0f;
@@ -1372,7 +1623,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         deckCard1.addClickListener(e -> {
             cyclingView.setAttribute("Items", currentGame.getFaceUpTray());
             cyclingView.setAttribute("Index", currentGame.getFaceUpTray().indexOf(deckCard1.getAttribute("Card")));
-            ((Runnable)cyclingView.getAttribute("Run")).run();
+            ((Runnable) cyclingView.getAttribute("Run")).run();
         });
 
         UIImage deckCard1Check = new UIImage("DeckCard1Check", this);
@@ -1400,7 +1651,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         deckCard2.addClickListener(e -> {
             cyclingView.setAttribute("Items", currentGame.getFaceUpTray());
             cyclingView.setAttribute("Index", currentGame.getFaceUpTray().indexOf(deckCard2.getAttribute("Card")));
-            ((Runnable)cyclingView.getAttribute("Run")).run();
+            ((Runnable) cyclingView.getAttribute("Run")).run();
         });
 
         UIImage deckCard2Check = deckCard1Check.clone("DeckCard2Check");
@@ -1419,7 +1670,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         deckCard3.addClickListener(e -> {
             cyclingView.setAttribute("Items", currentGame.getFaceUpTray());
             cyclingView.setAttribute("Index", currentGame.getFaceUpTray().indexOf(deckCard3.getAttribute("Card")));
-            ((Runnable)cyclingView.getAttribute("Run")).run();
+            ((Runnable) cyclingView.getAttribute("Run")).run();
         });
 
         UIImage deckCard3Check = deckCard1Check.clone("DeckCard3Check");
@@ -1477,10 +1728,11 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                     faceDownCard.setAttribute("Selected", a);
                     if (this.selected.size() > gameScreen.getAttributeOrDefault("CanSelectAmount", 0)) {
                         Selectable old = this.selected.getFirst();
-                        ArrayList<Card> items = (ArrayList<Card>)cyclingView.getAttribute("Items");
-                        if (old.getElement() != null) old.getElement().removeTag("Selected");
+                        ArrayList<Card> items = (ArrayList<Card>) cyclingView.getAttribute("Items");
+                        if (old.getElement() != null)
+                            old.getElement().removeTag("Selected");
                         if (items != null) {
-                            Card c = (Card)old.getValue();
+                            Card c = (Card) old.getValue();
                             UIImage oldItem = null;
                             UIImage item1 = UIImage.getByName("Item1");
                             UIImage item2 = UIImage.getByName("Item2");
@@ -1488,18 +1740,25 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                             Card i1c = item1.getAttributeOrDefault("Card", null);
                             Card i2c = item2.getAttributeOrDefault("Card", null);
                             Card i3c = item3.getAttributeOrDefault("Card", null);
-                            if (i1c != null && i1c.equals(c)) oldItem = item1; else if (i2c != null && i2c.equals(c)) oldItem = item2; else if (i3c != null && i3c.equals(c)) oldItem = item3;
+                            if (i1c != null && i1c.equals(c))
+                                oldItem = item1;
+                            else if (i2c != null && i2c.equals(c))
+                                oldItem = item2;
+                            else if (i3c != null && i3c.equals(c))
+                                oldItem = item3;
                             if (oldItem != null) {
                                 UIImage.getByName(oldItem.getName() + "Check").visible = false;
                             }
                             int in = items.indexOf(c);
-                            if (in > -1) UIImage.getByName("DeckCard" + (in + 1) + "Check").visible = false;
+                            if (in > -1)
+                                UIImage.getByName("DeckCard" + (in + 1) + "Check").visible = false;
                             this.selected.remove(old);
                         }
                     }
                 }
-                confirmDrawFrame.setAttribute("Clickable", this.selected.size() >= gameScreen.getAttributeOrDefault("CanSelectAmount", 0));
-                ((Runnable)confirmDrawFrame.getAttribute("Update")).run();
+                confirmDrawFrame.setAttribute("Clickable",
+                        this.selected.size() >= gameScreen.getAttributeOrDefault("CanSelectAmount", 0));
+                ((Runnable) confirmDrawFrame.getAttribute("Update")).run();
                 System.out.println(this.selected);
             }
         });
@@ -1519,7 +1778,18 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         birdFeederScreenContent.anchorPoint.center();
         birdFeederScreenContent.setParent(birdFeederScreen);
         birdFeederScreenContent.keepAspectRatio = true;
-        
+
+        UIImage birdFeederBackgroundImage = new UIImage("BirdFeederBackgroundImage", this);
+        birdFeederBackgroundImage.setImageFillType(UIImage.FIT_IMAGE);
+        birdFeederBackgroundImage.setImagePath("images/bird_feeder_background.png");
+        birdFeederBackgroundImage.backgroundTransparency = 0f;
+        birdFeederBackgroundImage.imageTransparency = 0.5f;
+        birdFeederBackgroundImage.setZIndex(-1);
+        birdFeederBackgroundImage.position.center();
+        birdFeederBackgroundImage.anchorPoint.center();
+        birdFeederBackgroundImage.size.full();
+        birdFeederBackgroundImage.setParent(birdFeederScreenContent);
+
         UIText birdFeederTitle = new UIText("BirdFeederTitle", this);
         birdFeederTitle.backgroundTransparency = 0f;
         birdFeederTitle.textColor = Color.white;
@@ -1530,14 +1800,14 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         birdFeederTitle.textStrokeTransparency = 1f;
         birdFeederTitle.textStrokeThickness = new Dim(0.01, 0);
         birdFeederTitle.horizontalAlignment = UIText.CENTER;
-        birdFeederTitle.anchorPoint .center();
+        birdFeederTitle.anchorPoint.center();
         birdFeederTitle.text = "BIRD FEEDER";
         birdFeederTitle.setParent(birdFeederScreenContent);
 
         UIFrame birdFeederChoicesContainer = new UIFrame("BirdFeederChoicesContainer", this);
         birdFeederChoicesContainer.backgroundTransparency = 0f;
         birdFeederChoicesContainer.size = new Dim2(0.9, 0, 0.15, 0);
-        birdFeederChoicesContainer.position = new Dim2(0.5, 0, 0.35, 0);
+        birdFeederChoicesContainer.position = new Dim2(0.5, 0, 0.425, 0);
         birdFeederChoicesContainer.anchorPoint.center();
         birdFeederChoicesContainer.setParent(birdFeederScreenContent);
 
@@ -1548,49 +1818,53 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         birdFeederChoicesLayout.spacing = new Dim(0.05, 0);
         birdFeederChoicesContainer.layout = birdFeederChoicesLayout;
 
-        /*UIFrame rerollBirdFeederButtonContainer = new UIFrame("RerollBirdFeederButtonContainer", this);
-        rerollBirdFeederButtonContainer.backgroundTransparency = 0f;
-        rerollBirdFeederButtonContainer.size = new Dim2(0.25, 0, 0.1, 0).dilate(1.1);
-        rerollBirdFeederButtonContainer.anchorPoint = new Vector2(1, 0.5);
-        rerollBirdFeederButtonContainer.position = new Dim2(0.95, 0, 0.55, 0);
-        rerollBirdFeederButtonContainer.setParent(birdFeederScreenContent);
+        /*
+         * UIFrame rerollBirdFeederButtonContainer = new
+         * UIFrame("RerollBirdFeederButtonContainer", this);
+         * rerollBirdFeederButtonContainer.backgroundTransparency = 0f;
+         * rerollBirdFeederButtonContainer.size = new Dim2(0.25, 0, 0.1, 0).dilate(1.1);
+         * rerollBirdFeederButtonContainer.anchorPoint = new Vector2(1, 0.5);
+         * rerollBirdFeederButtonContainer.position = new Dim2(0.95, 0, 0.55, 0);
+         * rerollBirdFeederButtonContainer.setParent(birdFeederScreenContent);
+         * 
+         * UIFrame rerollBirdFeederButton = new UIFrame("RerollBirdFeederButton", this);
+         * rerollBirdFeederButton.size.full().dilate(0.9);
+         * rerollBirdFeederButton.backgroundColor = Color.gray;
+         * rerollBirdFeederButton.strokeColor = Color.black;
+         * rerollBirdFeederButton.borderRadius = new Dim(0.3, 0);
+         * rerollBirdFeederButton.strokeThickness = new Dim(0.05, 0);
+         * rerollBirdFeederButton.strokeTransparency = 1f;
+         * rerollBirdFeederButton.position.center();
+         * rerollBirdFeederButton.anchorPoint.center();
+         * rerollBirdFeederButton.setParent(rerollBirdFeederButtonContainer);
+         * 
+         * UIText rerollBirdFeederButtonText = new UIText("RerollBirdFeederButtonText",
+         * this);
+         * rerollBirdFeederButtonText.ignore = true;
+         * rerollBirdFeederButtonText.textScaled = true;
+         * rerollBirdFeederButtonText.text = "RE-ROLL";
+         * rerollBirdFeederButtonText.textColor = Color.black;
+         * rerollBirdFeederButtonText.size.full().dilate(0.75);
+         * rerollBirdFeederButtonText.position.center();
+         * rerollBirdFeederButtonText.anchorPoint.center();
+         * rerollBirdFeederButtonText.backgroundTransparency = 0f;
+         * rerollBirdFeederButtonText.setParent(rerollBirdFeederButton);
+         * 
+         * UIFrame rerollBirdFeederCover = new UIFrame("RerollBirdFeederCover", this);
+         * rerollBirdFeederCover.size.full();
+         * rerollBirdFeederCover.position.center();
+         * rerollBirdFeederCover.anchorPoint.center();
+         * rerollBirdFeederCover.backgroundTransparency = 0f;
+         * rerollBirdFeederCover.borderRadius = rerollBirdFeederButton.borderRadius;
+         * rerollBirdFeederCover.backgroundColor = Color.black;
+         * rerollBirdFeederCover.ignore = true;
+         * rerollBirdFeederCover.setParent(rerollBirdFeederButton);
+         * animOnHover(rerollBirdFeederButton, rerollBirdFeederButton);
+         * animOnPress(rerollBirdFeederButton, rerollBirdFeederButton);
+         * pressCover(rerollBirdFeederButton, rerollBirdFeederCover);
+         */
 
-        UIFrame rerollBirdFeederButton = new UIFrame("RerollBirdFeederButton", this);
-        rerollBirdFeederButton.size.full().dilate(0.9);
-        rerollBirdFeederButton.backgroundColor = Color.gray;
-        rerollBirdFeederButton.strokeColor = Color.black;
-        rerollBirdFeederButton.borderRadius = new Dim(0.3, 0);
-        rerollBirdFeederButton.strokeThickness = new Dim(0.05, 0);
-        rerollBirdFeederButton.strokeTransparency = 1f;
-        rerollBirdFeederButton.position.center();
-        rerollBirdFeederButton.anchorPoint.center();
-        rerollBirdFeederButton.setParent(rerollBirdFeederButtonContainer);
-
-        UIText rerollBirdFeederButtonText = new UIText("RerollBirdFeederButtonText", this);
-        rerollBirdFeederButtonText.ignore = true;
-        rerollBirdFeederButtonText.textScaled = true;
-        rerollBirdFeederButtonText.text = "RE-ROLL";
-        rerollBirdFeederButtonText.textColor = Color.black;
-        rerollBirdFeederButtonText.size.full().dilate(0.75);
-        rerollBirdFeederButtonText.position.center();
-        rerollBirdFeederButtonText.anchorPoint.center();
-        rerollBirdFeederButtonText.backgroundTransparency = 0f;
-        rerollBirdFeederButtonText.setParent(rerollBirdFeederButton);
-
-        UIFrame rerollBirdFeederCover = new UIFrame("RerollBirdFeederCover", this);
-        rerollBirdFeederCover.size.full();
-        rerollBirdFeederCover.position.center();
-        rerollBirdFeederCover.anchorPoint.center();
-        rerollBirdFeederCover.backgroundTransparency = 0f;
-        rerollBirdFeederCover.borderRadius = rerollBirdFeederButton.borderRadius;
-        rerollBirdFeederCover.backgroundColor = Color.black;
-        rerollBirdFeederCover.ignore = true;
-        rerollBirdFeederCover.setParent(rerollBirdFeederButton);
-        animOnHover(rerollBirdFeederButton, rerollBirdFeederButton);
-        animOnPress(rerollBirdFeederButton, rerollBirdFeederButton);
-        pressCover(rerollBirdFeederButton, rerollBirdFeederCover); */
-
-        handScreen = (UIFrame)boardScreen.clone("HandScreen");
+        handScreen = (UIFrame) boardScreen.clone("HandScreen");
         handScreen.setAttribute("Button", handButton);
 
         UIFrame handScreenContent = new UIFrame("HandScreenContent", this);
@@ -1606,12 +1880,12 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         handTitle.textColor = Color.white;
         handTitle.textScaled = true;
         handTitle.position = new Dim2(0.5, 0, 0, 0);
-        handTitle.size = new Dim2(0.9, 0, 0.15, 0);
+        handTitle.size = new Dim2(0.9, 0, 0.12, 0);
         handTitle.textStrokeColor = Color.black;
         handTitle.textStrokeTransparency = 1f;
         handTitle.textStrokeThickness = new Dim(0.01, 0);
         handTitle.horizontalAlignment = UIText.CENTER;
-        handTitle.anchorPoint .center();
+        handTitle.anchorPoint.center();
         handTitle.text = "Hand";
         handTitle.setParent(handScreenContent);
 
@@ -1643,7 +1917,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         cyclingViewContent.setParent(cyclingView);
 
         viewingBirdStats = new UIFrame("ViewingBirdStats", this);
-        viewingBirdStats.size = new Dim2(0.1265*2, 0, 0.12, 0);
+        viewingBirdStats.size = new Dim2(0.1265 * 2, 0, 0.12, 0);
         viewingBirdStats.backgroundTransparency = 0f;
         viewingBirdStats.anchorPoint.center();
         viewingBirdStats.position = new Dim2(0.5, 0, 0.09, 0);
@@ -1671,7 +1945,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         cachedFoodStat.text = "0 Cached Food";
         cachedFoodStat.setParent(viewingBirdStats);
 
-        viewingBirdStats.setAttribute("Update", (Runnable)() -> {
+        viewingBirdStats.setAttribute("Update", (Runnable) () -> {
             UIImage current = cyclingView.getAttributeOrDefault("CurrentImage", null);
             System.out.println(current);
             if (current != null) {
@@ -1682,7 +1956,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                     tuckedCardsStat.text = bird.getTuckedAmount() + " Tucked Cards";
                     cachedFoodStat.text = bird.getCachedFoodAmount() + " Cached Food";
                     viewingBirdStats.visible = true;
-                } else viewingBirdStats.visible = false;
+                } else
+                    viewingBirdStats.visible = false;
             }
         });
 
@@ -1719,7 +1994,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         cyclingViewBackground.setZIndex(-1);
         cyclingViewBackground.setParent(cyclingView);
         cyclingViewBackground.addReleaseListener((e) -> {
-            if (cyclingView.getAttributeOrDefault("Clickoutable", false)) ((Runnable)cyclingView.getAttribute("Stop")).run();
+            if (cyclingView.getAttributeOrDefault("Clickoutable", false))
+                ((Runnable) cyclingView.getAttribute("Stop")).run();
         });
 
         UIImage item1 = new UIImage("Item1", this);
@@ -1735,7 +2011,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         item1Check.setParent(item1);
         item1Check.position = new Dim2(0.99, 0, 0.005, 0);
 
-        UIImage item2 = (UIImage)item1.clone("Item2");
+        UIImage item2 = (UIImage) item1.clone("Item2");
         item2.size.dilate(0.9);
         item2.position = new Dim2(0.35, 0, 0.55, 0);
         item2.setZIndex(-2);
@@ -1744,7 +2020,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         UIImage item2Check = item1Check.clone("Item2Check");
         item2Check.setParent(item2);
 
-        UIImage item3 = (UIImage)item2.clone("Item3");
+        UIImage item3 = (UIImage) item2.clone("Item3");
         item3.position = new Dim2(0.65, 0, 0.55, 0);
         item3.setParent(cyclingView);
 
@@ -1770,7 +2046,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         exitCyclingViewButton.backgroundTransparency = 0f;
         exitCyclingViewButton.setParent(exitCyclingViewFrame);
         exitCyclingViewButton.addReleaseListener((e) -> {
-            ((Runnable)cyclingView.getAttribute("Stop")).run();
+            ((Runnable) cyclingView.getAttribute("Stop")).run();
         });
         animOnHover(exitCyclingViewButton, exitCyclingViewButton);
         animOnPress(exitCyclingViewButton, exitCyclingViewButton);
@@ -1791,49 +2067,54 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         backArrowButton.backgroundTransparency = 0f;
         backArrowButton.setParent(backArrowFrame);
         backArrowButton.addReleaseListener((e) -> {
-            ((Runnable)cyclingView.getAttribute("Previous")).run();
+            ((Runnable) cyclingView.getAttribute("Previous")).run();
         });
         animOnHover(backArrowButton, backArrowButton);
         animOnPress(backArrowButton, backArrowButton);
 
-        UIFrame nextArrowFrame = (UIFrame)backArrowFrame.clone("NextArrowFrame");
+        UIFrame nextArrowFrame = (UIFrame) backArrowFrame.clone("NextArrowFrame");
         nextArrowFrame.position = new Dim2(0.7, 0, 0.45, 0);
         nextArrowFrame.setParent(cyclingView);
 
-        UIImage nextArrowButton = (UIImage)backArrowButton.clone("NextArrowButton");
+        UIImage nextArrowButton = (UIImage) backArrowButton.clone("NextArrowButton");
         nextArrowButton.rotation = 180;
         nextArrowButton.setParent(nextArrowFrame);
         animOnHover(nextArrowButton, nextArrowButton);
         animOnPress(nextArrowButton, nextArrowButton);
         nextArrowButton.addReleaseListener((e) -> {
-            ((Runnable)cyclingView.getAttribute("Next")).run();
+            ((Runnable) cyclingView.getAttribute("Next")).run();
         });
 
         selectButtonFrame.addReleaseListener((e) -> {
-            ((Runnable)selectButtonFrame.getAttribute("UpdateVisibility")).run();
+            ((Runnable) selectButtonFrame.getAttribute("UpdateVisibility")).run();
             if (gameScreen.getAttributeOrDefault("TradingBird", false)) {
                 gameScreen.setAttribute("TradingBird", false);
                 Consumer<Bird> done = gameScreen.getAttributeOrDefault("DoneWithTradingBird", null);
                 if (done != null) {
                     gameScreen.setAttribute("DoneWithTradingBird", null);
                     ArrayList<Card> items = (ArrayList<Card>) cyclingView.getAttribute("Items");
-                    if (items == null) return;
+                    if (items == null)
+                        return;
                     int i = (int) cyclingView.getAttribute("Index");
                     Card card = items.get(i);
-                    if (card == null) return;
+                    if (card == null)
+                        return;
                     ((Runnable) cyclingView.getAttribute("Stop")).run();
-                    done.accept((Bird)card);
+                    done.accept((Bird) card);
                 }
-                ((Runnable)selectButtonFrame.getAttribute("UpdateVisibility")).run();
+                ((Runnable) selectButtonFrame.getAttribute("UpdateVisibility")).run();
             } else {
                 String act = gameScreen.getAttributeOrDefault("Action", "");
-                boolean clickable = act.equals("drawBirds") || selectButtonFrame.getAttributeOrDefault("Clickable", false);
+                boolean clickable = act.equals("drawBirds") || act.equals("layEggs")
+                        || selectButtonFrame.getAttributeOrDefault("Clickable", false);
                 if (clickable) {
                     ArrayList<Card> items = (ArrayList<Card>) cyclingView.getAttribute("Items");
-                    if (items == null) return;
+                    if (items == null)
+                        return;
                     int i = (int) cyclingView.getAttribute("Index");
                     Card card = items.get(i);
-                    if (card == null) return;
+                    if (card == null)
+                        return;
                     if (act.equals("drawBirds")) {
                         Selectable selected = toggleSelectCard(card);
                         if (selected != null) {
@@ -1846,7 +2127,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                         selectButton.text = selected != null ? "Deselect" : "Select";
                         if (this.selected.size() > gameScreen.getAttributeOrDefault("CanSelectAmount", 0)) {
                             Selectable old = this.selected.getFirst();
-                            if (old.getElement() != null) old.getElement().removeTag("Selected");
+                            if (old.getElement() != null)
+                                old.getElement().removeTag("Selected");
                             if (old.getElement() != null && old.getElement().hasTag("FaceDown")) {
                                 faceDownCardCheck.visible = false;
                             } else {
@@ -1855,20 +2137,53 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                                 Card i1c = item1.getAttributeOrDefault("Card", null);
                                 Card i2c = item2.getAttributeOrDefault("Card", null);
                                 Card i3c = item3.getAttributeOrDefault("Card", null);
-                                if (i1c != null && i1c.equals(c)) oldItem = item1;
-                                else if (i2c != null && i2c.equals(c)) oldItem = item2;
-                                else if (i3c != null && i3c.equals(c)) oldItem = item3;
+                                if (i1c != null && i1c.equals(c))
+                                    oldItem = item1;
+                                else if (i2c != null && i2c.equals(c))
+                                    oldItem = item2;
+                                else if (i3c != null && i3c.equals(c))
+                                    oldItem = item3;
                                 if (oldItem != null) {
                                     UIImage.getByName(oldItem.getName() + "Check").visible = false;
                                 }
                                 int in = items.indexOf(c);
-                                if (in > -1) UIImage.getByName("DeckCard" + (in + 1) + "Check").visible = false;
+                                if (in > -1)
+                                    UIImage.getByName("DeckCard" + (in + 1) + "Check").visible = false;
                             }
                             this.selected.remove(old);
                         }
-                        confirmDrawFrame.setAttribute("Clickable", this.selected.size() >= gameScreen.getAttributeOrDefault("CanSelectAmount", 0));
+                        confirmDrawFrame.setAttribute("Clickable",
+                                this.selected.size() >= gameScreen.getAttributeOrDefault("CanSelectAmount", 0));
                         ((Runnable) confirmDrawFrame.getAttribute("Update")).run();
                         System.out.println(this.selected);
+                    } else if (act.equals("layEggs")) {
+                        UIImage current = cyclingView.getAttribute("CurrentImage");
+                        if (current != null) {
+                            BirdInstance bird = current.getAttribute("BirdInstance");
+                            boolean can = bird != null ? bird.canAddEggs(1) : false;
+                            int remaining = gameScreen.getAttributeOrDefault("EggsToPlace", 0);
+                            if (can && remaining > 0) {
+                                boolean success = currentGame.layEggsOnSpecificBird(bird, remaining);
+                                if (success) {
+                                    if (remaining == 1) {
+                                        gameScreen.setAttribute("Action", "");
+                                        ((Runnable) selectButtonFrame.getAttribute("UpdateVisibility")).run();
+                                        ((Runnable) viewingBirdStats.getAttribute("Update")).run();
+                                        promptBoardScreen.setAttribute("Active", false);
+                                        UIElement playerBoard = playerBoardPromptContainer.getChildren().getFirst();
+                                        playerBoard.setParent(UIFrame.getByName("Boards"));
+                                        ((Runnable) cyclingView.getAttribute("Stop")).run();
+                                        promptBoardScreen.visible = false;
+                                        exitBoardPromptButton.visible = false;
+                                        gameScreen.visible = true;
+                                    } else {
+                                        gameScreen.setAttribute("EggsToPlace", remaining - 1);
+                                        ((Runnable) viewingBirdStats.getAttribute("Update")).run();
+                                        ((Runnable) selectButtonFrame.getAttribute("UpdateVisibility")).run();
+                                    }
+                                }
+                            }
+                        }
                     } else if (act.equals("playBird")) {
                         UIImage item = cyclingView.getAttributeOrDefault("CurrentImage", null);
                         if (item != null) {
@@ -1877,40 +2192,57 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                             item.removeTag("Selected");
                             ((Runnable) cyclingView.getAttribute("Stop")).run();
                         }
+                        gameScreen.setAttribute("Action", "");
+                        ((Runnable) gameScreen.getAttribute("PickAction")).run();
+                        selectButtonFrame.visible = false;
                     }
                 }
             }
         });
 
-        selectButtonFrame.setAttribute("UpdateVisibility", (Runnable)() -> {
-            if (promptBoardScreen.getAttributeOrDefault("Active", false)) {
+        selectButtonFrame.setAttribute("UpdateVisibility", (Runnable) () -> {
+            boolean tradingBird = gameScreen.getAttributeOrDefault("TradingBird", false);
+            cyclingView.setAttribute("Clickoutable", !tradingBird);
+            String act = gameScreen.getAttributeOrDefault("Action", "");
+            if (promptBoardScreen.getAttributeOrDefault("Active", false) && !act.equals("layEggs")) {
                 selectButtonFrame.visible = false;
                 return;
             }
-            ArrayList<Card> items = (ArrayList<Card>)cyclingView.getAttribute("Items");
-            int i = (int)cyclingView.getAttribute("Index");
-            String act = gameScreen.getAttributeOrDefault("Action", "");
+            ArrayList<Card> items = cyclingView.getAttribute("Items");
+            int i = (int) cyclingView.getAttribute("Index");
             boolean valid = act.equals("drawBirds") || act.equals("playBird");
-            boolean tradingBird = gameScreen.getAttributeOrDefault("TradingBird", false);
-            selectButtonFrame.visible = tradingBird || ((!act.equals("") && items.get(i).getClass() != BonusCard.class) && (act.equals("drawBirds") ? deckScreen.visible : true) && (act.equals("playBird") ? handScreen.visible : true) && valid);
-            if (!selectButtonFrame.visible) return;
+            selectButtonFrame.visible = act.equals("layEggs") || tradingBird
+                    || ((!act.equals("") && items.get(i).getClass() != BonusCard.class)
+                            && (act.equals("drawBirds") ? deckScreen.visible : true)
+                            && (act.equals("playBird") ? handScreen.visible : true) && valid);
+            if (!selectButtonFrame.visible)
+                return;
             Card c = items.get(i).getClass() != BonusCard.class ? items.get(i) : null;
+            exitCyclingViewFrame.visible = false;
             if (tradingBird) {
-                cyclingView.setAttribute("Clickoutable", false);
-                exitCyclingViewFrame.visible = false;
                 selectButtonFrame.backgroundColor = Color.white;
                 selectButton.text = "Trade";
             } else {
-                cyclingView.setAttribute("Clickoutable", true);
-                exitCyclingViewFrame.visible = true;
                 if (c != null && act.equals("playBird")) {
+                    exitCyclingViewFrame.visible = true;
                     Player p = currentGame.getPlayers().get(currentGame.getPlayerTurn() - 1);
                     Bird bird = (Bird) c;
                     boolean can = p.hasEnoughFood(bird);
                     selectButtonFrame.setAttribute("Clickable", can);
                     selectButtonFrame.backgroundColor = can ? Color.white : Color.gray;
                     selectButton.text = "Play";
+                } else if (act.equals("layEggs")) {
+                    UIImage current = cyclingView.getAttribute("CurrentImage");
+                    if (current != null) {
+                        BirdInstance bird = current.getAttribute("BirdInstance");
+                        System.out.println(bird);
+                        boolean can = bird != null ? bird.canAddEggs(1) : false;
+                        selectButtonFrame.setAttribute("Clickable", can);
+                        selectButtonFrame.backgroundColor = can ? Color.white : Color.gray;
+                    }
+                    selectButton.text = "Lay Egg";
                 } else {
+                    exitCyclingViewFrame.visible = true;
                     selectButtonFrame.backgroundColor = Color.white;
                     selectButton.text = isSelected(c) ? "Deselect" : "Select";
                 }
@@ -1924,23 +2256,24 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         cyclingView.setAttribute("Running", false);
         cyclingView.setAttribute("Run", (Runnable) () -> {
             cyclingView.setAttribute("Running", true);
-            ArrayList<Card> items = (ArrayList<Card>)cyclingView.getAttribute("Items");
-            int i = (int)cyclingView.getAttribute("Index");
+            ArrayList<Card> items = (ArrayList<Card>) cyclingView.getAttribute("Items");
+            int i = (int) cyclingView.getAttribute("Index");
             Card currentCard = items.get(i);
             Card nextCard = items.get((i + 1) % items.size());
             Card prevCard = items.get((i - 1 + items.size()) % items.size());
-            ((UIImage)cyclingView.getAttribute("CurrentImage")).setImagePath(currentCard.getImage());
-            ((UIImage)cyclingView.getAttribute("NextImage")).setImagePath(nextCard.getImage());
-            ((UIImage)cyclingView.getAttribute("PrevImage")).setImagePath(prevCard.getImage());
-            ((UIImage)cyclingView.getAttribute("CurrentImage")).setAttribute("Card", currentCard);
-            ((UIImage)cyclingView.getAttribute("NextImage")).setAttribute("Card", nextCard);
-            ((UIImage)cyclingView.getAttribute("PrevImage")).setAttribute("Card", prevCard);
+            ((UIImage) cyclingView.getAttribute("CurrentImage")).setImagePath(currentCard.getImage());
+            ((UIImage) cyclingView.getAttribute("NextImage")).setImagePath(nextCard.getImage());
+            ((UIImage) cyclingView.getAttribute("PrevImage")).setImagePath(prevCard.getImage());
+            ((UIImage) cyclingView.getAttribute("CurrentImage")).setAttribute("Card", currentCard);
+            ((UIImage) cyclingView.getAttribute("NextImage")).setAttribute("Card", nextCard);
+            ((UIImage) cyclingView.getAttribute("PrevImage")).setAttribute("Card", prevCard);
             if (cyclingView.getAttribute("BirdInstanceItems") != null) {
                 ArrayList<BirdInstance> birds = cyclingView.getAttribute("BirdInstanceItems");
                 Optional<BirdInstance> found = birds.stream().filter(b -> b.getBirdEnum() == currentCard).findFirst();
-                ((UIImage)cyclingView.getAttribute("CurrentImage")).setAttribute("BirdInstance", found.isPresent() ? found.get() : null);
+                ((UIImage) cyclingView.getAttribute("CurrentImage")).setAttribute("BirdInstance",
+                        found.isPresent() ? found.get() : null);
             }
-            ((Runnable)viewingBirdStats.getAttribute("Update")).run();
+            ((Runnable) viewingBirdStats.getAttribute("Update")).run();
             cyclingViewBackground.backgroundTransparency = 0f;
             item1.imageTransparency = 0f;
             item2.imageTransparency = 0f;
@@ -1955,10 +2288,16 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             selectButton.textTransparency = 0f;
             exitCyclingViewFrame.visible = true;
             cyclingView.visible = true;
-            ((Runnable)selectButtonFrame.getAttribute("UpdateVisibility")).run();
-            UIImage.getByName(((UIImage)cyclingView.getAttribute("CurrentImage")).getName() + "Check").visible = isSelected(currentCard);
-            UIImage.getByName(((UIImage)cyclingView.getAttribute("NextImage")).getName() + "Check").visible = isSelected(nextCard);
-            UIImage.getByName(((UIImage)cyclingView.getAttribute("PrevImage")).getName() + "Check").visible = isSelected(prevCard);
+            ((Runnable) selectButtonFrame.getAttribute("UpdateVisibility")).run();
+            UIImage.getByName(
+                    ((UIImage) cyclingView.getAttribute("CurrentImage")).getName() + "Check").visible = isSelected(
+                            currentCard);
+            UIImage.getByName(
+                    ((UIImage) cyclingView.getAttribute("NextImage")).getName() + "Check").visible = isSelected(
+                            nextCard);
+            UIImage.getByName(
+                    ((UIImage) cyclingView.getAttribute("PrevImage")).getName() + "Check").visible = isSelected(
+                            prevCard);
             cyclingViewBackground.tweenBackgroundTransparency(0.5f, 0.3, Tween.QUAD_IN_OUT);
             item1.tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
             item2.tweenImageTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
@@ -1980,7 +2319,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         });
 
         cyclingView.setAttribute("Stop", (Runnable) () -> {
-            if ((boolean)cyclingView.getAttribute("db")) return;
+            if ((boolean) cyclingView.getAttribute("db") || !cyclingView.visible)
+                return;
             cyclingView.setAttribute("db", true);
             cyclingView.setAttribute("Running", false);
             cyclingView.setAttribute("BirdInstanceItems", null);
@@ -2014,14 +2354,15 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             t.start();
         });
 
-        cyclingView.setAttribute("Next", (Runnable)() -> {
-            if (!(boolean)cyclingView.getAttribute("Running") || (boolean)cyclingView.getAttribute("db")) return;
+        cyclingView.setAttribute("Next", (Runnable) () -> {
+            if (!(boolean) cyclingView.getAttribute("Running") || (boolean) cyclingView.getAttribute("db"))
+                return;
             cyclingView.setAttribute("db", true);
-            UIImage current = (UIImage)cyclingView.getAttribute("CurrentImage");
-            UIImage next = (UIImage)cyclingView.getAttribute("NextImage");
-            UIImage prev = (UIImage)cyclingView.getAttribute("PrevImage");
-            ArrayList<Card> items = (ArrayList<Card>)cyclingView.getAttribute("Items");
-            final int i = ((int)cyclingView.getAttribute("Index") + 1) % items.size();
+            UIImage current = (UIImage) cyclingView.getAttribute("CurrentImage");
+            UIImage next = (UIImage) cyclingView.getAttribute("NextImage");
+            UIImage prev = (UIImage) cyclingView.getAttribute("PrevImage");
+            ArrayList<Card> items = (ArrayList<Card>) cyclingView.getAttribute("Items");
+            final int i = ((int) cyclingView.getAttribute("Index") + 1) % items.size();
             cyclingView.setAttribute("Index", i);
             current.setZIndex(-2);
             current.tweenPosition(new Dim2(0.65, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
@@ -2032,35 +2373,43 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             prev.setZIndex(-2);
             prev.tweenPosition(new Dim2(0.35, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
             prev.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
-            UIImage temp = (UIImage)cyclingView.getAttribute("CurrentImage");
+            UIImage temp = (UIImage) cyclingView.getAttribute("CurrentImage");
             cyclingView.setAttribute("CurrentImage", cyclingView.getAttribute("NextImage"));
             cyclingView.setAttribute("NextImage", cyclingView.getAttribute("PrevImage"));
             cyclingView.setAttribute("PrevImage", temp);
             if (cyclingView.getAttribute("BirdInstanceItems") != null) {
                 ArrayList<BirdInstance> birds = cyclingView.getAttribute("BirdInstanceItems");
-                Optional<BirdInstance> found = birds.stream().filter(b -> b.getBirdEnum() == ((UIImage)cyclingView.getAttribute("CurrentImage")).getAttribute("Card")).findFirst();
-                ((UIImage)cyclingView.getAttribute("CurrentImage")).setAttribute("BirdInstance", found.isPresent() ? found.get() : null);
+                Optional<BirdInstance> found = birds.stream().filter(b -> b
+                        .getBirdEnum() == ((UIImage) cyclingView.getAttribute("CurrentImage")).getAttribute("Card"))
+                        .findFirst();
+                ((UIImage) cyclingView.getAttribute("CurrentImage")).setAttribute("BirdInstance",
+                        found.isPresent() ? found.get() : null);
             }
-            ((Runnable)selectButtonFrame.getAttribute("UpdateVisibility")).run();
+            ((Runnable) selectButtonFrame.getAttribute("UpdateVisibility")).run();
             Timer t = new Timer(150, e -> {
                 cyclingView.setAttribute("db", false);
-                ((UIImage)cyclingView.getAttribute("NextImage")).setImagePath(items.get((i + 1) % items.size()).getImage());
-                UIImage.getByName(((UIImage)cyclingView.getAttribute("NextImage")).getName() + "Check").visible = isSelected(items.get((i + 1) % items.size()));
-                ((UIImage)cyclingView.getAttribute("NextImage")).setAttribute("Card", items.get((i + 1) % items.size()));
-                ((Runnable)viewingBirdStats.getAttribute("Update")).run();
+                ((UIImage) cyclingView.getAttribute("NextImage"))
+                        .setImagePath(items.get((i + 1) % items.size()).getImage());
+                UIImage.getByName(
+                        ((UIImage) cyclingView.getAttribute("NextImage")).getName() + "Check").visible = isSelected(
+                                items.get((i + 1) % items.size()));
+                ((UIImage) cyclingView.getAttribute("NextImage")).setAttribute("Card",
+                        items.get((i + 1) % items.size()));
+                ((Runnable) viewingBirdStats.getAttribute("Update")).run();
             });
             t.setRepeats(false);
             t.start();
         });
 
-        cyclingView.setAttribute("Previous", (Runnable)() -> {
-            if (!(boolean)cyclingView.getAttribute("Running") || (boolean)cyclingView.getAttribute("db")) return;
+        cyclingView.setAttribute("Previous", (Runnable) () -> {
+            if (!(boolean) cyclingView.getAttribute("Running") || (boolean) cyclingView.getAttribute("db"))
+                return;
             cyclingView.setAttribute("db", true);
-            UIImage current = (UIImage)cyclingView.getAttribute("CurrentImage");
-            UIImage next = (UIImage)cyclingView.getAttribute("NextImage");
-            UIImage prev = (UIImage)cyclingView.getAttribute("PrevImage");
-            ArrayList<Card> items = (ArrayList<Card>)cyclingView.getAttribute("Items");
-            final int i = ((int)cyclingView.getAttribute("Index") - 1 + items.size()) % items.size();
+            UIImage current = (UIImage) cyclingView.getAttribute("CurrentImage");
+            UIImage next = (UIImage) cyclingView.getAttribute("NextImage");
+            UIImage prev = (UIImage) cyclingView.getAttribute("PrevImage");
+            ArrayList<Card> items = (ArrayList<Card>) cyclingView.getAttribute("Items");
+            final int i = ((int) cyclingView.getAttribute("Index") - 1 + items.size()) % items.size();
             cyclingView.setAttribute("Index", i);
             current.setZIndex(-2);
             current.tweenPosition(new Dim2(0.35, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
@@ -2071,22 +2420,29 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             next.setZIndex(-2);
             next.tweenPosition(new Dim2(0.65, 0, 0.55, 0), 0.3, Tween.QUAD_IN_OUT);
             next.tweenSize(new Dim2(0.1265, 0, 0.3, 0).dilate(2).dilate(0.9), 0.3, Tween.QUAD_IN_OUT);
-            UIImage temp = (UIImage)cyclingView.getAttribute("CurrentImage");
+            UIImage temp = (UIImage) cyclingView.getAttribute("CurrentImage");
             cyclingView.setAttribute("CurrentImage", cyclingView.getAttribute("PrevImage"));
             cyclingView.setAttribute("PrevImage", cyclingView.getAttribute("NextImage"));
             cyclingView.setAttribute("NextImage", temp);
             if (cyclingView.getAttribute("BirdInstanceItems") != null) {
                 ArrayList<BirdInstance> birds = cyclingView.getAttribute("BirdInstanceItems");
-                Optional<BirdInstance> found = birds.stream().filter(b -> b.getBirdEnum() == ((UIImage)cyclingView.getAttribute("CurrentImage")).getAttribute("Card")).findFirst();
-                ((UIImage)cyclingView.getAttribute("CurrentImage")).setAttribute("BirdInstance", found.isPresent() ? found.get() : null);
+                Optional<BirdInstance> found = birds.stream().filter(b -> b
+                        .getBirdEnum() == ((UIImage) cyclingView.getAttribute("CurrentImage")).getAttribute("Card"))
+                        .findFirst();
+                ((UIImage) cyclingView.getAttribute("CurrentImage")).setAttribute("BirdInstance",
+                        found.isPresent() ? found.get() : null);
             }
-            ((Runnable)selectButtonFrame.getAttribute("UpdateVisibility")).run();
+            ((Runnable) selectButtonFrame.getAttribute("UpdateVisibility")).run();
             Timer t = new Timer(150, e -> {
                 cyclingView.setAttribute("db", false);
-                ((UIImage)cyclingView.getAttribute("PrevImage")).setImagePath(items.get((i - 1 + items.size()) % items.size()).getImage());
-                UIImage.getByName(((UIImage)cyclingView.getAttribute("PrevImage")).getName() + "Check").visible = isSelected(items.get((i - 1 + items.size()) % items.size()));
-                ((UIImage)cyclingView.getAttribute("PrevImage")).setAttribute("Card", items.get((i - 1 + items.size()) % items.size()));
-                ((Runnable)viewingBirdStats.getAttribute("Update")).run();
+                ((UIImage) cyclingView.getAttribute("PrevImage"))
+                        .setImagePath(items.get((i - 1 + items.size()) % items.size()).getImage());
+                UIImage.getByName(
+                        ((UIImage) cyclingView.getAttribute("PrevImage")).getName() + "Check").visible = isSelected(
+                                items.get((i - 1 + items.size()) % items.size()));
+                ((UIImage) cyclingView.getAttribute("PrevImage")).setAttribute("Card",
+                        items.get((i - 1 + items.size()) % items.size()));
+                ((Runnable) viewingBirdStats.getAttribute("Update")).run();
             });
             t.setRepeats(false);
             t.start();
@@ -2131,10 +2487,17 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         player1Button.setParent(player1ButtonFrame);
         player1Button.addReleaseListener((e) -> {
             boards.setAttribute("Index", 1);
-            ((Runnable)boards.getAttribute("ViewBoard")).run();
+            ((Runnable) boards.getAttribute("ViewBoard")).run();
         });
         animOnHover(player1Button, player1Button);
         animOnPress(player1Button, player1Button);
+
+        UIImage firstPlayerToken = deckCard1Check.clone("FirstPlayerToken");
+        firstPlayerToken.size = new Dim2(0.5, 0, 0.5, 0);
+        firstPlayerToken.position = new Dim2(1, 0, 1, 0);
+        firstPlayerToken.setImagePath("images/first_player_token.png");
+        firstPlayerToken.visible = true;
+        firstPlayerToken.setParent(player1ButtonFrame);
 
         UIText player1ButtonText = new UIText("Player1ButtonText", this);
         player1ButtonText.size.full().dilate(0.8);
@@ -2155,7 +2518,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         player2Button.setParent(player2ButtonFrame);
         player2Button.addReleaseListener((e) -> {
             boards.setAttribute("Index", 2);
-            ((Runnable)boards.getAttribute("ViewBoard")).run();
+            ((Runnable) boards.getAttribute("ViewBoard")).run();
         });
         animOnHover(player2Button, player2Button);
         animOnPress(player2Button, player2Button);
@@ -2172,7 +2535,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         player3Button.setParent(player3ButtonFrame);
         player3Button.addReleaseListener((e) -> {
             boards.setAttribute("Index", 3);
-            ((Runnable)boards.getAttribute("ViewBoard")).run();
+            ((Runnable) boards.getAttribute("ViewBoard")).run();
         });
         animOnHover(player3Button, player3Button);
         animOnPress(player3Button, player3Button);
@@ -2189,7 +2552,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         player4Button.setParent(player4ButtonFrame);
         player4Button.addReleaseListener((e) -> {
             boards.setAttribute("Index", 4);
-            ((Runnable)boards.getAttribute("ViewBoard")).run();
+            ((Runnable) boards.getAttribute("ViewBoard")).run();
         });
         animOnHover(player4Button, player4Button);
         animOnPress(player4Button, player4Button);
@@ -2206,7 +2569,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         player5Button.setParent(player5ButtonFrame);
         player5Button.addReleaseListener((e) -> {
             boards.setAttribute("Index", 5);
-            ((Runnable)boards.getAttribute("ViewBoard")).run();
+            ((Runnable) boards.getAttribute("ViewBoard")).run();
         });
         animOnHover(player5Button, player5Button);
         animOnPress(player5Button, player5Button);
@@ -2218,8 +2581,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         player1Button.rotation = 45;
         player1ButtonText.rotation = -45;
 
-        ((Runnable)boards.getAttribute("ViewBoard")).run();
-        
+        ((Runnable) boards.getAttribute("ViewBoard")).run();
+
         popupBackground = new UIFrame("PopupBackground", this);
         popupBackground.backgroundColor = Color.black;
         popupBackground.backgroundTransparency = 0f;
@@ -2228,24 +2591,26 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupBackground.anchorPoint.center();
         popupBackground.setZIndex(100);
         popupBackground.visible = false;
-        /* popupBackground.addReleaseListener((e) -> {
-            String type = popupBackground.getAttributeOrDefault("Type", null);
-            if (type != null) {
-                if (type.equals("yesno")) {
-                    Consumer<Boolean> done = popupBackground.getAttributeOrDefault("Done", null);
-                    if (done != null) {
-                        ((Runnable)popupBackground.getAttribute("Reset")).run();
-                        done.accept(false);
-                    }
-                } else if (type.equals("food")) {
-                    Consumer<String> done = popupBackground.getAttributeOrDefault("Done", null);
-                    if (done != null) {
-                        ((Runnable)popupBackground.getAttribute("Reset")).run();
-                        done.accept(null);
-                    }
-                }
-            }
-        }); */
+        /*
+         * popupBackground.addReleaseListener((e) -> {
+         * String type = popupBackground.getAttributeOrDefault("Type", null);
+         * if (type != null) {
+         * if (type.equals("yesno")) {
+         * Consumer<Boolean> done = popupBackground.getAttributeOrDefault("Done", null);
+         * if (done != null) {
+         * ((Runnable)popupBackground.getAttribute("Reset")).run();
+         * done.accept(false);
+         * }
+         * } else if (type.equals("food")) {
+         * Consumer<String> done = popupBackground.getAttributeOrDefault("Done", null);
+         * if (done != null) {
+         * ((Runnable)popupBackground.getAttribute("Reset")).run();
+         * done.accept(null);
+         * }
+         * }
+         * }
+         * });
+         */
 
         UIFrame popupContent = new UIFrame("PopupContent", this);
         popupContent.anchorPoint.center();
@@ -2260,23 +2625,23 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
 
         popupContainer = new UIFrame("PopupContainer", this);
         popupContainer.borderRadius = new Dim(0.07, 0);
-        //popupContainer.strokeColor = Color.lightGray;
+        // popupContainer.strokeColor = Color.lightGray;
         popupContainer.backgroundColor = Color.decode("#faf4f4");
-        //popupContainer.strokeTransparency = 1f;
-        //popupContainer.strokeThickness = new Dim(0.005, 0);
+        // popupContainer.strokeTransparency = 1f;
+        // popupContainer.strokeThickness = new Dim(0.005, 0);
         popupContainer.setParent(popupContent);
         popupContainer.position.center();
-        //popupContainer.anchorPoint.center();
+        // popupContainer.anchorPoint.center();
         popupContainer.size = new Dim2(0.5, 0, 0.4, 0);
 
         showCardDuringPopup = new UIImage("ShowCardDuringPopup", this);
         showCardDuringPopup.setParent(popupContent);
         showCardDuringPopup.backgroundTransparency = 0f;
         showCardDuringPopup.visible = false;
-        //showCardDuringPopup.anchorPoint.center();
+        // showCardDuringPopup.anchorPoint.center();
         showCardDuringPopup.size = new Dim2(0.1265, 0, 0.3, 0).dilate(2.5);
         showCardDuringPopup.position = new Dim2(1.5, 0, 0.5, 0);
-        
+
         popupPrompt = new UIText("PopupPrompt", this);
         popupPrompt.backgroundTransparency = 0f;
         popupPrompt.textColor = Color.black;
@@ -2314,7 +2679,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupFoodChoicesLayout.spacing = new Dim(0.03, 0);
         popupFoodChoices.layout = popupFoodChoicesLayout;
 
-        popupBackground.setAttribute("Reset", (Runnable)() -> {
+        popupBackground.setAttribute("Reset", (Runnable) () -> {
             popupFoodChoices.clearAllChildren();
             showCardDuringPopup.tweenImageTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
             popupBackground.tweenBackgroundTransparency(0f, 0.3, Tween.QUAD_IN_OUT);
@@ -2356,7 +2721,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupChoice1Frame.addReleaseListener((e) -> {
             Consumer<Boolean> done = popupBackground.getAttributeOrDefault("Done", null);
             if (done != null) {
-                ((Runnable)popupBackground.getAttribute("Reset")).run();
+                ((Runnable) popupBackground.getAttribute("Reset")).run();
                 done.accept(true);
                 popupBackground.setAttribute("Done", null);
             }
@@ -2382,7 +2747,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupChoice2Frame.addReleaseListener((e) -> {
             Consumer<Boolean> done = popupBackground.getAttributeOrDefault("Done", null);
             if (done != null) {
-                ((Runnable)popupBackground.getAttribute("Reset")).run();
+                ((Runnable) popupBackground.getAttribute("Reset")).run();
                 done.accept(false);
                 popupBackground.setAttribute("Done", null);
             }
@@ -2394,83 +2759,36 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         animOnHover(popupChoice2Frame, popupChoice2Frame);
         animOnPress(popupChoice2Frame, popupChoice2Frame);
 
-        String[] foods = new String[] {"Worm", "Seed", "Fish", "Berry", "Rat"};
+        String[] foods = new String[] { "Worm", "Seed", "Fish", "Berry", "Rat" };
         for (String food : foods) {
-        	createFoodChoice(food);
-        	
-        	UIFrame foodStatFrame = new UIFrame(food + "StatFrame", this);
-        	foodStatFrame.size = new Dim2(1, 0, 0.2, 0);
-        	foodStatFrame.backgroundTransparency = 0f;
-        	foodStatFrame.setParent(foodsStatFrame);
-        	
-        	UIText foodStat = new UIText(food + "Stat", this);
-        	foodStat.setParent(foodStatFrame);
-        	foodStat.textScaled = true;
-        	foodStat.text = "2";
-        	foodStat.textColor = Color.black;
-        	foodStat.horizontalAlignment = UIText.LEFT;
+            createFoodChoice(food);
+
+            UIFrame foodStatFrame = new UIFrame(food + "StatFrame", this);
+            foodStatFrame.size = new Dim2(1, 0, 0.2, 0);
+            foodStatFrame.backgroundTransparency = 0f;
+            foodStatFrame.setParent(foodsStatFrame);
+
+            UIText foodStat = new UIText(food + "Stat", this);
+            foodStat.setParent(foodStatFrame);
+            foodStat.textScaled = true;
+            foodStat.text = "2";
+            foodStat.textColor = Color.black;
+            foodStat.horizontalAlignment = UIText.LEFT;
             foodStat.backgroundTransparency = 0f;
             foodStat.backgroundColor = Color.black;
             foodStat.anchorPoint = new Vector2(0, 0.5);
             foodStat.position = new Dim2(0.65, 0, 0.52, 0);
             foodStat.size = new Dim2(0.4, 0, 0.8, 0);
-
-            UIFrame birdFeederFoodContainer = new UIFrame(food + "BirdFeederFoodContainer", this);
-            birdFeederFoodContainer.size = new Dim2(0.122, 0, 1, 0);
-            birdFeederFoodContainer.backgroundTransparency = 0f;
-            birdFeederFoodContainer.setParent(birdFeederChoicesContainer);
-
-            UIFrame birdFeederFoodFrame = new UIFrame(food + "BirdFeederFoodFrame", this);
-            birdFeederFoodFrame.size.full().dilate(0.9);
-            birdFeederFoodFrame.position.center();
-            birdFeederFoodFrame.anchorPoint.center();
-            birdFeederFoodFrame.backgroundTransparency = 1f;
-            birdFeederFoodFrame.backgroundColor = Color.decode("#dfd2c9");
-            birdFeederFoodFrame.borderRadius = new Dim(0.3, 0);
-            birdFeederFoodFrame.strokeColor = Color.white;
-            birdFeederFoodFrame.strokeThickness = new Dim(0.03, 0);
-            birdFeederFoodFrame.strokeTransparency = 1f;
-            birdFeederFoodFrame.setParent(birdFeederFoodContainer);
-
-            UIImage birdFeederFoodIcon = new UIImage(food + "BirdFeederFoodIcon", this);
-            birdFeederFoodIcon.setParent(birdFeederFoodFrame);
-            birdFeederFoodIcon.setImagePath("foods/" + food.toLowerCase() + "_ns.png");
-            birdFeederFoodIcon.setImageFillType(UIImage.FIT_IMAGE);
-            birdFeederFoodIcon.size = new Dim2(0.7, 0, 0.7, 0);
-            birdFeederFoodIcon.position.center();
-            birdFeederFoodIcon.anchorPoint.center();
-            birdFeederFoodIcon.ignore = true;
-            birdFeederFoodIcon.backgroundTransparency = 0f;
-
-            UIFrame birdFeederFoodCover = new UIFrame(food + "BirdFeederFoodCover", this);
-            birdFeederFoodCover.size.full().dilate(1.04);
-            birdFeederFoodCover.position.center();
-            birdFeederFoodCover.anchorPoint.center();
-            birdFeederFoodCover.backgroundTransparency = 0f;
-            birdFeederFoodCover.backgroundColor = Color.black;
-            birdFeederFoodCover.setParent(birdFeederFoodFrame);
-            birdFeederFoodCover.setZIndex(1);
-            birdFeederFoodCover.ignore = true;
-            birdFeederFoodCover.borderRadius = new Dim(0.3, 0);
-
-            UIImage birdFeederFoodCheck = deckCard1Check.clone(food + "BirdFeederFoodCheck");
-            birdFeederFoodCheck.setParent(birdFeederFoodFrame);
-            birdFeederFoodCheck.visible = true;
-            birdFeederFoodCheck.size = new Dim2(0.2, 0, 0.2, 0);
-            birdFeederFoodCheck.position = new Dim2(1, 0, 0, 0);
-
-            animOnHover(birdFeederFoodFrame, birdFeederFoodFrame);
-            animOnPress(birdFeederFoodFrame, birdFeederFoodFrame);
-            pressCover(birdFeederFoodFrame, birdFeederFoodCover);
         }
 
-        //promptPlayerFood("please", (a) -> System.out.println("clicked on " + a), Arrays.asList(new String[]{"berry", "worm"}));
+        // promptPlayerFood("please", (a) -> System.out.println("clicked on " + a),
+        // Arrays.asList(new String[]{"berry", "worm"}));
     }
 
     public void choosePlayingScreen(UIElement screen) {
         if (chosenScreen != null && screen != chosenScreen) {
             chosenScreen.visible = false;
-            UIElement button = (UIElement)chosenScreen.getAttribute("Button");
+            UIElement button = (UIElement) chosenScreen.getAttribute("Button");
             if (button != null) {
                 if (button.getName().equals("HandButton")) {
                     UIElement.getByName(button.getName() + "BirdOutline").strokeColor = Color.white;
@@ -2480,25 +2798,67 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                 }
             }
             if (chosenScreen == boardScreen) {
-                UIImage currentBoard = (UIImage)(UIFrame.getByName("Boards").getAttribute("Current"));
+                UIImage currentBoard = (UIImage) (UIFrame.getByName("Boards").getAttribute("Current"));
                 if (currentBoard != null) {
-                    UIFrame.getByName("Player" + currentBoard.getName().split("PlayerBoard")[1] + "Button").strokeColor = Color.white;
+                    UIFrame.getByName("Player" + currentBoard.getName().split("PlayerBoard")[1]
+                            + "Button").strokeColor = Color.white;
                 }
             }
         }
         screen.visible = true;
         chosenScreen = screen;
-        UIElement button = (UIElement)screen.getAttribute("Button");
+        UIElement button = (UIElement) screen.getAttribute("Button");
         if (button != null) {
             if (button.getName().equals("HandButton")) {
                 UIElement.getByName(button.getName() + "BirdOutline").strokeColor = Color.decode("#54d648");
                 UIElement.getByName(button.getName() + "BonusOutline").strokeColor = Color.decode("#54d648");
+                UIText.getByName("HandTitle").text = "Player " + currentGame.getPlayerTurn() + "'s Hand";
             } else {
                 UIElement.getByName(button.getName() + "Outline").strokeColor = Color.decode("#54d648");
             }
         }
     }
 
+    public void addToBirdFeederList(String food) {
+        UIFrame birdFeederChoicesContainer = UIFrame.getByName("BirdFeederChoicesContainer");
+        UIFrame birdFeederFoodContainer = new UIFrame(food + "BirdFeederFoodContainer", this);
+        birdFeederFoodContainer.size = new Dim2(0.122, 0, 1, 0);
+        birdFeederFoodContainer.backgroundTransparency = 0f;
+        birdFeederFoodContainer.setParent(birdFeederChoicesContainer);
+
+        UIFrame birdFeederFoodFrame = new UIFrame(food + "BirdFeederFoodFrame", this);
+        birdFeederFoodFrame.size.full().dilate(0.9);
+        birdFeederFoodFrame.position.center();
+        birdFeederFoodFrame.anchorPoint.center();
+        birdFeederFoodFrame.backgroundTransparency = 1f;
+        birdFeederFoodFrame.backgroundColor = Color.decode("#dfd2c9");
+        birdFeederFoodFrame.borderRadius = new Dim(0.3, 0);
+        birdFeederFoodFrame.strokeColor = Color.white;
+        birdFeederFoodFrame.strokeThickness = new Dim(0.03, 0);
+        birdFeederFoodFrame.strokeTransparency = 1f;
+        birdFeederFoodFrame.setParent(birdFeederFoodContainer);
+
+        UIImage birdFeederFoodIcon = new UIImage(food + "BirdFeederFoodIcon", this);
+        birdFeederFoodIcon.setParent(birdFeederFoodFrame);
+        birdFeederFoodIcon
+                .setImagePath("foods/" + (food.equals("seed/worm") ? "seedworm.png" : food.toLowerCase() + "_ns.png"));
+        birdFeederFoodIcon.setImageFillType(UIImage.FIT_IMAGE);
+        birdFeederFoodIcon.size = new Dim2(0.7, 0, 0.7, 0);
+        birdFeederFoodIcon.position.center();
+        birdFeederFoodIcon.anchorPoint.center();
+        birdFeederFoodIcon.ignore = true;
+        birdFeederFoodIcon.backgroundTransparency = 0f;
+
+        animOnHover(birdFeederFoodFrame, birdFeederFoodFrame);
+    }
+
+    public void removeFromBirdFeederList(String food) {
+        UIFrame.getByName(food + "BirdFeederFoodContainer").destroy();
+    }
+
+    public void removeAllFromBirdFeederList() {
+        UIFrame.getByName("BirdFeederChoicesContainer").clearAllChildren();
+    }
 
     public void createFoodChoice(String foodName) {
         UIElement choosableFoodsContainer = UIElement.getByName("ChoosableFoodsContainer");
@@ -2520,14 +2880,14 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         choiceIcon.setParent(choiceContainer);
         animOnPress(choiceIcon, choiceIcon);
         animOnHover(choiceIcon, choiceIcon);
-        choiceIcon.setAttribute("Select", (Runnable)() -> {
+        choiceIcon.setAttribute("Select", (Runnable) () -> {
             choiceIcon.setBrightness(1f);
             Dim2 newSize = new Dim2().full().dilate(1.15);
             choiceIcon.setAttribute("ogsize", newSize);
             choiceIcon.setAttribute("hoversize", newSize.clone().dilate(1.1));
             choiceIcon.setAttribute("presssize", newSize.clone().dilate(0.85));
         });
-        choiceIcon.setAttribute("Deselect", (Runnable)() -> {
+        choiceIcon.setAttribute("Deselect", (Runnable) () -> {
             choiceIcon.setBrightness(0.4f);
             Dim2 newSize = new Dim2().full().dilate(0.7);
             choiceIcon.setAttribute("ogsize", newSize);
@@ -2538,7 +2898,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
     }
 
     private UIFrame createRow(int p) {
-        UIFrame playerCardsContainer = (UIFrame)UIElement.getByName("Player" + p + "CardsContainer");
+        UIFrame playerCardsContainer = (UIFrame) UIElement.getByName("Player" + p + "CardsContainer");
         UIFrame row = new UIFrame("Row" + p + "_" + playerCardsContainer.getChildren().size(), this);
         row.layoutOrder = playerCardsContainer.getChildren().size();
         row.backgroundTransparency = 0f;
@@ -2570,7 +2930,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         playerCardsRowsLayout.verticalAlignment = ListLayout.CENTER;
         playerCardsContainer.layout = playerCardsRowsLayout;
 
-        //System.out.println("Creating player " + p + " cards container");
+        // System.out.println("Creating player " + p + " cards container");
 
         createRow(p);
 
@@ -2579,17 +2939,22 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
 
     public void addToPlayerHand(int p, Card card) {
         UIFrame playerCardsContainer = UIFrame.getByName("Player" + p + "CardsContainer");
-        //System.out.println("Adding card: " + card + " to player " + p + " hand. Container? " + (playerCardsContainer != null));
-        if (playerCardsContainer == null) playerCardsContainer = createPlayerCardsContainer(p);
+        // System.out.println("Adding card: " + card + " to player " + p + " hand.
+        // Container? " + (playerCardsContainer != null));
+        if (playerCardsContainer == null)
+            playerCardsContainer = createPlayerCardsContainer(p);
         ArrayList<UIElement> rows = playerCardsContainer.getChildren();
         UIElement lastRow = rows.get(rows.size() - 1);
-        //UIFrame cardContainer = new UIFrame("HandCard" + p + "_" + rows.size() + "_" + lastRow.getChildren().size(), this);
+        // UIFrame cardContainer = new UIFrame("HandCard" + p + "_" + rows.size() + "_"
+        // + lastRow.getChildren().size(), this);
         UIFrame cardContainer = new UIFrame(card.getName() + "HandCard" + p, this);
         cardContainer.size = new Dim2(0.22, 0, 1, 0);
         cardContainer.backgroundTransparency = 0f;
-        if (lastRow.getChildren().size() >= 5) lastRow = createRow(p);
+        if (lastRow.getChildren().size() >= 5)
+            lastRow = createRow(p);
         cardContainer.setParent(lastRow);
-        //UIImage cardImage = new UIImage("HandCardImage" + p + "_" + rows.size() + "_" + lastRow.getChildren().size(), this);
+        // UIImage cardImage = new UIImage("HandCardImage" + p + "_" + rows.size() + "_"
+        // + lastRow.getChildren().size(), this);
         UIImage cardImage = new UIImage(card.getName() + "HandCardImage" + p, this);
         cardImage.size.full();
         cardImage.position.center();
@@ -2603,15 +2968,15 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         cardImage.setAttribute("Card", card);
         cardImage.addReleaseListener(e -> {
             Player player = currentGame.getPlayers().get(p - 1);
-            ArrayList<Card> all = new ArrayList<>(player.getBirdHand()); all.addAll(player.getBonusHand());
+            ArrayList<Card> all = new ArrayList<>(player.getBirdHand());
+            all.addAll(player.getBonusHand());
             cyclingView.setAttribute("Items", all);
             cyclingView.setAttribute("Index", all.indexOf(cardImage.getAttribute("Card")));
-            ((Runnable)cyclingView.getAttribute("Run")).run();
+            ((Runnable) cyclingView.getAttribute("Run")).run();
         });
     }
 
     public void addToPlayerBoard(int p, BirdInstance bird, String habitat) {
-        System.out.println(habitat);
         UIFrame habitatCardList = UIFrame.getByName(habitat + "BirdsList" + p);
         UIFrame birdCardFrame = new UIFrame("BirdCardFrame" + bird.getName(), this);
         birdCardFrame.size = new Dim2(0.188, 0, 1, 0);
@@ -2630,11 +2995,13 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         birdCardImage.setAttribute("BirdInstance", bird);
         birdCardImage.addReleaseListener(e -> {
             Player player = currentGame.getPlayers().get(p - 1);
-            ArrayList<Card> all = new ArrayList<>(player.getBoard().get(habitat).stream().map(BirdInstance::getBirdEnum).toList());
+            ArrayList<Card> all = new ArrayList<>(
+                    player.getBoard().get(habitat).stream().map(BirdInstance::getBirdEnum).toList());
             cyclingView.setAttribute("Items", all);
             cyclingView.setAttribute("BirdInstanceItems", player.getBoard().get(habitat));
-            cyclingView.setAttribute("Index", all.indexOf((Card)(((BirdInstance)birdCardImage.getAttribute("BirdInstance")).getBirdEnum())));
-            ((Runnable)cyclingView.getAttribute("Run")).run();
+            cyclingView.setAttribute("Index",
+                    all.indexOf((Card) (((BirdInstance) birdCardImage.getAttribute("BirdInstance")).getBirdEnum())));
+            ((Runnable) cyclingView.getAttribute("Run")).run();
         });
     }
 
@@ -2651,27 +3018,32 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             UIElement nextRow = allRows.get(nextI);
             if (nextRow != null && !nextRow.getChildren().isEmpty()) {
                 nextRow.getChildren().getFirst().setParent(row);
-                if (nextRow.getChildren().isEmpty()) nextRow.destroy();
-            } else if (row.getChildren().isEmpty()) row.destroy();
+                if (nextRow.getChildren().isEmpty())
+                    nextRow.destroy();
+            } else if (row.getChildren().isEmpty())
+                row.destroy();
         }
         frame.destroy();
     }
 
     public void animOnHover(UIElement element, UIElement toAnimate) {
         element.setAttribute("animOnHover", toAnimate);
-        if (toAnimate.getAttribute("ogsize") == null) toAnimate.setAttribute("ogsize", toAnimate.size.clone());
+        if (toAnimate.getAttribute("ogsize") == null)
+            toAnimate.setAttribute("ogsize", toAnimate.size.clone());
         toAnimate.setAttribute("hoversize", toAnimate.size.clone().dilate(1.15));
     }
 
     public void animOnHoverRot(UIElement element, UIElement toAnimate) {
         element.setAttribute("animOnHoverRot", toAnimate);
-        if (toAnimate.getAttribute("ogsize") == null) toAnimate.setAttribute("ogsize", toAnimate.size.clone());
+        if (toAnimate.getAttribute("ogsize") == null)
+            toAnimate.setAttribute("ogsize", toAnimate.size.clone());
         toAnimate.setAttribute("hoversize", toAnimate.size.clone().dilate(1.15));
     }
 
     public void animOnPress(UIElement element, UIElement toAnimate) {
         element.setAttribute("animOnPress", toAnimate);
-        if (toAnimate.getAttribute("ogsize") == null) toAnimate.setAttribute("ogsize", toAnimate.size.clone());
+        if (toAnimate.getAttribute("ogsize") == null)
+            toAnimate.setAttribute("ogsize", toAnimate.size.clone());
         toAnimate.setAttribute("presssize", toAnimate.size.clone().dilate(0.8));
     }
 
@@ -2685,7 +3057,9 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
 
     public void promptPlayer(String question, String option1, String option2, Consumer<Boolean> callback) {
         if (popupBackground.visible) {
-            Timer t = new Timer(300, (e) -> promptPlayer(question, option1, option2, callback)); t.setRepeats(false); t.start();
+            Timer t = new Timer(300, (e) -> promptPlayer(question, option1, option2, callback));
+            t.setRepeats(false);
+            t.start();
             return;
         }
         popupBackground.setAttribute("Type", "yesno");
@@ -2694,7 +3068,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         UIElement.getByName("PopupChoices").visible = true;
         popupPrompt.text = question;
         popupChoice1.text = option1;
-        popupChoice2.text = option2;
+        popupChoice2.text = option2 != null ? option2 : "";
+        UIFrame.getByName("PopupChoice2Container").visible = option2 != null;
         popupBackground.backgroundTransparency = 0f;
         popupContainer.backgroundTransparency = 0f;
         popupChoice1Frame.backgroundTransparency = 0f;
@@ -2705,8 +3080,6 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupChoice2Frame.strokeTransparency = 0f;
         popupPrompt.textTransparency = 0f;
         popupPrompt.text = question;
-        popupChoice1.text = option1;
-        popupChoice2.text = option2;
         popupBackground.visible = true;
         showCardDuringPopup.visible = false;
         popupBackground.tweenBackgroundTransparency(0.5f, 0.3, Tween.QUAD_IN_OUT);
@@ -2718,9 +3091,12 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupPrompt.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
     }
 
-    public void promptPlayer(String question, String option1, String option2, Consumer<Boolean> callback, Bird showBird) {
+    public void promptPlayer(String question, String option1, String option2, Consumer<Boolean> callback,
+            Bird showBird) {
         if (popupBackground.visible) {
-            Timer t = new Timer(300, (e) -> promptPlayer(question, option1, option2, callback, showBird)); t.setRepeats(false); t.start();
+            Timer t = new Timer(300, (e) -> promptPlayer(question, option1, option2, callback, showBird));
+            t.setRepeats(false);
+            t.start();
             return;
         }
         promptPlayer(question, option1, option2, callback);
@@ -2750,13 +3126,13 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupFoodChoiceFrame.setParent(popupFoodChoiceContainer);
         popupFoodChoiceFrame.addReleaseListener((e) -> {
             if (food.toLowerCase().equals("seed/worm")) {
-                ((Runnable)popupBackground.getAttribute("Reset")).run();
+                ((Runnable) popupBackground.getAttribute("Reset")).run();
                 Consumer<String> done = popupBackground.getAttributeOrDefault("Done", null);
-                promptPlayerFood("Pick either a worm or a seed token:", done, List.of(new String[] {"seed", "worm"}));
+                promptPlayerFood("Pick either a worm or a seed token:", done, List.of(new String[] { "seed", "worm" }));
             } else {
                 Consumer<String> done = popupBackground.getAttributeOrDefault("Done", null);
                 if (done != null) {
-                    ((Runnable)popupBackground.getAttribute("Reset")).run();
+                    ((Runnable) popupBackground.getAttribute("Reset")).run();
                     done.accept(food);
                     popupBackground.setAttribute("Done", null);
                 }
@@ -2765,7 +3141,8 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
 
         UIImage popupFoodChoiceIcon = new UIImage(food + "PopupFoodChoiceIcon", this);
         popupFoodChoiceIcon.setParent(popupFoodChoiceFrame);
-        popupFoodChoiceIcon.setImagePath(food.toLowerCase().equals("seed/worm") ? "foods/seedworm.png" : "foods/" + food.toLowerCase() + "_ns.png");
+        popupFoodChoiceIcon.setImagePath(food.toLowerCase().equals("seed/worm") ? "foods/seedworm.png"
+                : "foods/" + food.toLowerCase() + "_ns.png");
         popupFoodChoiceIcon.setImageFillType(UIImage.FIT_IMAGE);
         popupFoodChoiceIcon.size = new Dim2(0.7, 0, 0.7, 0);
         popupFoodChoiceIcon.position.center();
@@ -2781,15 +3158,19 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
 
     public void promptPlayerFood(String question, Consumer<String> callback) {
         if (popupBackground.visible) {
-            Timer t = new Timer(300, (e) -> promptPlayerFood(question, callback)); t.setRepeats(false); t.start();
+            Timer t = new Timer(300, (e) -> promptPlayerFood(question, callback));
+            t.setRepeats(false);
+            t.start();
             return;
         }
-        promptPlayerFood(question, callback, List.of(new String[] {"seed", "worm", "berry", "fish", "berry"}));
+        promptPlayerFood(question, callback, List.of(new String[] { "seed", "worm", "berry", "fish", "berry" }));
     }
 
     public void promptPlayerFood(String question, Consumer<String> callback, List<String> show) {
         if (popupBackground.visible) {
-            Timer t = new Timer(300, (e) -> promptPlayerFood(question, callback, show)); t.setRepeats(false); t.start();
+            Timer t = new Timer(300, (e) -> promptPlayerFood(question, callback, show));
+            t.setRepeats(false);
+            t.start();
             return;
         }
         showCardDuringPopup.visible = false;
@@ -2823,22 +3204,40 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         popupPrompt.tweenTextTransparency(1f, 0.3, Tween.QUAD_IN_OUT);
     }
 
-    public void promptPlayerHabitat(String question, Consumer<String> callback, List<String> show) {
+    public void promptPlayerHabitat(int p, String question, Consumer<String> callback, List<String> show) {
         gameScreen.visible = false;
         playerBoardPrompt.text = question;
-        UIImage playerBoard = UIImage.getByName("PlayerBoard" + currentGame.getPlayerTurn());
+        UIImage playerBoard = UIImage.getByName("PlayerBoard" + p);
         playerBoard.setParent(UIFrame.getByName("PlayerBoardPromptContainer"));
         playerBoard.visible = true;
-        UIFrame.getByName("GetFoodButton" + currentGame.getPlayerTurn()).setAttribute("Clickable", show.contains("forest"));
-        UIFrame.getByName("LayEggsButton" + currentGame.getPlayerTurn()).setAttribute("Clickable", show.contains("grassland"));
-        UIFrame.getByName("DrawBirdsButton" + currentGame.getPlayerTurn()).setAttribute("Clickable", show.contains("wetland"));
-        UIFrame.getByName("PlayBirdButton" + currentGame.getPlayerTurn()).backgroundTransparency = 0.5f;
-        UIFrame.getByName("GetFoodButton" + currentGame.getPlayerTurn()).backgroundTransparency = show.contains("forest") ? 0f : 0.5f;
-        UIFrame.getByName("LayEggsButton" + currentGame.getPlayerTurn()).backgroundTransparency = show.contains("grassland") ? 0f : 0.5f;
-        UIFrame.getByName("DrawBirdsButton" + currentGame.getPlayerTurn()).backgroundTransparency = show.contains("wetland") ? 0f : 0.5f;
+        UIFrame.getByName("GetFoodButton" + p).setAttribute("Clickable", show.contains("forest"));
+        UIFrame.getByName("LayEggsButton" + p).setAttribute("Clickable", show.contains("grassland"));
+        UIFrame.getByName("DrawBirdsButton" + p).setAttribute("Clickable", show.contains("wetland"));
+        UIFrame.getByName("PlayBirdButton" + p).backgroundTransparency = 0.5f;
+        UIFrame.getByName("GetFoodButton" + p).backgroundTransparency = show.contains("forest") ? 0f : 0.5f;
+        UIFrame.getByName("LayEggsButton" + p).backgroundTransparency = show.contains("grassland") ? 0f : 0.5f;
+        UIFrame.getByName("DrawBirdsButton" + p).backgroundTransparency = show.contains("wetland") ? 0f : 0.5f;
         promptBoardScreen.setAttribute("Active", true);
         promptBoardScreen.setAttribute("Done", callback);
         promptBoardScreen.visible = true;
+        UIFrame.getByName("ExitBoardPromptButton").visible = false;
+    }
+
+    public void promptPlayerLayEggs(int p, String question, int amt) {
+        gameScreen.visible = false;
+        playerBoardPrompt.text = question;
+        gameScreen.setAttribute("EggsToPlace", amt);
+        UIImage playerBoard = UIImage.getByName("PlayerBoard" + p);
+        playerBoard.setParent(UIFrame.getByName("PlayerBoardPromptContainer"));
+        playerBoard.visible = true;
+        UIFrame.getByName("PlayBirdButton" + p).backgroundTransparency = 0f;
+        UIFrame.getByName("GetFoodButton" + p).backgroundTransparency = 0f;
+        UIFrame.getByName("LayEggsButton" + p).backgroundTransparency = 0f;
+        UIFrame.getByName("DrawBirdsButton" + p).backgroundTransparency = 0f;
+        promptBoardScreen.setAttribute("Active", true);
+        // promptBoardScreen.setAttribute("Done", callback);
+        promptBoardScreen.visible = true;
+        UIFrame.getByName("ExitBoardPromptButton").visible = true;
     }
 
     public void promptPlayerBonus(String question, BonusCard choice1, BonusCard choice2, Consumer<BonusCard> callback) {
@@ -2857,16 +3256,17 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         gameScreen.setAttribute("DoneWithTradingBird", callback);
         cyclingView.setAttribute("Items", list);
         cyclingView.setAttribute("Index", 0);
-        ((Runnable)cyclingView.getAttribute("Run")).run();
+        ((Runnable) cyclingView.getAttribute("Run")).run();
     }
 
     private TreeSet<Selectable> selected = new TreeSet<>();
 
     public Selectable toggleSelectCard(Card card) {
-        if (card == null) return null;
+        if (card == null)
+            return null;
         Selectable found = null;
         for (Selectable v : selected) {
-            if (v.getValue() != null && ((Card)v.getValue()).equals(card)) {
+            if (v.getValue() != null && ((Card) v.getValue()).equals(card)) {
                 found = v;
                 break;
             }
@@ -2880,17 +3280,19 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
     }
 
     public Selectable selectCard(Card card) {
-        if (card == null) return null;
+        if (card == null)
+            return null;
         Selectable a = new Selectable(card, null);
         selected.add(a);
         return a;
     }
 
     public void deselectCard(Card card) {
-        if (card == null) return;
+        if (card == null)
+            return;
         Selectable found = null;
         for (Selectable v : selected) {
-            if (v.getValue() != null && ((Card)v.getValue()).equals(card)) {
+            if (v.getValue() != null && ((Card) v.getValue()).equals(card)) {
                 found = v;
                 break;
             }
@@ -2901,12 +3303,13 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
     }
 
     public boolean isSelected(Card card) {
-        if (card == null) return false;
+        if (card == null)
+            return false;
         for (Selectable v : selected) {
-            if (v.getValue() != null && ((Card)v.getValue()).equals(card)) return true;
+            if (v.getValue() != null && ((Card) v.getValue()).equals(card))
+                return true;
         }
 
         return false;
     }
 }
-

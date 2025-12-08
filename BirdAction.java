@@ -420,7 +420,7 @@ public enum BirdAction implements BirdActionInterface
 					else if (habitat.equalsIgnoreCase("wetland")) { habitat1 = "forest"; habitat2 = "grassland"; }
 					else System.out.println("MOVEIFATVERYRIGHT BIRD ACTION BROKE SOMEHOW GGS");
 
-					gameContext.getPanel().promptPlayerHabitat("Which habitat would you like to move to?", (choice) -> {
+					gameContext.getPanel().promptPlayerHabitat(gameContext.getPlayerIndex(player), "Which habitat would you like to move to?", (choice) -> {
 						String newHabitat = choice;
 						BirdInstance bird = birdInstances.get(birdInstances.size() - 1);
 						player.getBoard().get(newHabitat).add(bird);
@@ -462,6 +462,7 @@ public enum BirdAction implements BirdActionInterface
 			birdInstance.cacheFood(1);
 			gameContext.pinkAbilityActivation("ifPredatorSucceeds");
 		}
+
 		
 	}),
 	// Rolls all the dice not in the birdFeeder and if any are rat, cache 1 rat into the supply of the bird
