@@ -698,6 +698,7 @@ public class Game {
 	public void playBird(Player p)
 	{
 		// UI should be asking the player which bird from their hand to play
+		this.showHand(p);
 		// for now it'll be the first bird in the hand
 		Bird birdToPlay = UIElement.getAllTagged("Selected").stream().toList().getFirst().getAttributeOrDefault("Card", null);
 		if(p.getBirdHand().isEmpty()) { System.out.println("Player #" + playerList.indexOf(p) + "'s bird hand is empty? Requested card: " + birdToPlay + ". " + p.getBirdHand()); return; } // just checks if the hand is empty first before asking which to play
