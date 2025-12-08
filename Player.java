@@ -84,10 +84,12 @@ public class Player {
     }
 
     //removes the specified amount of food and the amount
-    public boolean removeFood(String foodType, int amount) {
+    public boolean removeFood(String foodType, int amount, Game gameContext) {
         int current = food.getOrDefault(foodType, 0);
         if(current >= amount && current != 0) {
             food.put(foodType, current - amount);
+            int p = gameContext.getPlayers().indexOf(this) + 1;
+            if (gameContext.getPlayerTurn() == p) UIText.getByName(foodType.substring(0, 1).toUpperCase() + foodType.substring(1) + "Stat").text = "" + (current - amount);
             return true;
         }
         return false;
@@ -110,7 +112,7 @@ public class Player {
         for (int i = 1; i < split.length; i++) {
             sumOfFoodRequired += Integer.parseInt(split[i].substring(0, 1));
         }
-        if (sumOfFoodRequired < sumOfAny) return false;
+        if (sumOfAny < sumOfFoodRequired) return false;
         for (int i = 1; i < split.length; i++) {
             int amount = Integer.parseInt(split[i].substring(0, 1));
             String foodType = split[i].substring(1);
@@ -121,12 +123,17 @@ public class Player {
                 if (!foodType.equals("any") && food.get(foodType) < amount) result = false;
                 if (!result) break;
             } else if (type.equals("or")) {
-                if (!foodType.equals("any") && food.get(foodType) > amount) result = true;
+                if (!foodType.equals("any") && food.get(foodType) >= amount) result = true;
                 if (result) break;
             }
         }
         return result;
     }
+
+    public boolean hasEnoughEggs(int eggs) {
+        return board.values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() >= eggs;
+    }
+
 
     //MUTATOR METHOD:
     //adds the specified amount of points
@@ -140,24 +147,35 @@ public class Player {
     }
 
     //removes the bird card from hand specified
-    public void removeBirdCard(Bird card) {
+    public void removeBirdCard(Bird card, Game gameContext) {
+        if(card == null) { System.out.println("Error, card was null."); return; }
         this.birdHand.remove(card);
+        WingspanPanel panel = gameContext.getPanel();
+        panel.removeFirstFromPlayerHand(gameContext.getPlayers().indexOf(this) + 1, card);
     }
 
     //adds the specified Bonus card to the bonusHand
-    public void addBonusHand(BonusCard card) {
+    public void addBonusHand(BonusCard card, Game gameContext) {
+        if(card == null) { System.out.println("Error, card was null."); return; }
         bonusHand.add(card);
+        WingspanPanel panel = gameContext.getPanel();
+        panel.addToPlayerHand(gameContext.getPlayers().indexOf(this) + 1, card);
     }
 
     //adds the specified BirdCard card to the birdHand
-    public void addBirdHand(Bird card) {
+    public void addBirdHand(Bird card, Game gameContext) {
+        if(card == null) { System.out.println("Error, card was null."); return; }
         birdHand.add(card);
+        WingspanPanel panel = gameContext.getPanel();
+        panel.addToPlayerHand(gameContext.getPlayers().indexOf(this) + 1, card);
     }
 
     //adds the specified foods and the amount to the food map
-    public void addFood(String foodType, int amount) {
+    public void addFood(String foodType, int amount, Game gameContext) {
         int current = food.getOrDefault(foodType, 0);
         food.put(foodType, current + amount);
+        int p = gameContext.getPlayers().indexOf(this) + 1;
+        if (gameContext.getPlayerTurn() == p) UIText.getByName(foodType.substring(0, 1).toUpperCase() + foodType.substring(1) + "Stat").text = "" + (current + amount);
     }
 
     //decreases the amount of actionCubes a player has by 1
@@ -181,14 +199,14 @@ public class Player {
         this.finalScoreMap = map;
     }
 
-    public void removeAndFoodToAddBird(Bird bird) {
+    public void removeAndFoodToAddBird(Bird bird, Game gameContext) {
         String foodRequired = bird.getFoodRequired();
         String[] split = foodRequired.split(" ");
         for (int i = 1; i < split.length; i++) {
             int amount = Integer.parseInt(split[i].substring(0, 1));
             String foodType = split[i].substring(1);
             if (!foodType.equals("any")) {
-                removeFood(foodType, amount);
+                removeFood(foodType, amount, gameContext);
             }
         }
     }

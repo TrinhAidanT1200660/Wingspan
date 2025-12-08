@@ -16,7 +16,7 @@ public interface ImageHandler {
 
     public static BufferedImage get(String imagePath, String group) {
         String originalImage = imagePath;
-        if (imagePath.contains("temp")) imagePath = "birds/back_of_bird.png";
+        if (imagePath.contains("temp")) imagePath = "images/temp.png";
         ImageObject imgObj = cache.get(imagePath);
         if (imgObj != null && imgObj.image != null) return imgObj.image;
         
@@ -28,9 +28,9 @@ public interface ImageHandler {
                     imgObj = new ImageObject(image, group);
                     cache.put(imagePath, imgObj);
                     getGroup(group).add(originalImage);
-                }
+                } else return get("images/temp.png");
                 return image;
-            } else return null;
+            } else return get("images/temp.png");
         } catch (IOException e) {
             System.out.println("Couldn't load image from " + imagePath + ": " + e.getMessage());
             return null;

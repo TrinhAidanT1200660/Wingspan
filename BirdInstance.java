@@ -6,6 +6,7 @@ public class BirdInstance {
     private int cachedFood;
 	private String currentHabitat;
     private boolean playedThisTurn;
+	private UIElement UIBirdCard;
 
 	public BirdInstance(Bird bird) {
 		this.birdEnum = bird;
@@ -65,12 +66,15 @@ public class BirdInstance {
 
 	// returns a String with the bird's current habitat
 	public String getCurrentHabitat() { return currentHabitat; }
+
+	// returns a String with the bird's current habitat
+	public UIElement getUIBirdCard() { return UIBirdCard; }
 	
 	// VOID METHODS
 
 	// adds an egg to the amount of eggs held
 	public boolean addEggs(int amt) { 
-		if (heldEggs < this.getEggMax() && amt + heldEggs < this.getEggMax()) {
+		if (heldEggs < this.getEggMax() && amt + heldEggs <= this.getEggMax()) {
 			heldEggs+=amt; 
 			return true;
 		}
@@ -81,14 +85,28 @@ public class BirdInstance {
 		return false;
 	}
 
+	public boolean canAddEggs(int amt) { 
+		if (heldEggs < this.getEggMax() && amt + heldEggs <= this.getEggMax()) {
+			return true;
+		}
+		else if(heldEggs < this.getEggMax() && amt + heldEggs > this.getEggMax()) {
+			return true;
+		}
+		return false;
+	}
+
 	// adds an egg to the amount of eggs held
 	public boolean removeEggs(int amt) { 
-		if (heldEggs > 0) {
+		if (heldEggs >= amt) {
 			heldEggs-=amt; 
 			return true;
 		}
 		return false;
 	}
+
+	public boolean canRemoveEggs(int amt) {
+        return heldEggs >= amt;
+    }
 
 	// caches a food. Doesn't matter what type as the class that called it will remove it from the player to make the logic easier
 	public void cacheFood(int amt) { cachedFood+=amt; }
@@ -107,4 +125,8 @@ public class BirdInstance {
 	
 	// performs this bird's stored BirdAction ability on the given player
 	public void performAction(Game gameContext, Player player) { birdEnum.performAction(gameContext, player, this); }
+
+	public void setUIBirdCard(UIElement frame) { UIBirdCard = frame; }
+
+    public String toString() { return getName(); }
 }

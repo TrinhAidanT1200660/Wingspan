@@ -1,7 +1,7 @@
 import java.util.*;
 
 
-public enum BonusCard implements BonusCardInterface
+public enum BonusCard implements Card, BonusCardInterface
 {
 
     ANATOMIST("anatomist.png", (player) -> {
@@ -641,8 +641,11 @@ public enum BonusCard implements BonusCardInterface
 
     // returns a BufferedImage with the bonus' image file
     public String getImage() { 
-        return imageFileString; 
+        return "bonus/" + imageFileString; 
     }
+
+    // returns name
+    public String getName() { return imageFileString.split("\\.")[0]; }
 
     // VOID METHODS / MUTATOR METHODS:
     public void removeCardFromDeck() { deckCount -= 1; }
