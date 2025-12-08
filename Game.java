@@ -1089,6 +1089,8 @@ public class Game {
 						deselect(selected.last()); // remove from selected
 						if (playerTurn == 1) { // if new player is back to 1 then
 							panel.playTransition(() -> {
+								UIElement.getByName("ResourceChoosingScreen").visible = false;
+								UIElement.getByName("GameScreen").visible = true;
 								this.startingPlayerTurn = (int)(Math.random() * 5) + 1;
 								this.playerTurn = startingPlayerTurn;
 								for (Player p : playerList) {
@@ -1100,8 +1102,6 @@ public class Game {
 								}
 								gamePhase = 2;
 								for (String food : foods) UIText.getByName(food + "Stat").text = "" + playerList.get(0).getFood().getOrDefault(food.toLowerCase(), 0);
-								UIElement.getByName("ResourceChoosingScreen").visible = false;
-								UIElement.getByName("GameScreen").visible = true;
 								((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
 								regenerateFaceUpTray();
 								for (Bird b : faceUpBirds) ImageHandler.setGroup(b.getImage(), "FaceUp");

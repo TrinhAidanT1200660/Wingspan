@@ -18,7 +18,7 @@ public enum Goals {
     BOWL_BIRDS_WITH_EGGS("bowl_and_bird_with_egg.png"),
     CAVITY_BIRDS_WITH_EGGS("cavity_and_card_with_egg.png"),
     PLATFORM_BIRDS_WITH_EGGS("platform_and_bird_with_egg.png"),
-    GROUND_BIRDS_WITH_EGGS("ground_and_bird_with_egg"),
+    GROUND_BIRDS_WITH_EGGS("ground_and_bird_with_egg.png"),
     // # of eggs in nest types
     EGGS_IN_BOWL("egg_in_bowl.png"),
     EGGS_IN_CAVITY("egg_in_cavity.png"),

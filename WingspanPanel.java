@@ -908,6 +908,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         finalBoardsScreenBackArrowContainer.size = new Dim2(0.1/1.5, 0, 0.1, 0);
         finalBoardsScreenBackArrowContainer.position = new Dim2(0.025, 0, 0.05, 0);
         finalBoardsScreenBackArrowContainer.backgroundTransparency = 0f;
+        finalBoardsScreenBackArrowContainer.setZIndex(102103198237);
         finalBoardsScreenBackArrowContainer.keepAspectRatio = true;
         finalBoardsScreenBackArrowContainer.setParent(finalBoardsScreen);
 
@@ -1672,6 +1673,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
             newBoard.visible = true;
             boards.setAttribute("Current", newBoard);
             if (gameScreen.getParent() != finalBoardsScreen) choosePlayingScreen(boardScreen); else {
+            	UIText.getByName("HandTitle").text = "Player " + index + "'s Hand";
                 UIFrame.getByName("HandCardsContainer").getChildren().forEach(c -> c.visible = false);
                 UIFrame.getByName("Player" + index + "CardsContainer").visible = true;
             }
