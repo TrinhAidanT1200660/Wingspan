@@ -908,7 +908,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         finalBoardsScreenBackArrowContainer.size = new Dim2(0.1/1.5, 0, 0.1, 0);
         finalBoardsScreenBackArrowContainer.position = new Dim2(0.025, 0, 0.05, 0);
         finalBoardsScreenBackArrowContainer.backgroundTransparency = 0f;
-        finalBoardsScreenBackArrowContainer.setZIndex(102103198237);
+        finalBoardsScreenBackArrowContainer.setZIndex(102103198);
         finalBoardsScreenBackArrowContainer.keepAspectRatio = true;
         finalBoardsScreenBackArrowContainer.setParent(finalBoardsScreen);
 
@@ -1357,6 +1357,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
                     promptBoardScreen.setAttribute("Done", null);
                     done.accept(choice.getAttributeOrDefault("Habitat", null));
                 }
+                ((Runnable)(UIFrame.getByName("Boards")).getAttribute("ShowBoardOfCurrent")).run();
             }
         });
 
@@ -1650,6 +1651,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         boards.setParent(boardScreen);
         boards.setAttribute("Index", 1);
         boards.setAttribute("ShowBoardOfCurrent", (Runnable) () -> {
+        	boards.getChildren().forEach(b -> b.visible = false);
             boards.setAttribute("Index", currentGame.getPlayerTurn());
             ((Runnable) boards.getAttribute("ViewBoard")).run();
         });
@@ -3454,6 +3456,7 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         animOnHover(birdCardImage, birdCardImage);
         animOnPress(birdCardImage, birdCardImage);
         birdCardImage.setAttribute("BirdInstance", bird);
+        bird.setUIBirdCard(birdCardFrame);
         birdCardImage.addReleaseListener(e -> {
             Player player = currentGame.getPlayers().get(p - 1);
             ArrayList<Card> all = new ArrayList<>(
@@ -3466,8 +3469,9 @@ public class WingspanPanel extends JPanel implements KeyListener, MouseListener,
         });
     }
 
-    public void addToPlayerBoard(BirdInstance bird) {
+    public void removeFromPlayerBoard(BirdInstance bird) {
         bird.getUIBirdCard().destroy();
+        bird.setUIBirdCard(null);
     }
 
     public void removeFirstFromPlayerHand(int p, Card card) {

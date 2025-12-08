@@ -1005,13 +1005,13 @@ public class Game {
 	{
         if (released.getAttribute("startButton") != null)
 		{
-			panel.playTransition((Runnable)() -> {
+			/*panel.playTransition((Runnable)() -> {
 				setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
 				giveUIBirds(5);
 				panel.clickedStart(event, released);
 			});
-			gamePhase = 1;
-			/*});
+			gamePhase = 1;*/
+			//});
 			// we're just simulating generating 5 random players just for testing actual game play here 
 			panel.playTransition(() -> { 
 				setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
@@ -1020,6 +1020,7 @@ public class Game {
 					p.addBirdHand(Bird.WHOOPING_CRANE, this);
 					//panel.addToPlayerHand(i + 1, Bird.WHOOPING_CRANE);
 					p.addBirdHand(Bird.BLACK_VULTURE, this);
+					p.addBirdHand(Bird.BEWICKS_WREN, this);
 					//panel.addToPlayerHand(i + 1, Bird.BLACK_VULTURE);
 					ArrayList<Bird> birds = pullRandomBirds(5);
 					for (int j = 0; j < 5; j++) {
@@ -1045,7 +1046,7 @@ public class Game {
 					}
 					ImageHandler.loadGroup("Player" + i + "BirdHands");
 				}
-				gamePhase = 1;
+				gamePhase = 2;
 				for (String food : foods) UIText.getByName(food + "Stat").text = "" + playerList.get(0).getFood().getOrDefault(food.toLowerCase(), 0);
 				UIElement.getByName("StartScreen").visible = false;
 				UIElement.getByName("GameScreen").visible = true;
@@ -1060,7 +1061,7 @@ public class Game {
 				UIImage.getByName("GoalBoardButton").setImagePath("images/" + compType.toLowerCase() + "_goal_board_button.png");
 				UIFrame.getByName(compType + "ActionCubeCharts").visible = true;
 				updateUITurn(1);
-			}); */
+			}); 
     	} 
 	}
 	
