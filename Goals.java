@@ -430,4 +430,8 @@ public enum Goals {
             }
         }
     }
+
+    public String getImageFileString() {
+        return imageFileString;
+    }
 }

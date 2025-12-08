@@ -97,12 +97,16 @@ public class BirdInstance {
 
 	// adds an egg to the amount of eggs held
 	public boolean removeEggs(int amt) { 
-		if (heldEggs > 0) {
+		if (heldEggs >= amt) {
 			heldEggs-=amt; 
 			return true;
 		}
 		return false;
 	}
+
+	public boolean canRemoveEggs(int amt) {
+        return heldEggs >= amt;
+    }
 
 	// caches a food. Doesn't matter what type as the class that called it will remove it from the player to make the logic easier
 	public void cacheFood(int amt) { cachedFood+=amt; }

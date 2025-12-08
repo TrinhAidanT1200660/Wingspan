@@ -16,11 +16,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -945,6 +941,12 @@ class UIElement {
         return children;
     }
 
+    public UIElement findFirstChild(String name) {
+        Optional<UIElement> found = children.stream().filter(c -> c.getName().equals(name)).findFirst();
+        if (found.isPresent()) return found.get();
+        return null;
+    }
+
     public void clearAllChildren() {
         while (!children.isEmpty()) {
             children.get(0).destroy();
@@ -1861,6 +1863,7 @@ class UIImage extends UIElement {
 
     public void setImagePath(String newImagePath) {
         if (!imagePath.equals(newImagePath)) {
+            brightnessCache.clear();
             imagePath = newImagePath;
             dirtyImagePath = true;
             if (brightness != 1f) {

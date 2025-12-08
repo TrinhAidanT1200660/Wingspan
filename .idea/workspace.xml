@@ -4,14 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e42e10f1-7adb-4220-bdd3-3770ae15f332" name="Changes" comment="">
+    <list default="true" id="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/resources/images/p1bg.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/images/p2bg.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/images/p3bg.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/images/p4bg.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/images/p5bg.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BirdAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/BirdAction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BirdInstance.java" beforeDir="false" afterPath="$PROJECT_DIR$/BirdInstance.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/Game.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Goals.java" beforeDir="false" afterPath="$PROJECT_DIR$/Goals.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UIElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/UIElement.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WingspanPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/WingspanPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Wingspan/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Wingspan/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Wingspan/resources/foods/seedworm.png" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Wingspan/resources/foods/seedworm.png" afterDir="false" />
     </list>
-    <list id="a1d68f8b-08ca-4ea9-8e16-d0553fa97696" name="Changes by Aidan" comment="">
+    <list id="ae51080a-8b69-49e1-a188-1644844a7e8b" name="Changes by Aidan" comment="">
+      <change beforePath="$PROJECT_DIR$/Bird.java" beforeDir="false" afterPath="$PROJECT_DIR$/Bird.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BirdAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/BirdAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/Game.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,41 +34,159 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "AlsouriMohammedK1828812"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/TrinhAidanT1200660/Wingspan.git",
+    "accountId": "7270194f-99cf-4362-a4a7-64ab55cee2cb"
+  }
+}]]></component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/Game.java">
+      <ranges>
+        <range start1="30" end1="31" start2="30" end2="31" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="53" end1="55" start2="53" end2="64" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="56" end1="60" start2="65" end2="96" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="69" end1="70" start2="105" end2="106" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="81" end1="81" start2="117" end2="141" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="118" end1="119" start2="178" end2="179" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="123" end1="124" start2="183" end2="184" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="125" end1="127" start2="185" end2="185" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="178" end1="179" start2="236" end2="237" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="185" end1="196" start2="243" end2="243" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="198" end1="198" start2="245" end2="249" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="204" end1="204" start2="255" end2="264" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="209" end1="210" start2="269" end2="270" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="229" end1="230" start2="289" end2="290" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="232" end1="233" start2="292" end2="293" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="235" end1="236" start2="295" end2="296" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="297" end1="298" start2="357" end2="358" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="696" end1="697" start2="756" end2="757" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="705" end1="706" start2="765" end2="766" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="741" end1="755" start2="801" end2="813" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="768" end1="772" start2="826" end2="829" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="773" end1="783" start2="830" end2="840" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="784" end1="785" start2="841" end2="847" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="862" end1="863" start2="924" end2="925" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="867" end1="868" start2="929" end2="930" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="898" end1="899" start2="960" end2="961" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="917" end1="917" start2="979" end2="981" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="942" end1="943" start2="1006" end2="1007" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="947" end1="949" start2="1011" end2="1013" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="992" end1="994" start2="1056" end2="1060" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="995" end1="996" start2="1061" end2="1062" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="1023" end1="1025" start2="1089" end2="1101" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="1029" end1="1029" start2="1105" end2="1107" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="1031" end1="1031" start2="1109" end2="1114" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="1072" end1="1073" start2="1155" end2="1156" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="1083" end1="1083" start2="1166" end2="1167" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/BirdAction.java">
+      <ranges>
+        <range start1="14" end1="15" start2="14" end2="17" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="21" end1="23" start2="23" end2="27" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="29" end1="31" start2="33" end2="37" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="37" end1="39" start2="43" end2="47" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="45" end1="47" start2="53" end2="57" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="52" end1="54" start2="62" end2="66" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="60" end1="62" start2="72" end2="77" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="68" end1="70" start2="83" end2="91" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="75" end1="75" start2="96" end2="98" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="81" end1="82" start2="104" end2="105" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="111" end1="112" start2="134" end2="135" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="115" end1="116" start2="138" end2="141" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="145" end1="146" start2="170" end2="171" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="147" end1="149" start2="172" end2="176" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="169" end1="170" start2="196" end2="199" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="171" end1="171" start2="200" end2="205" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="178" end1="179" start2="212" end2="215" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="180" end1="180" start2="216" end2="221" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="187" end1="188" start2="228" end2="231" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="189" end1="189" start2="232" end2="237" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="193" end1="193" start2="241" end2="242" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="195" end1="195" start2="244" end2="252" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="213" end1="214" start2="270" end2="271" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="229" end1="230" start2="286" end2="289" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="235" end1="236" start2="294" end2="297" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="237" end1="238" start2="298" end2="299" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="241" end1="242" start2="302" end2="305" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="246" end1="248" start2="309" end2="317" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="253" end1="254" start2="322" end2="325" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="259" end1="260" start2="330" end2="333" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="276" end1="276" start2="349" end2="352" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="302" end1="303" start2="378" end2="379" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="305" end1="306" start2="381" end2="384" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="312" end1="313" start2="390" end2="391" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="315" end1="316" start2="393" end2="396" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="333" end1="334" start2="413" end2="416" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="351" end1="352" start2="433" end2="436" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="369" end1="370" start2="453" end2="456" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="387" end1="388" start2="473" end2="476" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="389" end1="390" start2="477" end2="478" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="393" end1="396" start2="481" end2="484" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="401" end1="402" start2="489" end2="492" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="448" end1="449" start2="538" end2="539" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="462" end1="463" start2="552" end2="555" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="464" end1="464" start2="556" end2="559" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="465" end1="466" start2="560" end2="561" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="479" end1="480" start2="574" end2="577" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="481" end1="481" start2="578" end2="581" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="646" end1="656" start2="746" end2="757" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="657" end1="658" start2="758" end2="759" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="659" end1="673" start2="760" end2="773" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="676" end1="677" start2="776" end2="777" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="691" end1="695" start2="791" end2="795" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="702" end1="703" start2="802" end2="803" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="706" end1="707" start2="806" end2="808" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="721" end1="725" start2="822" end2="825" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="732" end1="733" start2="832" end2="832" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="735" end1="736" start2="834" end2="836" changelist="ae51080a-8b69-49e1-a188-1644844a7e8b" />
+        <range start1="745" end1="746" start2="845" end2="846" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="748" end1="749" start2="848" end2="849" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+        <range start1="754" end1="755" start2="854" end2="855" changelist="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" />
+      </ranges>
+    </file>
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 5
-}</component>
-  <component name="ProjectId" id="36UeKGQ7HcKmiPBVrJb4Efsqtjj" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="36XneM3yfZQk0CyNkHP2zG5viv0" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.Run.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;third-branch-with-main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Mohammed/Documents/GitHub/Wingspan&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.WingspanRunner.executor": "Run",
+    "Application.run.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "#44 on third-branch-with-main",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Mohammed\Documents\GitHub\Wingspan\resources\foods" />
+      <recent name="C:\Users\Mohammed\Documents\GitHub\Wingspan\resources\images" />
     </key>
   </component>
   <component name="RunManager">
-    <configuration name="Run" type="Application" factoryName="Application">
+    <configuration name="run" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="WingspanRunner" />
+      <module name="Wingspan" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -72,15 +203,12 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="e42e10f1-7adb-4220-bdd3-3770ae15f332" name="Changes" comment="" />
-      <created>1765065511819</created>
+      <changelist id="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" name="Changes" comment="" />
+      <created>1765161879628</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1765065511819</updated>
-      <workItem from="1765065512937" duration="17852000" />
-      <workItem from="1765159288422" duration="195000" />
-      <workItem from="1765159530451" duration="52000" />
-      <workItem from="1765159619851" duration="15000" />
+      <updated>1765161879628</updated>
+      <workItem from="1765161880829" duration="18464000" />
     </task>
     <servers />
   </component>

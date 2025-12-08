@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
-  </component>
   <component name="ChangeListManager">
-    <list default="true" id="e42e10f1-7adb-4220-bdd3-3770ae15f332" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/Game.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UIElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/UIElement.java" afterDir="false" />
+    <list default="true" id="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WingspanPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/WingspanPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Wingspan/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Wingspan/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Wingspan/resources/foods/seedworm.png" beforeDir="false" />
     </list>
-    <list id="a1d68f8b-08ca-4ea9-8e16-d0553fa97696" name="Changes by Aidan" comment="">
-      <change beforePath="$PROJECT_DIR$/BirdAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/BirdAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/Game.java" afterDir="false" />
-    </list>
+    <list id="ae51080a-8b69-49e1-a188-1644844a7e8b" name="Changes by Aidan" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -21,45 +17,40 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/Game.java">
-      <ranges>
-        <range start1="255" end1="255" start2="255" end2="275" changelist="e42e10f1-7adb-4220-bdd3-3770ae15f332" />
-        <range start1="269" end1="270" start2="289" end2="291" changelist="a1d68f8b-08ca-4ea9-8e16-d0553fa97696" />
-        <range start1="273" end1="278" start2="294" end2="300" changelist="e42e10f1-7adb-4220-bdd3-3770ae15f332" />
-        <range start1="279" end1="281" start2="301" end2="305" changelist="e42e10f1-7adb-4220-bdd3-3770ae15f332" />
-        <range start1="310" end1="311" start2="334" end2="343" changelist="a1d68f8b-08ca-4ea9-8e16-d0553fa97696" />
-        <range start1="322" end1="322" start2="354" end2="355" changelist="a1d68f8b-08ca-4ea9-8e16-d0553fa97696" />
-        <range start1="626" end1="626" start2="659" end2="660" changelist="e42e10f1-7adb-4220-bdd3-3770ae15f332" />
-      </ranges>
-    </file>
-  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "AlsouriMohammedK1828812"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/TrinhAidanT1200660/Wingspan.git",
+    "accountId": "7270194f-99cf-4362-a4a7-64ab55cee2cb"
+  }
+}]]></component>
   <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
   "associatedIndex": 5
 }]]></component>
-  <component name="ProjectId" id="36UeKGQ7HcKmiPBVrJb4Efsqtjj" />
+  <component name="ProjectId" id="36XneM3yfZQk0CyNkHP2zG5viv0" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.Run.executor": "Run",
+    "Application.WingspanRunner.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "third-branch-with-main",
+    "git-widget-placeholder": "#44 on third-branch-with-main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Mohammed/Documents/GitHub/Wingspan",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RunManager">
-    <configuration name="Run" type="Application" factoryName="Application">
+    <configuration name="run" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="WingspanRunner" />
       <module name="Wingspan" />
       <method v="2">
@@ -78,12 +69,12 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="e42e10f1-7adb-4220-bdd3-3770ae15f332" name="Changes" comment="" />
-      <created>1765065511819</created>
+      <changelist id="e3e75605-798b-4fa0-81a9-58f4d06a7f7a" name="Changes" comment="" />
+      <created>1765161879628</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1765065511819</updated>
-      <workItem from="1765065512937" duration="5589000" />
+      <updated>1765161879628</updated>
+      <workItem from="1765161880829" duration="163000" />
     </task>
     <servers />
   </component>

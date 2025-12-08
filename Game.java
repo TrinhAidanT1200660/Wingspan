@@ -28,7 +28,7 @@ public class Game {
 	{
 		this.panel = panel;
         this.startingActionCubes = 8;
-        this.startingPlayerTurn = (int)(Math.random() * 5) + 1;
+        this.startingPlayerTurn = 1;
 		this.playerTurn = this.startingPlayerTurn;
         this.roundsPlayed = 0;
         this.playerList = new ArrayList<>();
@@ -51,13 +51,49 @@ public class Game {
 	{
 		// once again, should allow the whole game to be viewed while showing the final scoring so the teacher can grade for points
 		// not sure how UI will display the final scores but the final scoring method returns a hashmap of the scoring sources while adding to a final score so use that
-		for(Player p : playerList)
-			p.setFinalScoreMap(calculateFinalScores(p)); // variable in player than has the final map scoring so all scores can be accessed at once to put on scoring source visual
+		panel.playTransition(() -> {
+			for(Player p : playerList) {
+				HashMap<String, Integer> fScores = calculateFinalScores(p);
+				p.setFinalScoreMap(fScores); // variable in player than has the final map scoring so all scores can be accessed at once to put on scoring source visual
+				for (String t : fScores.keySet()) {
+					UIFrame scoreRow = UIFrame.getByName(t + "ScoreRow");
+					UIElement playerScore = scoreRow.findFirstChild("Player" + getPlayerIndex(p) + "Score");
+					if (playerScore instanceof UIText scoreText) scoreText.text = "" + fScores.get(t);
+				}
+			}
 
-		// USE THE VARIABLE IN PLAYER TO CREATE THE FINAL SCORING SHEET
-		// NOW WILL BE A SORTED LIST FOR PLAYER RANKINGS
-		ArrayList<Player> sortedPlayerList = new ArrayList<>(playerList);
-		sortedPlayerList.sort((p1, p2) -> Integer.compare(p2.getPoints(), p1.getPoints()));
+
+			// USE THE VARIABLE IN PLAYER TO CREATE THE FINAL SCORING SHEET
+			// NOW WILL BE A SORTED LIST FOR PLAYER RANKINGS
+			UIImage.getByName("Background").setImagePath("images/wingspan_background.png");
+			ArrayList<Player> sortedPlayerList = new ArrayList<>(playerList);
+			sortedPlayerList.sort((p1, p2) -> Integer.compare(p2.getPoints(), p1.getPoints()));
+			UIImage.getByName("WinnerBG").setImagePath("images/p" + getPlayerIndex(sortedPlayerList.get(0)) + "bg.png");
+			UIText.getByName("Winner").text = "Player " + getPlayerIndex(sortedPlayerList.get(0)) + " Wins!";
+			for (int i = 2; i <= 5; i++) {
+				Player runnerUp = sortedPlayerList.get(i - 1);
+				UIImage.getByName(i + "RunnerUpBG").setImagePath("images/p" + getPlayerIndex(runnerUp) + "bg.png");
+				UIText.getByName(i + "RunnerUp").text = i + ". Player " + getPlayerIndex(runnerUp);
+			}
+			UIFrame gameScreen = UIFrame.getByName("GameScreen");
+			gameScreen.setAttribute("Action", "");
+			((Runnable)gameScreen.getAttribute("PickAction")).run();
+			UIFrame boardScreen = UIFrame.getByName("BoardScreen");
+			gameScreen.setParent(UIFrame.getByName("FinalBoardsScreen"));
+			UIFrame.getByName("ViewBoardButtonContainer").visible = true;
+			UIFrame.getByName("GameInfoCorner").visible = false;
+			gameScreen.visible = true;
+			playerTurn = 1;
+			((Runnable)UIFrame.getByName("Boards").getAttribute("ShowBoardOfCurrent")).run();
+			UIFrame.getByName("FinalScreen").visible = true;
+			UIText.getByName("RoundTitle").visible = false;
+			UIFrame.getByName("PlayerSelectionItems").getChildren().forEach(c -> {
+				UIElement button = c.getChildren().getFirst();
+				button.rotation = 0;
+				UIText.getByName(button.getName() + "Text").rotation = 0;
+			});
+		});
+
 	}
 
 	// end of round computing
@@ -67,7 +103,7 @@ public class Game {
 		// think we need to allow the whole game to be viewed while showing the goal board so teacher can grade; he took off points if you didn't do so last project
 		goalBoard.get(roundsPlayed).determineRankings(playerList, roundsPlayed, isCompetitive); // has the player's rankings determined
 		this.roundsPlayed ++; // increments the amount of rounds played
-		UIText.getByName("RoundTitle").text = "" + (roundsPlayed + 1);
+		UIText.getByName("RoundTitle").text = "Round " + (roundsPlayed + 1);
 		if(roundsPlayed >= 4) this.gameEnd(); // since rounds played begins at 0 and increments right before, when it hits 4 is when game ends
 		// since game hasn't ended yet, game now will begin clearing things that require to do so
 		this.clearAndRegenerateFaceUpTray(); // end of rounds has the tray cleared and regenerated
@@ -79,6 +115,30 @@ public class Game {
 			p.setActionCubes(8 - this.roundsPlayed); // 8 is beginning amount and players lose 1 action cube at the end of each round
 		
 		updateUITurn(playerTurn);
+		String compType = isCompetitive ? "Competitive" : "Peaceful";
+		UIFrame roundRow = UIFrame.getByName("Round" + roundsPlayed + "Row" + compType);
+
+		for (int i = 1; i <= 5; i++) {
+			Player p = playerList.get(i - 1);
+			int placing = p.getGoalRankings(roundsPlayed - 1);
+			if (isCompetitive) {
+				int in = i;
+				UIFrame box = UIFrame.getByName(placing + "PlaceBoxCompetitive");
+				ArrayList<UIElement> children = box.getChildren();
+				Optional<UIElement> child = box.getChildren().stream().filter(c -> c.getName().equals("Player" + in + "CubeCompetitive")).findFirst();
+				if (child.isPresent()) {
+					child.get().visible = true;
+				}
+			} else {
+				int in = i;
+				UIFrame box = UIFrame.getByName(placing + "PointsBoxPeaceful");
+				ArrayList<UIElement> children = box.getChildren();
+				Optional<UIElement> child = box.getChildren().stream().filter(c -> c.getName().equals("Player" + in + "CubePeaceful")).findFirst();
+				if (child.isPresent()) {
+					child.get().visible = true;
+				}
+			}
+		}
 	}
 
 	// not sure we need to keep this; i think we should imo
@@ -116,15 +176,13 @@ public class Game {
 		if(birdAmount < 2) birdGet = 1;
 		else if (birdAmount < 5) birdGet = 2;
 		else birdGet = 3;
-		if(birdAmount % 2 == 0 || birdAmount > 5)
+		if(birdAmount % 2 == 1 || birdAmount > 5)
 		{
 			// UI asks player if they would like to trade
 			// for now the trade will be false
 			boolean trade = UIFrame.getByName("GameScreen").getAttributeOrDefault("TradingEgg", false);
-			if(trade)// && p.hasEnoughEggs(1))
+			if(trade)
 			{
-				// UI has the player remove an egg from a bird using removeEgg
-				this.removeEggs(p, 1);
 				birdGet ++;
 			}
 		}
@@ -176,25 +234,18 @@ public class Game {
 		UIElement.removeAllTagged("Selected");
 	}
 
-	public boolean layEggsOnSpecificBird(BirdInstance bird, int left) {
+	public boolean layEggsOnSpecificBird(BirdInstance bird) {
 		UIFrame gameScreen = UIFrame.getByName("GameScreen");
 		boolean success = bird.addEggs(1);
 		if(success)
 		{
 			gameScreen.setAttribute("Laid1", true);
 		}
-		System.out.println("left:" +  left);
-		if (left == 1 && success) {
-			Player p = playerList.get(playerTurn - 1);
-			System.out.println("player " + playerTurn);
-			if (gameScreen.getAttributeOrDefault("Laid1", false)) {
-				gameScreen.setAttribute("Laid1", false);
-				pinkAbilityActivation("eggLaid"); 
-			}
-			this.iterateBirdAbilities(p, "grassland");
-			incrementPlayerTurn();
-		}
 		return success;
+	}
+
+	public boolean removeEggsFromSpecificBird(BirdInstance bird) {
+		return bird.removeEggs(1);
 	}
 
 	// method that has the player lay eggs on which bird they want
@@ -202,12 +253,21 @@ public class Game {
 	{
 		// amount of eggs depends on the amount of birds in the grassland habitat
 		// if there are an even amount, there is capability of trading a food for egg
+		UIFrame gameScreen = UIFrame.getByName("GameScreen");
+		Runnable callback = () -> {
+			if (gameScreen.getAttributeOrDefault("Laid1", false)) {
+				gameScreen.setAttribute("Laid1", false);
+				pinkAbilityActivation("eggLaid");
+			}
+			this.iterateBirdAbilities(p, "grassland");
+			incrementPlayerTurn();
+		};
 		int eggGet = 0;
 		int birdAmount = p.getBoard().get("grassland").size();
 		if(birdAmount < 2) eggGet = 2;
 		else if (birdAmount < 5) eggGet = 3;
 		else eggGet = 4;
-		if(birdAmount % 2 == 0 || birdAmount > 5)
+		if(birdAmount % 2 == 1 || birdAmount > 5)
 		{
 			/*// UI asks player if they would like to trade
 			// for now the trade will be false
@@ -227,13 +287,13 @@ public class Game {
 				if (y) {
 					panel.promptPlayerFood("Which food would you like to trade?", food -> {
 						p.removeFood(food, 1, this);
-						panel.promptPlayerLayEggs(getPlayerIndex(p), "Choose which birds to lay " + (amt + 1) + " eggs on.", (amt + 1));
+						panel.promptPlayerLayEggs(getPlayerIndex(p), "Choose which birds to lay " + (amt + 1) + " eggs on.", (amt + 1), callback);
 					}, p.getFood().entrySet().stream().filter((v) -> v.getValue() > 0).map(Map.Entry::getKey).toList());
 				} else {
-					panel.promptPlayerLayEggs(getPlayerIndex(p), "Choose which birds to lay " + amt + " eggs on.", amt);
+					panel.promptPlayerLayEggs(getPlayerIndex(p), "Choose which birds to lay " + amt + " eggs on.", amt, callback);
 				}
 			});
-		} else panel.promptPlayerLayEggs(getPlayerIndex(p), "Choose which birds to lay " + eggGet + " eggs on.", eggGet);
+		} else panel.promptPlayerLayEggs(getPlayerIndex(p), "Choose which birds to lay " + eggGet + " eggs on.", eggGet, callback);
 		/*// will lay eggs one at a time to allow eggs to be chosen where it's placed
 		for (int i = 0; i < eggGet; ++i)
 		{
@@ -295,7 +355,7 @@ public class Game {
 		else if (birdAmount < 5) foodGet = 2;
 		else foodGet = 3;
 		final int foodG = foodGet; // idk some weird thing needed
-		if(birdAmount % 2 == 0 || birdAmount > 5)
+		if(birdAmount % 2 == 1 || birdAmount > 5)
 		{
 			// UI asks player if they would like to trade
 			// for now the trade will be false
@@ -694,7 +754,7 @@ public class Game {
 			else eggsReq = 2;
 			if(p.getBoard().values().stream().flatMap(list -> list.stream()).mapToInt(BirdInstance::getEggStored).sum() >= eggsReq) habitatEggCheck = true;
 		}
-		/*if(!habitatEggCheck) {
+		if(!habitatEggCheck) {
 			// tell player they dont have enough eggs. ask what they want to do
 			panel.promptPlayer("You don't have enough eggs to play this card. What would you like to do?", "Repick card", "Repick action", (v) -> {
 				if (!v) { // if v is true, the player screen is already on hand screen so no need to do anything
@@ -703,7 +763,7 @@ public class Game {
 				}
 			});
 			return;
-		}*/
+		}
 		if(!habitatSizeCheck) { 
 			panel.promptPlayer("You don't have any habitats available to place this bird. What would you like to do?", "Repick card", "Repick action", (v) -> {
 				if (!v) { // if v is true, the player screen is already on hand screen so no need to do anything
@@ -739,20 +799,18 @@ public class Game {
 	public void askPlayerForHabitatAndContinue(Player p, Bird bird, String q) {
 		panel.promptPlayerHabitat(getPlayerIndex(p), q == null ? "Which habitat would you like to place this bird in?" : q, (habitat) -> {
 			int eggsReq = 0;
-			if (bird.getHabitat().length > 1) {
-				if(p.getBoard().get(habitat).size() >= 5) { // makes sure player selects a habitat that isnt full'
-					askPlayerForHabitatAndContinue(p, bird, "This habitat is full. Please pick another!");
-				} else { // if its not full
-					// determines the eggs required for placing the bird
-					if(p.getBoard().get(habitat).isEmpty()) eggsReq = 0;
-					else if(p.getBoard().get(habitat).size() < 4) eggsReq = 1;
-					else eggsReq = 2;
-					// checks if the player has enough eggs for the habitat chosen
-					// this check is done here to allow for reselection of habitat
-					if(!p.hasEnoughEggs(eggsReq)) {
-						askPlayerForHabitatAndContinue(p, bird, "You don't meet the egg requirement for this habitat. Please choose another!");
-						return;
-					}
+			if(p.getBoard().get(habitat).size() >= 5) { // makes sure player selects a habitat that isnt full'
+				askPlayerForHabitatAndContinue(p, bird, "This habitat is full. Please pick another!");
+			} else { // if its not full
+				// determines the eggs required for placing the bird
+				if(p.getBoard().get(habitat).isEmpty()) eggsReq = 0;
+				else if(p.getBoard().get(habitat).size() < 4) eggsReq = 1;
+				else eggsReq = 2;
+				// checks if the player has enough eggs for the habitat chosen
+				// this check is done here to allow for reselection of habitat
+				if(!p.hasEnoughEggs(eggsReq)) {
+					askPlayerForHabitatAndContinue(p, bird, "You don't meet the egg requirement for this habitat. Please choose another!");
+					return;
 				}
 			}
 			continueAddBirdToBoardAfterPrompts(p, bird, habitat, eggsReq);
@@ -766,23 +824,27 @@ public class Game {
         p.getBirdHand().remove(bird); // removes from hand
 		panel.addToPlayerBoard(playerList.indexOf(p) + 1, birdInstance, habitat);
         panel.removeFirstFromPlayerHand(playerList.indexOf(p) + 1, bird);
-		this.removeEggs(p, eggsReq); // removes eggs from birds
-		if(birdInstance.getActionColor().equalsIgnoreCase("WHITE"))
-		{
-			// ui should have a prompt that asks whether the player wants to activate the bird's ability and return a boolean; for now it's true
+		Runnable callback = () -> {
+			if (birdInstance.getActionColor().equalsIgnoreCase("WHITE")) {
+				// ui should have a prompt that asks whether the player wants to activate the bird's ability and return a boolean; for now it's true
 
-			panel.promptPlayer("Would you like to activate " + bird.getName() + "'s ability?", "Yes", "No", (y) -> {
-                if (y) birdInstance.performAction(this, p);
-            }, bird);
-		}
-		if(habitat.equals("forest"))
-			pinkAbilityActivation("playForestAndGetWorm");
-		else if(habitat.equals("grassland"))
-			pinkAbilityActivation("playGrasslandAndTuck");
-		else if(habitat.equals("wetland"))
-			pinkAbilityActivation("playWetlandGetFish");
+				panel.promptPlayer("Would you like to activate " + bird.getName() + "'s ability?", "Yes", "No", (y) -> {
+					if (y) birdInstance.performAction(this, p);
+				}, bird);
+			}
+			if (habitat.equals("forest"))
+				pinkAbilityActivation("playForestAndGetWorm");
+			else if (habitat.equals("grassland"))
+				pinkAbilityActivation("playGrasslandAndTuck");
+			else if (habitat.equals("wetland"))
+				pinkAbilityActivation("playWetlandGetFish");
 
-        this.incrementPlayerTurn();
+			this.incrementPlayerTurn();
+		};
+		System.out.println(eggsReq);
+		if (eggsReq > 0) {
+			panel.promptPlayerRemoveEggs(getPlayerIndex(p), "Pick which birds to remove eggs from.", eggsReq, callback);
+		} else callback.run();
     }
 
 	// Randomly draws bonus cards to simulate the random drawing.
@@ -860,12 +922,12 @@ public class Game {
 	}
 	
 	public void UIKeyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+		/*if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 			UIMouseReleased(null, UIElement.getByName("ContinueResourcesButtonBg"));
 		}
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			incrementPlayerTurn();
-		}
+		}*/
 	}
 
 	// returns a boolean that says whether or not the birdFeeder is eligible for reroll
@@ -896,7 +958,7 @@ public class Game {
 
 	public void updateUITurn(int oldPlayer) 
 	{ 
-		if (gamePhase == 1) { 
+		if (gamePhase == 2) {
 			if (oldPlayer > -1) UIFrame.getByName("Player" + oldPlayer + "CardsContainer").visible = false;
 			UIFrame.getByName("Player" + playerTurn + "CardsContainer").visible = true;
 			UIImage.getByName("ActionCubeIcon").setImagePath("images/p" + playerTurn + "_action_cube.png");
@@ -915,6 +977,8 @@ public class Game {
 	}
 
 	public int getPlayerTurn() { return playerTurn; }
+
+	public ArrayList<Goals> getGoalBoard() { return goalBoard; }
 
 	public void setCompetitiveType(boolean isCompetitive) {this.isCompetitive = isCompetitive;}
 
@@ -940,13 +1004,13 @@ public class Game {
 	{
         if (released.getAttribute("startButton") != null)
 		{
-			/* panel.playTransition((Runnable)() -> {
+			panel.playTransition((Runnable)() -> {
 				setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
 				giveUIBirds(5);
 				panel.clickedStart(event, released);
 			});
-			gamePhase++;
-			}); */
+			gamePhase = 1;
+			/*});
 			// we're just simulating generating 5 random players just for testing actual game play here 
 			panel.playTransition(() -> { 
 				setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
@@ -990,10 +1054,12 @@ public class Game {
 				ImageHandler.loadGroup("FaceUp");
 				UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
 				UIFrame.getByName("Player1CardsContainer").visible = true;
-				UIImage.getByName("GoalBoard").setImagePath("images/" + (isCompetitive ? "competitive" : "peaceful") + "_goal_board.png");
-				UIImage.getByName("GoalBoardButton").setImagePath("images/" + (isCompetitive ? "competitive" : "peaceful") + "_goal_board_button.png");
+				String compType = isCompetitive ? "Competitive" : "Peaceful";
+				UIImage.getByName("GoalBoard").setImagePath("images/" + compType.toLowerCase() + "_goal_board.png");
+				UIImage.getByName("GoalBoardButton").setImagePath("images/" + compType.toLowerCase() + "_goal_board_button.png");
+				UIFrame.getByName(compType + "ActionCubeCharts").visible = true;
 				updateUITurn(1);
-			});
+			}); */
     	} 
 	}
 	
@@ -1021,14 +1087,31 @@ public class Game {
 						current.addBonusHand((BonusCard)selected.first().getValue(), this); // add previous players bonus card selection
 						deselect(selected.last()); // remove from selected
 						if (playerTurn == 1) { // if new player is back to 1 then
-							gamePhase = 1;
-							panel.playTransition(() -> { 
+							panel.playTransition(() -> {
+								this.startingPlayerTurn = (int)(Math.random() * 5) + 1;
+								this.playerTurn = startingPlayerTurn;
+								for (Player p : playerList) {
+									int i = (playerList.indexOf(p) + 1);
+									for (Bird b : p.getBirdHand()) {
+										ImageHandler.setGroup(b.getImage(), "Player" + i + "BirdHands");
+									}
+									ImageHandler.loadGroup("Player" + i + "BirdHands");
+								}
+								gamePhase = 2;
+								for (String food : foods) UIText.getByName(food + "Stat").text = "" + playerList.get(0).getFood().getOrDefault(food.toLowerCase(), 0);
 								UIElement.getByName("ResourceChoosingScreen").visible = false;
 								UIElement.getByName("GameScreen").visible = true;
 								((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
 								regenerateFaceUpTray();
+								for (Bird b : faceUpBirds) ImageHandler.setGroup(b.getImage(), "FaceUp");
+								ImageHandler.loadGroup("FaceUp");
 								UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
 								UIFrame.getByName("Player1CardsContainer").visible = true;
+								String compType = isCompetitive ? "Competitive" : "Peaceful";
+								UIImage.getByName("GoalBoard").setImagePath("images/" + compType.toLowerCase() + "_goal_board.png");
+								UIImage.getByName("GoalBoardButton").setImagePath("images/" + compType.toLowerCase() + "_goal_board_button.png");
+								UIFrame.getByName(compType + "ActionCubeCharts").visible = true;
+								updateUITurn(1);
 							});
 						} else { // else if we're not done choosing yet
 							// update player title to show the turn
@@ -1070,7 +1153,7 @@ public class Game {
 		ArrayList<BonusCard> randomBonus = this.pullRandomBonusCards(num);
         for (int i = 0; i < randomBonus.size(); i++) 
 		{
-            String imageFileString = "bonus/" + randomBonus.get(i).getImage();
+            String imageFileString = randomBonus.get(i).getImage();
             ImageHandler.setGroup(imageFileString, "Bonus");
             UIImage bonusImage = (UIImage)(UIElement.getByName("Bonus" + i));
             bonusImage.setAttribute("selectionValue", randomBonus.get(i));
@@ -1081,6 +1164,7 @@ public class Game {
 	public void giveUIBirds(int num)
 	{
 		ArrayList<Bird> randomBirds = this.pullRandomBirds(num);
+		System.out.println(randomBirds);
         for (int i = 0; i < randomBirds.size(); i++) 
 		{
             String imageFileString = randomBirds.get(i).getImage();
