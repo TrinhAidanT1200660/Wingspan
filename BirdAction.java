@@ -516,6 +516,8 @@ public enum BirdAction implements BirdActionInterface
 						player.getBoard().get(newHabitat).add(bird);
 						bird.setCurrentHabitat(newHabitat);
 						birdInstances.remove(birdInstance);
+						gameContext.getPanel().removeFromPlayerBoard(bird);
+						gameContext.getPanel().addToPlayerBoard(gameContext.getPlayerIndex(player), birdInstance, newHabitat);
 						gameContext.askPlayerAboutActivatingAbility();
 					}, List.of(new String[]{habitat1, habitat2}));
 				} else gameContext.askPlayerAboutActivatingAbility();
