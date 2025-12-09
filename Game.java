@@ -1013,7 +1013,7 @@ public class Game {
 			gamePhase = 1;
 			//});
 			// we're just simulating generating 5 random players just for testing actual game play here 
-			/*panel.playTransition(() -> { 
+			/* panel.playTransition(() -> { 
 				setCompetitiveType(released == UIElement.getByName("CompetitiveButtonBg"));
 				for (int i = 0; i < 5; i++) {
 					Player p = playerList.get(i);
@@ -1045,6 +1045,7 @@ public class Game {
 						ImageHandler.setGroup(b.getImage(), "Player" + i + "BirdHands");
 					}
 					ImageHandler.loadGroup("Player" + i + "BirdHands");
+					p.setActionCubes(1);
 				}
 				gamePhase = 2;
 				for (String food : foods) UIText.getByName(food + "Stat").text = "" + playerList.get(0).getFood().getOrDefault(food.toLowerCase(), 0);
@@ -1079,7 +1080,7 @@ public class Game {
             Object ready = UIElement.getByName("ContinueResourcesButtonBg").getAttribute("Clickable");
             if (ready != null && (boolean)ready) 
             {
-				panel.playTransition((Runnable)() -> { // plays transition
+				panel.playTransition(() -> { // plays transition
 					selectionPhase = (selectionPhase % 2) + 1; // updates selection phase (can only be 1 or 2)
 					panel.clickedResourceContinue(event, released, selectionPhase == 1); // updates screen
 					Player current = playerList.get(playerTurn - 1); // get current player
@@ -1089,32 +1090,30 @@ public class Game {
 						current.addBonusHand((BonusCard)selected.first().getValue(), this); // add previous players bonus card selection
 						deselect(selected.last()); // remove from selected
 						if (playerTurn == 1) { // if new player is back to 1 then
-							panel.playTransition(() -> {
-								UIElement.getByName("ResourceChoosingScreen").visible = false;
-								UIElement.getByName("GameScreen").visible = true;
-								this.startingPlayerTurn = (int)(Math.random() * 5) + 1;
-								this.playerTurn = startingPlayerTurn;
-								for (Player p : playerList) {
-									int i = (playerList.indexOf(p) + 1);
-									for (Bird b : p.getBirdHand()) {
-										ImageHandler.setGroup(b.getImage(), "Player" + i + "BirdHands");
-									}
-									ImageHandler.loadGroup("Player" + i + "BirdHands");
+							UIElement.getByName("ResourceChoosingScreen").visible = false;
+							UIElement.getByName("GameScreen").visible = true;
+							this.startingPlayerTurn = (int)(Math.random() * 5) + 1;
+							this.playerTurn = startingPlayerTurn;
+							for (Player p : playerList) {
+								int i = (playerList.indexOf(p) + 1);
+								for (Bird b : p.getBirdHand()) {
+									ImageHandler.setGroup(b.getImage(), "Player" + i + "BirdHands");
 								}
-								gamePhase = 2;
-								for (String food : foods) UIText.getByName(food + "Stat").text = "" + playerList.get(0).getFood().getOrDefault(food.toLowerCase(), 0);
-								((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
-								regenerateFaceUpTray();
-								for (Bird b : faceUpBirds) ImageHandler.setGroup(b.getImage(), "FaceUp");
-								ImageHandler.loadGroup("FaceUp");
-								UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
-								UIFrame.getByName("Player1CardsContainer").visible = true;
-								String compType = isCompetitive ? "Competitive" : "Peaceful";
-								UIImage.getByName("GoalBoard").setImagePath("images/" + compType.toLowerCase() + "_goal_board.png");
-								UIImage.getByName("GoalBoardButton").setImagePath("images/" + compType.toLowerCase() + "_goal_board_button.png");
-								UIFrame.getByName(compType + "ActionCubeCharts").visible = true;
-								updateUITurn(1);
-							});
+								ImageHandler.loadGroup("Player" + i + "BirdHands");
+							}
+							gamePhase = 2;
+							for (String food : foods) UIText.getByName(food + "Stat").text = "" + playerList.get(0).getFood().getOrDefault(food.toLowerCase(), 0);
+							((UIImage)(UIElement.getByName("Background"))).setImagePath("images/wood_bg.png");
+							regenerateFaceUpTray();
+							for (Bird b : faceUpBirds) ImageHandler.setGroup(b.getImage(), "FaceUp");
+							ImageHandler.loadGroup("FaceUp");
+							UIText.getByName("ActionCubesStat").text = "" + playerList.get(0).getActionCubes();
+							UIFrame.getByName("Player1CardsContainer").visible = true;
+							String compType = isCompetitive ? "Competitive" : "Peaceful";
+							UIImage.getByName("GoalBoard").setImagePath("images/" + compType.toLowerCase() + "_goal_board.png");
+							UIImage.getByName("GoalBoardButton").setImagePath("images/" + compType.toLowerCase() + "_goal_board_button.png");
+							UIFrame.getByName(compType + "ActionCubeCharts").visible = true;
+							updateUITurn(1);
 						} else { // else if we're not done choosing yet
 							// update player title to show the turn
 							UIText playerChoosingTitle = (UIText)(UIElement.getByName("PlayerChoosingTitle"));
