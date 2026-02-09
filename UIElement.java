@@ -961,6 +961,94 @@ class UIElement {
         return aspectRatio;
     }
 
+    public Vector2 setAnchorPoint(Vector2 newAnchorPoint) {
+        Vector2 temp = anchorPoint;
+        anchorPoint = newAnchorPoint;
+        panel.repaint();
+        return temp;
+    }
+
+    public Vector2 getAnchorPoint() {
+        return anchorPoint;
+    }
+    
+    public Dim2 setPosition(Dim2 newPosition) {
+        Dim2 temp = position;
+        position = newPosition;
+        panel.repaint();
+        return temp;
+    }
+
+    public Dim2 getPosition() {
+        return position;
+    }
+
+    public Dim2 setSize(Dim2 newSize) {
+        Dim2 temp = size;
+        size = newSize;
+        panel.repaint();
+        return temp;
+    }
+
+    public Dim2 getSize() {
+        return size;
+    }
+
+    public double setRotation(double newRotation) {
+        double temp = rotation;
+        rotation = newRotation;
+        panel.repaint();
+        return temp;
+    }
+
+    public double getRotation() {
+        return rotation;
+    }
+
+    public Color setBackgroundColor(Color newBackgroundColor) {
+        Color temp = backgroundColor;
+        backgroundColor = newBackgroundColor;
+        panel.repaint();
+        return temp;
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public float setBackgroundTransparency(float newBackgroundTransparency) {
+        float temp = backgroundTransparency;
+        backgroundTransparency = newBackgroundTransparency;
+        panel.repaint();
+        return temp;
+    }
+
+    public float getBackgroundTransparency() {
+        return backgroundTransparency;
+    }
+
+    public Dim setBorderRadius(Dim newBorderRadius) {
+        Dim temp = borderRadius;
+        borderRadius = newBorderRadius;
+        panel.repaint();
+        return temp;
+    }
+
+    public Dim getBorderRadius() {
+        return borderRadius;
+    }
+
+    public Dim setStrokeThickness(Dim newStrokeThickness) {
+        Dim temp = strokeThickness;
+        strokeThickness = newStrokeThickness;
+        panel.repaint();
+        return temp;
+    }
+
+    public Dim getStrokeThickness() {
+        return strokeThickness;
+    }
+
     // returns either current height of panel or height of its parent if it has one.
     // used for scale values
     private double getHeight() {
