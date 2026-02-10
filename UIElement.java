@@ -1049,6 +1049,84 @@ class UIElement {
         return strokeThickness;
     }
 
+    public float setStrokeTransparency(float newStrokeTransparency) {
+        float temp = strokeTransparency;
+        strokeTransparency = newStrokeTransparency;
+        panel.repaint();
+        return temp;
+    }
+
+    public float getStrokeTransparency() {
+        return strokeTransparency;
+    }
+
+    public Color setStrokeColor(Color newStrokeColor) {
+        Color temp = strokeColor;
+        strokeColor = newStrokeColor;
+        panel.repaint();
+        return temp;
+    }
+
+    public Color getStrokeColor() {
+        return strokeColor;
+    }
+
+    public int setZIndex(int newZIndex) {
+        int temp = zIndex;
+        zIndex = newZIndex;
+        panel.repaint();
+        return temp;
+    }
+
+    public int getZIndex() {
+        return zIndex;
+    }
+
+    public boolean setVisiblity(boolean newVisibility) {
+        boolean temp = visible;
+        visible = newVisibility;
+        panel.repaint();
+        return temp;
+    }
+
+    public boolean getVisiblity() {
+        return visible;
+    }
+
+    public boolean setCropOverflow(boolean newCropOverflow) {
+        boolean temp = cropOverflow;
+        cropOverflow = newCropOverflow;
+        panel.repaint();
+        return temp;
+    }
+
+    public boolean getCropOverflow() {
+        return cropOverflow;
+    }
+
+    public int setLayoutOrder(int newLayoutOrder) {
+        int temp = layoutOrder;
+        layoutOrder = newLayoutOrder;
+        panel.repaint();
+        return temp;
+    }
+
+    public int getLayoutOrder() {
+        return layoutOrder;
+    }
+
+    public ListLayout setLayout(ListLayout newLayout) {
+        ListLayout temp = layout;
+        layout = newLayout;
+        panel.repaint();
+        return temp;
+    }
+
+    public ListLayout getLayout() {
+        return layout;
+    }
+
+
     // returns either current height of panel or height of its parent if it has one.
     // used for scale values
     private double getHeight() {
