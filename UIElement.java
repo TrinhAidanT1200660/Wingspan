@@ -849,6 +849,7 @@ class UIElement {
         if (this.parent != null) {
             this.parent.resort = true;
         }
+        panel.repaint();
         this.zIndex = zIndex;
     }
 
@@ -1069,17 +1070,6 @@ class UIElement {
 
     public Color getStrokeColor() {
         return strokeColor;
-    }
-
-    public int setZIndex(int newZIndex) {
-        int temp = zIndex;
-        zIndex = newZIndex;
-        panel.repaint();
-        return temp;
-    }
-
-    public int getZIndex() {
-        return zIndex;
     }
 
     public boolean setVisiblity(boolean newVisibility) {
